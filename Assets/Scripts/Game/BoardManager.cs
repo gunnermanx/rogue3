@@ -42,6 +42,16 @@ public class BoardManager : MonoBehaviour {
 		Cleanup // Check for additional matches, either brings us back to Match or to Input
 	}
 
+	// Delegates
+	public delegate void OnTilesSwappedDelegate();
+	public OnTilesSwappedDelegate OnTilesSwapped;
+	private void RaiseOnTilesSwapped() { if ( OnTilesSwapped != null ) OnTilesSwapped(); }
+
+	public delegate void OnTilesMatchedDelegate( List<Tile> matches );
+	public OnTilesMatchedDelegate OnTilesMatched;
+	private void RaiseOnTilesMatched( List<Tile> matches ) { if ( OnTilesMatched != null ) OnTilesMatched( matches ); }
+
+
 	// Data representation of the board
 	private Tile[,] _board = new Tile[ TileConsts.BOARD_WIDTH, TileConsts.BOARD_HEIGHT ];
 
@@ -103,6 +113,8 @@ public class BoardManager : MonoBehaviour {
 					
 					if ( selectedMatches.Count > 0 ) _matches.Add( selectedMatches );
 					if ( targetMatches.Count > 0 ) _matches.Add( targetMatches );
+
+					RaiseOnTilesSwapped();
 					
 					PerformSwapAnimation();
 					_state = State.SwapAnimating;
@@ -378,6 +390,8 @@ public class BoardManager : MonoBehaviour {
 		isPerformingMatch = true;
 
 		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
+
+			RaiseOnTilesMatched( _matches[ i ] );
 
 			for ( int j = _matches[ i ].Count - 1; j >= 0; j-- ) {
 				Tile tile = _matches[ i ][ j ];

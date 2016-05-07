@@ -46,14 +46,16 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\BoardGestureManager.cs" />
-     <Compile Include="Assets\Scripts\BoardManager.cs" />
-     <Compile Include="Assets\Scripts\DebugMenu.cs" />
-     <Compile Include="Assets\Scripts\GameManager.cs" />
-     <Compile Include="Assets\Scripts\Tile.cs" />
-     <Compile Include="Assets\Scripts\TileConsts.cs" />
-     <Compile Include="Assets\Scripts\TileData.cs" />
-     <Compile Include="Assets\Scripts\TileDataManager.cs" />
+     <Compile Include="Assets\Scripts\Core\DebugMenu.cs" />
+     <Compile Include="Assets\Scripts\Core\GameHud.cs" />
+     <Compile Include="Assets\Scripts\Core\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Game\BattleManager.cs" />
+     <Compile Include="Assets\Scripts\Game\BoardGestureManager.cs" />
+     <Compile Include="Assets\Scripts\Game\BoardManager.cs" />
+     <Compile Include="Assets\Scripts\Tile\Tile.cs" />
+     <Compile Include="Assets\Scripts\Tile\TileConsts.cs" />
+     <Compile Include="Assets\Scripts\Tile\TileData.cs" />
+     <Compile Include="Assets\Scripts\Tile\TileDataManager.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
