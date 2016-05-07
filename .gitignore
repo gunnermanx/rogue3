@@ -1,0 +1,6 @@
+/Library/*
+.DS_Store
+obj/Debug/Assembly-CSharp-firstpass.csproj.FilesWrittenAbsolute.txt
+obj/Debug/Assembly-CSharp-firstpass.dll.mdb
+obj/Debug/Assembly-CSharp.csproj.FilesWrittenAbsolute.txt
+obj/Debug/Assembly-CSharp.dll.mdb
