@@ -384,7 +384,7 @@ public class BoardManager : MonoBehaviour {
 				ClearTileAtCoords( tile );
 			}
 
-			yield return new WaitForSeconds( 0.25f );
+			yield return new WaitForSeconds( 0.4f );
 		}
 		_matches.Clear();
 
@@ -401,18 +401,23 @@ public class BoardManager : MonoBehaviour {
 
 				// search downwards and count the number of tiles we need to fill
 				int hSearch = h;
-				int count = 1;
 				while( hSearch >= 0  ) {
 					Tile tile = _board[ w, hSearch ];
 					if ( tile != null ) {
 						break;
-					} else {
-						TileData tileData = PickRandomTileData();
-						Tile tileToDrop = CreateTileAtCoordsforDropping( tileData, w, hSearch, h+count );
-						_droppingTiles.Add( tileToDrop );
 					}
-					count++;
 					hSearch--;
+				}
+
+				// once the bottom location is found, we need to iterate up to create the tiles	
+				int offset = 1;
+				hSearch += 1; // we ended at a non null h, we need to move up one
+				while( hSearch < TileConsts.BOARD_HEIGHT ) {
+					TileData tileData = PickRandomTileData();
+					Tile tileToDrop = CreateTileAtCoordsforDropping( tileData, w, hSearch, h+offset );
+					_droppingTiles.Add( tileToDrop );
+					offset++;
+					hSearch++;
 				}
 			}
 		}
@@ -459,21 +464,33 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
+	int isWaitingForDroppingTweenToComplete = 0;
+	public void FinishedDroppingAnimation() {
+		isWaitingForDroppingTweenToComplete--;
+	}
+
 	private IEnumerator PerformDroppingAnimationCoroutine() {
 
 		isPerformingDroppingAnimation = true;
+
+		isWaitingForDroppingTweenToComplete = _droppingTiles.Count;
 
 		for ( int i = 0, count = _droppingTiles.Count; i < count; i++ ) {
 			Tile tile = _droppingTiles[ i ];
 			Vector3 position = CoordsToWorldPosition( tile.X, tile.Y );
 			iTween.MoveTo( tile.gameObject, 
 			              iTween.Hash( "position", position, 
-			            "easetype", iTween.EaseType.easeOutQuart, 
-			            "time", 0.5f
+			            "easetype", iTween.EaseType.linear, 
+			            "speed", 5.5f,
+			            "oncomplete", "FinishedDroppingAnimation",
+			            "oncompletetarget", gameObject
 			            )
 			);
 		}
-		yield return new WaitForSeconds( 0.35f );
+
+		while ( isWaitingForDroppingTweenToComplete > 0 ) {
+			yield return new WaitForEndOfFrame();
+		}
 
 		isPerformingDroppingAnimation = false;
 
