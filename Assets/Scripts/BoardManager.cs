@@ -384,7 +384,7 @@ public class BoardManager : MonoBehaviour {
 				ClearTileAtCoords( tile );
 			}
 
-			yield return new WaitForSeconds( 0.4f );
+			yield return new WaitForSeconds( 0.35f );
 		}
 		_matches.Clear();
 
@@ -481,7 +481,7 @@ public class BoardManager : MonoBehaviour {
 			iTween.MoveTo( tile.gameObject, 
 			              iTween.Hash( "position", position, 
 			            "easetype", iTween.EaseType.linear, 
-			            "speed", 5.5f,
+			            "speed", 6f,
 			            "oncomplete", "FinishedDroppingAnimation",
 			            "oncompletetarget", gameObject
 			            )
@@ -506,8 +506,10 @@ public class BoardManager : MonoBehaviour {
 			Tile tileToCheck = _droppingTiles[ i ];
 			bool isMatched = CheckForMatchAtCoords( tileToCheck, tileToCheck.X, tileToCheck.Y, out horizontalTiles, out verticalTiles );
 			if ( isMatched ) {
-				if ( horizontalTiles.Count > 0 ) _matches.Add( horizontalTiles );
-				if ( verticalTiles.Count > 0 ) _matches.Add( verticalTiles );
+				List<Tile> totalMatches = new List<Tile>();
+				if ( horizontalTiles.Count > 0 ) totalMatches.AddRange( horizontalTiles );
+				if ( verticalTiles.Count > 0 ) totalMatches.AddRange( verticalTiles );
+				if ( totalMatches.Count > 0 ) _matches.Add( totalMatches );
 			}
 		}
 
@@ -523,7 +525,7 @@ public class BoardManager : MonoBehaviour {
 			tile.IsMatching = true;
 			iTween.ScaleTo ( tile.gameObject,
 			                iTween.Hash( "scale", Vector3.zero,
-			            "easetype", iTween.EaseType.easeInQuint,
+			            "easetype", iTween.EaseType.easeInBack,
 			            "time", 0.5f,
 			            "oncomplete", "MatchedComplete"
 			            )
