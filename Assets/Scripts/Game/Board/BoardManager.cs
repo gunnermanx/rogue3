@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -20,6 +20,9 @@ public class BoardManager : MonoBehaviour {
 		public List<Tile> TargetHorizontalMatches = new List<Tile>();
 		public List<Tile> TargetVerticalMatches = new List<Tile>();
 	}
+
+	public const int BOARD_WIDTH = 6;
+	public const int BOARD_HEIGHT = 6;
 
 	[SerializeField]
 	private GameObject TilePrefab;
@@ -58,10 +61,10 @@ public class BoardManager : MonoBehaviour {
 
 
 	// Data representation of the board
-	private Tile[,] _board = new Tile[ TileConsts.BOARD_WIDTH, TileConsts.BOARD_HEIGHT ];
+	private Tile[,] _board = new Tile[ BOARD_WIDTH, BOARD_HEIGHT ];
 
 	// The list of tiles equipped for this stage
-	private List<TileData> _equippedTileData;
+	private List<WeaponTileData> _equippedTileData;
 
 	// Any current swaps ( created by user input )
 	private Swap _swap = null;
@@ -171,15 +174,15 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
-	public void InitializeBoard( List<TileData> tileData ) {
+	public void InitializeBoard( List<WeaponTileData> tileData ) {
 
 		_equippedTileData = tileData;
 
 		// 0, 0 is the bottom left corner tile
-		for ( int w = 0; w < TileConsts.BOARD_WIDTH; w++ ) {
-			for ( int h = 0; h < TileConsts.BOARD_HEIGHT; h++ ) {
+		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
+			for ( int h = 0; h < BOARD_HEIGHT; h++ ) {
 
-				TileData data = PickRandomTileData();
+				BaseTileData data = PickRandomTileData();
 				// This can be done in a less dumb way later
 				while ( CheckForMatchAtCoordsOnInitializing( data, w, h ) ) {
 					data = PickRandomTileData();
@@ -190,8 +193,8 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	public void ClearBoard() {
-		for ( int w = 0; w < TileConsts.BOARD_WIDTH; w++ ) {
-			for ( int h = 0; h < TileConsts.BOARD_HEIGHT; h++ ) {
+		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
+			for ( int h = 0; h < BOARD_HEIGHT; h++ ) {
 				if ( _board[ w, h ] != null ) {
 					GameObject.Destroy( _board[ w, h ].gameObject );
 				}
@@ -208,25 +211,25 @@ public class BoardManager : MonoBehaviour {
 		for ( int i = 0, count = attacks.Count; i < count; i++ ) {
 			BattleStageData.EnemyAttackData attack = attacks[ i ];
 
-			if ( attack.Type == BattleStageData.AttackType.ReplaceBlock ) {
-				TileData data = GameManager.Instance.GetTileDataManager().GetRandomBlockTileData();
-				Tile tile = _board[ attack.X, attack.Y ];
-				ClearTile( tile );
-				CreateTileAtCoords( data, attack.X, attack.Y );
-			}
+//			if ( attack.Type == BattleStageData.AttackType.ReplaceBlock ) {
+//				BaseTileData data = GameManager.Instance.GetTileDataManager().GetRandomBlockTileData();
+//				Tile tile = _board[ attack.X, attack.Y ];
+//				ClearTile( tile );
+//				CreateTileAtCoords( data, attack.X, attack.Y );
+//			}
 		}
 
 		_state = State.Input;
 	}
 
 
-	private TileData PickRandomTileData() {
+	private BaseTileData PickRandomTileData() {
 		// simple 
 		int index = UnityEngine.Random.Range( 0, _equippedTileData.Count );
 		return _equippedTileData[ index ];
 	}
 	
-	private Tile CreateTileAtCoords( TileData data, int xCoords, int yCoords ) {		
+	private Tile CreateTileAtCoords( BaseTileData data, int xCoords, int yCoords ) {		
 		GameObject tileGO = GameObject.Instantiate( TilePrefab );
 		Tile tile = tileGO.GetComponent<Tile>();
 		tile.Initialize( data, xCoords, yCoords );
@@ -239,7 +242,7 @@ public class BoardManager : MonoBehaviour {
 		return tile;
 	}
 
-	private Tile CreateTileAtCoordsforDropping( TileData data, int xCoords, int yCoords, int yCoordsFake ) {
+	private Tile CreateTileAtCoordsforDropping( BaseTileData data, int xCoords, int yCoords, int yCoordsFake ) {
 		GameObject tileGO = GameObject.Instantiate( TilePrefab );
 		Tile tile = tileGO.GetComponent<Tile>();
 		tile.Initialize( data, xCoords, yCoords );
@@ -252,7 +255,7 @@ public class BoardManager : MonoBehaviour {
 		return tile;
 	}
 
-	private bool CheckForMatchAtCoordsOnInitializing( TileData data, int w, int h ) {
+	private bool CheckForMatchAtCoordsOnInitializing( BaseTileData data, int w, int h ) {
 		// The board is filled from bottom left to top right ( column first, then row )
 		// So we only need to search to left and bottom
 		// We also only care that a match happened, so that we try different data
@@ -301,7 +304,7 @@ public class BoardManager : MonoBehaviour {
 		}
 		wSearch = w;
 		// Check right
-		while ( ++wSearch < TileConsts.BOARD_WIDTH && _board[ wSearch, h ].TileType == movedTile.TileType ) {
+		while ( ++wSearch < BOARD_WIDTH && _board[ wSearch, h ].TileType == movedTile.TileType ) {
 			horizontalMatches.Add( _board[ wSearch, h ] );
 		}
 
@@ -314,7 +317,7 @@ public class BoardManager : MonoBehaviour {
 		}
 		hSearch = h;
 		// Check top
-		while ( ++hSearch < TileConsts.BOARD_HEIGHT && _board[ w, hSearch ].TileType == movedTile.TileType ) {
+		while ( ++hSearch < BOARD_HEIGHT && _board[ w, hSearch ].TileType == movedTile.TileType ) {
 			verticalMatches.Add( _board[ w, hSearch ] );
 		}
 
@@ -439,8 +442,8 @@ public class BoardManager : MonoBehaviour {
 
 	private void PerformFill() {
 		// start from the top
-		int h = TileConsts.BOARD_HEIGHT-1;
-		for ( int w = 0; w < TileConsts.BOARD_WIDTH; w++ ) {
+		int h = BOARD_HEIGHT-1;
+		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
 			if ( _board[ w, h ] == null ) {
 
 				// search downwards and count the number of tiles we need to fill
@@ -456,8 +459,8 @@ public class BoardManager : MonoBehaviour {
 				// once the bottom location is found, we need to iterate up to create the tiles	
 				int offset = 1;
 				hSearch += 1; // we ended at a non null h, we need to move up one
-				while( hSearch < TileConsts.BOARD_HEIGHT ) {
-					TileData tileData = PickRandomTileData();
+				while( hSearch < BOARD_HEIGHT ) {
+					BaseTileData tileData = PickRandomTileData();
 					Tile tileToDrop = CreateTileAtCoordsforDropping( tileData, w, hSearch, h+offset );
 					_droppingTiles.Add( tileToDrop );
 					offset++;
@@ -470,15 +473,15 @@ public class BoardManager : MonoBehaviour {
 	private void PerformDrop() {
 		_droppingTiles.Clear();
 
-		for ( int h = 0; h < TileConsts.BOARD_HEIGHT; h++ ) {
-			for ( int w = 0; w < TileConsts.BOARD_WIDTH; w++ ) {
+		for ( int h = 0; h < BOARD_HEIGHT; h++ ) {
+			for ( int w = 0; w < BOARD_WIDTH; w++ ) {
 				if ( _board[ w, h ] == null  ) {
 
 					int hSearch = h;
 					Tile droppingTile = null;
 
 					// Search up from the empty spot to look for a tile that can drop
-					while( hSearch < TileConsts.BOARD_HEIGHT  ) {
+					while( hSearch < BOARD_HEIGHT  ) {
 						droppingTile = _board[ w, hSearch ];
 						// If we found a tile to drop
 						if ( droppingTile != null ) {

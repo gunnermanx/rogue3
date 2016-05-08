@@ -2,25 +2,19 @@
 using System.Collections;
 
 [System.Serializable]
-public class TileData {
+public class BaseTileData : ScriptableObject {
 
 	public enum TileType {
 		Axe,
 		Sword,
 		Staff,
 		Bow,
-		Block
+		Unbreakable
 	}
-
-	public string Id;
 
 	public TileType Type;
 
 	public Sprite Sprite;
-
-	public int Damage;
-
-	public int DamagePerLevel;
-
+	
 	public bool Moveable;
 }

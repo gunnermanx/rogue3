@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 
 public class Tile : MonoBehaviour {
@@ -6,7 +6,7 @@ public class Tile : MonoBehaviour {
 	[SerializeField]
 	private SpriteRenderer _spriteRenderer;
 
-	private TileData _tileData = null;
+	private BaseTileData _tileData = null;
 
 	public const float Z_DEPTH = 0f;
 
@@ -22,7 +22,7 @@ public class Tile : MonoBehaviour {
 	private bool _isMatching = false;
 	public bool IsMatching { get { return _isMatching; } set { _isMatching = value; } }
 
-	public void Initialize( TileData data, int xCoord, int yCoord ) {
+	public void Initialize( BaseTileData data, int xCoord, int yCoord ) {
 		_tileData = data;
 
 		_spriteRenderer.sprite = data.Sprite;
@@ -35,16 +35,16 @@ public class Tile : MonoBehaviour {
 	public Color GetDebugColor() {
 		Color color = Color.white;
 		switch( _tileData.Type ) {
-		case TileData.TileType.Axe:
+		case BaseTileData.TileType.Axe:
 			color = Color.red;
 			break;
-		case TileData.TileType.Staff:
+		case BaseTileData.TileType.Staff:
 			color = Color.blue;
 			break;
-		case TileData.TileType.Sword:
+		case BaseTileData.TileType.Sword:
 			color = Color.green;
 			break;
-		case TileData.TileType.Bow:
+		case BaseTileData.TileType.Bow:
 			color = Color.yellow;
 			break;
 		}
@@ -55,7 +55,7 @@ public class Tile : MonoBehaviour {
 		return _tileData.Moveable;
 	}	                          
 
-	public TileData.TileType TileType {
+	public BaseTileData.TileType TileType {
 		get { return _tileData.Type; }
 	}
 

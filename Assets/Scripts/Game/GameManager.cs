@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -9,9 +9,6 @@ public class GameManager : MonoBehaviour {
 
 	[SerializeField]
 	private GameObject _battleManagerPrefab;
-	
-	[SerializeField]
-	private TileDataManager _tileDataManager;
 
 	[SerializeField]
 	private Database _database;
@@ -45,7 +42,7 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void StartGame( List<TileData> tileData, BattleStageData stageData ) {
+	private void StartGame( List<WeaponTileData> tileData, BattleStageData stageData ) {
 		// Initialize game board
 		GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
 		_boardManager = boardManagerGO.GetComponent<BoardManager>();
@@ -76,10 +73,6 @@ public class GameManager : MonoBehaviour {
 
 	public GameHud GetGameHUD() {
 		return _gameHud;
-	}
-
-	public TileDataManager GetTileDataManager() {
-		return _tileDataManager;
 	}
 
 #region EventHandlers
@@ -136,15 +129,25 @@ public class GameManager : MonoBehaviour {
 		{
 			if ( GUILayout.Button( "START", GUILayout.Height(100f) ) ) {
 
-				List<TileData> tileData = _tileDataManager.GetAllTileData();
+				// TODO
+				List<WeaponTileData> data = GetStartingWeaponTileData();
 				BattleStageData stageData = _database.GetRandomTestBattleStageData();
 
-				StartGame( tileData, stageData );
+				StartGame( data, stageData );
 
 				gameStarted = true;
 			}
 		}
 		GUILayout.EndVertical();
+	}
+
+	private List<WeaponTileData> GetStartingWeaponTileData() {	
+		List<WeaponTileData> data = new List<WeaponTileData>();
+		data.Add( _database.GetWeaponTileData( "WoodenAxe" ) );
+		data.Add( _database.GetWeaponTileData( "WoodenBow" ) );
+		data.Add( _database.GetWeaponTileData( "WoodenSword" ) );
+		data.Add( _database.GetWeaponTileData( "WoodenStaff" ) );
+		return data;
 	}
 
 	public Tile[,] DebugGetBoard() {
@@ -153,7 +156,7 @@ public class GameManager : MonoBehaviour {
 
 	public void ResetBoard() {
 		_boardManager.ClearBoard();
-		List<TileData> tileData = _tileDataManager.GetAllTileData();
+		List<WeaponTileData> tileData = GetStartingWeaponTileData();
 		_boardManager.InitializeBoard( tileData );
 	}
 #endregion

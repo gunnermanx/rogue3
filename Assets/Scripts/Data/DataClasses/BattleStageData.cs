@@ -11,8 +11,8 @@ public class BattleStageData : ScriptableObject {
 	}
 
 	public enum AttackType {
-		ReplaceBlock,
-		Encase
+		Replace,
+		StatusEffect
 	}
 
 	[System.Serializable]

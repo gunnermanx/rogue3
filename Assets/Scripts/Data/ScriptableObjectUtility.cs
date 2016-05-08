@@ -8,6 +8,17 @@ public class ScriptableObjectUtility {
 	public static void CreateBattleStageData() {
 		CreateScriptableObject<BattleStageData>();
 	}
+
+	[MenuItem("Assets/Create/ScriptableObjects/WeaponTileData")]
+	public static void CreateWeaponTileData() {
+		CreateScriptableObject<WeaponTileData>();
+	}
+
+	[MenuItem("Assets/Create/ScriptableObjects/ObstructionTileData")]
+	public static void CreateObstructionTileData() {
+		CreateScriptableObject<ObstructionTileData>();
+	}
+
 	
 	private static void CreateScriptableObject<T> () where T: ScriptableObject {
 		T sObject = ScriptableObject.CreateInstance<T>();
@@ -27,7 +38,6 @@ public class ScriptableObjectUtility {
 		
 		AssetDatabase.CreateAsset( sObject, assetPathAndName );
 		AssetDatabase.SaveAssets();
-		EditorUtility.FocusProjectWindow();
 		Selection.activeObject = sObject;
 	}
 }

@@ -3,13 +3,27 @@ using System.Collections.Generic;
 
 public class Database : MonoBehaviour {
 	
-	#region Path Constants
+#region Path Constants
 	private const string STAGES_TEST_PATH = "Database/Stages/Test/";
-	#endregion
+	private const string TILES_WEAPONS_PATH = "Database/Tiles_Weapons/";
+	private const string TILES_OBSTRUCTIONS_PATH = "Database/Tiles_Obstructions/";
+#endregion
 	
-	#region Database Dictionaries
+#region Database Dictionaries
 	private Dictionary<string,BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
-	#endregion
+	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
+	private Dictionary<string, ObstructionTileData> _obstructionTileData = new Dictionary<string, ObstructionTileData>();	
+#endregion
+
+	// Singleton Accessor
+	private static Database _instance = null;
+	public static Database Instance {
+		get { return _instance; }
+	}
+
+	private void Awake() {
+		_instance = this;
+	}
 
 	public BattleStageData GetRandomTestBattleStageData() {
 		Object[] allTestStages = Resources.LoadAll( STAGES_TEST_PATH );
@@ -29,6 +43,19 @@ public class Database : MonoBehaviour {
 		}
 		#if DEBUG		
 		Debug.Assert( data != null, "No BattleStageData found with id " + id + " at path " + path );
+		#endif
+		return data;
+	}
+
+	public WeaponTileData GetWeaponTileData( string id ) {
+		WeaponTileData data = null;
+		string path = null;
+		if ( !_weaponTileData.TryGetValue( id, out data ) ) {
+			path = TILES_WEAPONS_PATH + id;
+			data = Resources.Load( path ) as WeaponTileData;
+		}
+		#if DEBUG		
+		Debug.Assert( data != null, "No WeaponTileData found with id " + id + " at path " + path );
 		#endif
 		return data;
 	}
