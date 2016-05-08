@@ -10,7 +10,7 @@ public class BattleManager : MonoBehaviour {
 		public int HPRemaining = -1;
 		public int EnemyCooldown = -1;
 		public int CurrentEnemyCooldown = -1;
-		public List<BattleStageData.EnemyAttackDataSet> AttackSets = null;
+		public List<EnemyAttackDataSet> AttackSets = null;
 		public BattleStageData.AttackPattern AttackPattern;
 			
 		public Session( BattleStageData stageData ) {
@@ -40,17 +40,17 @@ public class BattleManager : MonoBehaviour {
 		return ( _session.TurnsRemaining <= 0 || _session.HPRemaining <= 0 );
 	}
 
-	public List<BattleStageData.EnemyAttackData> IncrementTurnAndGetEnemyAttack() {
+	public List<EnemyAttackDataSet.EnemyAttackData> IncrementTurnAndGetEnemyAttack() {
 		_session.TurnsRemaining--;
 
-		List<BattleStageData.EnemyAttackData> attacks = CheckForAttack();
+		List<EnemyAttackDataSet.EnemyAttackData> attacks = CheckForAttack();
 
 		UpdateHUD();
 
 		return attacks;
 	}
 
-	private List<BattleStageData.EnemyAttackData> CheckForAttack() {	
+	private List<EnemyAttackDataSet.EnemyAttackData> CheckForAttack() {	
 		// check for stuns/status blah here
 		_session.CurrentEnemyCooldown--;
 
@@ -64,11 +64,12 @@ public class BattleManager : MonoBehaviour {
 		return null;
 	}
 
-	private List<BattleStageData.EnemyAttackData> CreateAttack() {
+	private List<EnemyAttackDataSet.EnemyAttackData> CreateAttack() {
 		if ( _session.AttackPattern == BattleStageData.AttackPattern.RandomSet ) {
 			int index = UnityEngine.Random.Range( 0, _session.AttackSets.Count );
-			BattleStageData.EnemyAttackDataSet set = _session.AttackSets[ index ];
-			return set.Attacks;
+			//EnemyAttackDataSet.EnemyAttackDataSet set = _session.AttackSets[ index ];
+			//return set.Attacks;
+			return null;
 		}
 		return null;
 	}

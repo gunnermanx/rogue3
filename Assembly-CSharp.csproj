@@ -50,6 +50,7 @@
      <Compile Include="Assets\Scripts\Core\iTween.cs" />
      <Compile Include="Assets\Scripts\Data\DataClasses\BaseTileData.cs" />
      <Compile Include="Assets\Scripts\Data\DataClasses\BattleStageData.cs" />
+     <Compile Include="Assets\Scripts\Data\DataClasses\EnemyAttackDataSet.cs" />
      <Compile Include="Assets\Scripts\Data\DataClasses\ObstructionTileData.cs" />
      <Compile Include="Assets\Scripts\Data\DataClasses\WeaponTileData.cs" />
      <Compile Include="Assets\Scripts\Data\Database.cs" />

@@ -10,23 +10,6 @@ public class BattleStageData : ScriptableObject {
 		All
 	}
 
-	public enum AttackType {
-		Replace,
-		StatusEffect
-	}
-
-	[System.Serializable]
-	public class EnemyAttackData {
-		public int X;
-		public int Y;
-		public AttackType Type; 
-	}
-
-	[System.Serializable]
-	public class EnemyAttackDataSet {
-		public List<EnemyAttackData> Attacks;
-	}
-
 	public int HPMin;
 	public int HPMax;
 	public int CooldownMin;

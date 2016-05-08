@@ -19,6 +19,11 @@ public class ScriptableObjectUtility {
 		CreateScriptableObject<ObstructionTileData>();
 	}
 
+	[MenuItem("Assets/Create/ScriptableObjects/EnemyAttackDataSet")]
+	public static void CreateEnemyAttackDataSet() {
+		CreateScriptableObject<EnemyAttackDataSet>();
+	}
+
 	
 	private static void CreateScriptableObject<T> () where T: ScriptableObject {
 		T sObject = ScriptableObject.CreateInstance<T>();

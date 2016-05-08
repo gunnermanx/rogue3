@@ -206,10 +206,10 @@ public class BoardManager : MonoBehaviour {
 		_state = State.Input;
 	}
 
-	public void ProcessEnemyAttack( List<BattleStageData.EnemyAttackData> attacks ) {
+	public void ProcessEnemyAttack( List<EnemyAttackDataSet.EnemyAttackData> attacks ) {
 
 		for ( int i = 0, count = attacks.Count; i < count; i++ ) {
-			BattleStageData.EnemyAttackData attack = attacks[ i ];
+			EnemyAttackDataSet.EnemyAttackData attack = attacks[ i ];
 
 //			if ( attack.Type == BattleStageData.AttackType.ReplaceBlock ) {
 //				BaseTileData data = GameManager.Instance.GetTileDataManager().GetRandomBlockTileData();

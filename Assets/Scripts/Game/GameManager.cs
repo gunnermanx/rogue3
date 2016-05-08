@@ -92,7 +92,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void HandleOnTurnEnded() {
-		List<BattleStageData.EnemyAttackData> attacks = _battleManager.IncrementTurnAndGetEnemyAttack();
+		List<EnemyAttackDataSet.EnemyAttackData> attacks = _battleManager.IncrementTurnAndGetEnemyAttack();
 
 		bool gameComplete = _battleManager.IsBattleComplete();
 		if ( gameComplete ) {
