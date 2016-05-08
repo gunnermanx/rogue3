@@ -51,6 +51,10 @@ public class Tile : MonoBehaviour {
 		return color;
 	}
 
+	public bool IsSelectable() {
+		return _tileData.Moveable;
+	}	                          
+
 	public TileData.TileType TileType {
 		get { return _tileData.Type; }
 	}

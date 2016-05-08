@@ -46,16 +46,20 @@
 	</Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Scripts\Core\DebugMenu.cs" />
-     <Compile Include="Assets\Scripts\Core\GameHud.cs" />
      <Compile Include="Assets\Scripts\Core\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Core\UI\DebugMenu.cs" />
+     <Compile Include="Assets\Scripts\Core\UI\GameHud.cs" />
+     <Compile Include="Assets\Scripts\Core\iTween.cs" />
+     <Compile Include="Assets\Scripts\Data\Database.cs" />
+     <Compile Include="Assets\Scripts\Data\ScriptableObjectUtility.cs" />
+     <Compile Include="Assets\Scripts\Data\Stage\BattleStageData.cs" />
+     <Compile Include="Assets\Scripts\Data\Tile\TileData.cs" />
+     <Compile Include="Assets\Scripts\Data\Tile\TileDataManager.cs" />
      <Compile Include="Assets\Scripts\Game\BattleManager.cs" />
-     <Compile Include="Assets\Scripts\Game\BoardGestureManager.cs" />
-     <Compile Include="Assets\Scripts\Game\BoardManager.cs" />
-     <Compile Include="Assets\Scripts\Tile\Tile.cs" />
-     <Compile Include="Assets\Scripts\Tile\TileConsts.cs" />
-     <Compile Include="Assets\Scripts\Tile\TileData.cs" />
-     <Compile Include="Assets\Scripts\Tile\TileDataManager.cs" />
+     <Compile Include="Assets\Scripts\Game\Board\BoardGestureManager.cs" />
+     <Compile Include="Assets\Scripts\Game\Board\BoardManager.cs" />
+     <Compile Include="Assets\Scripts\Game\Tile\Tile.cs" />
+     <Compile Include="Assets\Scripts\Game\Tile\TileConsts.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
@@ -68,10 +72,6 @@
  <Reference Include="UnityEditor.iOS.Extensions.Xcode">
  <HintPath>C:/Program Files/Unity/Editor/Data/PlaybackEngines/iOSSupport/UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
  </Reference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="Assembly-CSharp-firstpass.csproj">
-      <Project>{82FE03C2-4FDB-EB70-D584-A2C6E667653F}</Project>      <Name>Assembly-CSharp-firstpass</Name>    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

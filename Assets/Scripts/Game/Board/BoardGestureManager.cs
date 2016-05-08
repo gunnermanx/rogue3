@@ -42,6 +42,9 @@ public class BoardGestureManager : MonoBehaviour {
 				RaycastHit hit;
 				if ( Physics.Raycast( ray, out hit, Mathf.Infinity, TileMask ) ) {
 					Tile tile = hit.collider.gameObject.GetComponent<Tile>();
+					if ( !tile.IsSelectable() ) {
+						return;
+					}
 
 					if ( onSelectTile != null ) {
 						onSelectTile( tile );
@@ -69,6 +72,9 @@ public class BoardGestureManager : MonoBehaviour {
 					for ( int i = 0, count = hits.Length; i < count; i++ ) {
 						if ( hits[ i ].collider != _draggedCollider ) {
 							targetTile = hits[ i ].collider.gameObject.GetComponent<Tile>();
+							if ( !targetTile.IsSelectable() ) {
+								targetTile = null;
+							}
 							break;
 						}
 					}

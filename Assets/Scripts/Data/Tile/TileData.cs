@@ -8,7 +8,8 @@ public class TileData {
 		Axe,
 		Sword,
 		Staff,
-		Bow
+		Bow,
+		Block
 	}
 
 	public string Id;
@@ -20,4 +21,6 @@ public class TileData {
 	public int Damage;
 
 	public int DamagePerLevel;
+
+	public bool Moveable;
 }

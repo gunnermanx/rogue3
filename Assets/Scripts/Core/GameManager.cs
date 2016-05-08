@@ -4,17 +4,6 @@ using System.Collections.Generic;
 
 public class GameManager : MonoBehaviour {
 
-	public enum GameType {
-		TurnLimit,
-		TimeLimit
-	}
-
-	public class GameSession {
-		public GameType Type;
-		public long Time = -1;
-		public int TurnsRemaining = -1;
-	}
-
 	[SerializeField]
 	private GameObject _boardManagerPrefab;
 
@@ -23,6 +12,9 @@ public class GameManager : MonoBehaviour {
 	
 	[SerializeField]
 	private TileDataManager _tileDataManager;
+
+	[SerializeField]
+	private Database _database;
 
 	[SerializeField]
 	private GameHud _gameHud;
@@ -35,8 +27,7 @@ public class GameManager : MonoBehaviour {
 	
 	private BoardManager _boardManager;
 	private BattleManager _battleManager;
-
-	private GameSession _gameSession = null;
+	
 	private int _currentWindowId = 0;
 
 	private static readonly float WIDTH = 400;
@@ -54,81 +45,85 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void StartGame( List<TileData> tileData ) {
-		_gameSession = new GameSession() {
-			Type = GameType.TurnLimit,
-			TurnsRemaining = 5
-		};
-
+	private void StartGame( List<TileData> tileData, BattleStageData stageData ) {
 		// Initialize game board
 		GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
 		_boardManager = boardManagerGO.GetComponent<BoardManager>();
 		_boardManager.InitializeBoard( tileData );
 		_boardManager.OnTilesSwapped += HandleOnTilesSwapped;
 		_boardManager.OnTilesMatched += HandleOnTilesMatched;
+		_boardManager.OnTurnEnded += HandleOnTurnEnded;
 
 		// Initialize battle manager
 		GameObject battleManagerGO = GameObject.Instantiate( _battleManagerPrefab );
 		_battleManager = battleManagerGO.GetComponent<BattleManager>();
-
+		_battleManager.Initialize( stageData );
 
 		// Initialize Game HUD
 		_gameHud.gameObject.SetActive( true );
-		_gameHud.UpdateHUD();
 	}
 
 	private void CleanupGame() {
 		_boardManager.OnTilesSwapped -= HandleOnTilesSwapped;
 		_boardManager.OnTilesMatched -= HandleOnTilesMatched;
+		_boardManager.OnTurnEnded -= HandleOnTurnEnded;
 
 		Destroy( _boardManager.gameObject );
 		Destroy( _battleManager.gameObject );
 
-		_gameSession = null;
-
 		_gameHud.gameObject.SetActive( false );
 	}
 
-	private bool CheckGameComplete() {
-		// only lose condition right now
-
-		bool gameComplete = false;
-
-		switch( _gameSession.Type ) {
-		case GameType.TurnLimit:
-			if ( _gameSession.TurnsRemaining <= 0 ) {
-				gameComplete = true;
-			}
-			break;
-		}
-
-		return gameComplete;
+	public GameHud GetGameHUD() {
+		return _gameHud;
 	}
 
-	public GameSession GetCurrentGameSession() {
-		return _gameSession;
+	public TileDataManager GetTileDataManager() {
+		return _tileDataManager;
 	}
 
 #region EventHandlers
 	public void HandleOnTilesSwapped() {
-		_gameSession.TurnsRemaining--;
-
-		_gameHud.UpdateHUD();
-
-		bool gameComplete = CheckGameComplete();
-		if ( gameComplete ) {
-			CleanupGame();
-		}
+//		_gameSession.TurnsRemaining--;
+//
+//		_gameHud.UpdateHUD();
+//
+//		bool gameComplete = CheckGameComplete();
+//		if ( gameComplete ) {
+//			CleanupGame();
+//		}
 	}
 
 	public void HandleOnTilesMatched( List<Tile> matches ) {
 
 	}
+
+	public void HandleOnTurnEnded() {
+		List<BattleStageData.EnemyAttackData> attacks = _battleManager.IncrementTurnAndGetEnemyAttack();
+
+		bool gameComplete = _battleManager.IsBattleComplete();
+		if ( gameComplete ) {
+			// todo: determine win/loss, show appropriate result then cleanup
+			CleanupGame();
+		}
+
+		// There is no attack from the enemy, notify the boardmanager to continue to input
+		if ( attacks == null ) {
+			_boardManager.ContinueToInput();
+		}
+		// Otherwise we need to attack the board
+		else {
+			_boardManager.ProcessEnemyAttack( attacks );
+		}
+	}
 #endregion
 
 #region Debug
+
+	bool gameStarted = false;
+
 	private void OnGUI() {
-		if ( _gameSession == null ) {
+		if ( !gameStarted ) {
 			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Rogue3" );
 			windowRect.x = (int) ( Screen.width * 0.5f - windowRect.width * 0.5f );
 			windowRect.y = (int) ( Screen.height * 0.5f - windowRect.height * 0.5f );
@@ -140,8 +135,13 @@ public class GameManager : MonoBehaviour {
 		GUILayout.BeginVertical();
 		{
 			if ( GUILayout.Button( "START", GUILayout.Height(100f) ) ) {
+
 				List<TileData> tileData = _tileDataManager.GetAllTileData();
-				StartGame( tileData );
+				BattleStageData stageData = _database.GetRandomTestBattleStageData();
+
+				StartGame( tileData, stageData );
+
+				gameStarted = true;
 			}
 		}
 		GUILayout.EndVertical();

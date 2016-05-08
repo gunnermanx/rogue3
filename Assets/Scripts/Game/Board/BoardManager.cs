@@ -39,7 +39,8 @@ public class BoardManager : MonoBehaviour {
 		Match, // State to clear out all matches and wait for match tweens
 		DropAndFill, // Fix data so that we have a complete board once more
 		DropAnimating, // Idle state to wait for tiles to visually drop into place
-		Cleanup // Check for additional matches, either brings us back to Match or to Input
+		Cleanup, // Check for additional matches, either brings us back to Match or to the TurnEnd
+		TurnEnd
 	}
 
 	// Delegates
@@ -50,6 +51,10 @@ public class BoardManager : MonoBehaviour {
 	public delegate void OnTilesMatchedDelegate( List<Tile> matches );
 	public OnTilesMatchedDelegate OnTilesMatched;
 	private void RaiseOnTilesMatched( List<Tile> matches ) { if ( OnTilesMatched != null ) OnTilesMatched( matches ); }
+
+	public delegate void OnTurnEndedDelegate();
+	public OnTurnEndedDelegate OnTurnEnded;
+	private void RaiseOnTurnEnded() { if ( OnTurnEnded != null ) OnTurnEnded(); }
 
 
 	// Data representation of the board
@@ -159,6 +164,10 @@ public class BoardManager : MonoBehaviour {
 			case State.Cleanup:
 				PerformCleanup();
 				break;
+			// The board manager idles in this state until the gamemanager tells us we can move
+			case State.TurnEnd:
+				RaiseOnTurnEnded();
+				break;
 		}
 	}
 
@@ -190,12 +199,33 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
+	public void ContinueToInput() {
+		_state = State.Input;
+	}
+
+	public void ProcessEnemyAttack( List<BattleStageData.EnemyAttackData> attacks ) {
+
+		for ( int i = 0, count = attacks.Count; i < count; i++ ) {
+			BattleStageData.EnemyAttackData attack = attacks[ i ];
+
+			if ( attack.Type == BattleStageData.AttackType.ReplaceBlock ) {
+				TileData data = GameManager.Instance.GetTileDataManager().GetRandomBlockTileData();
+				Tile tile = _board[ attack.X, attack.Y ];
+				ClearTile( tile );
+				CreateTileAtCoords( data, attack.X, attack.Y );
+			}
+		}
+
+		_state = State.Input;
+	}
+
+
 	private TileData PickRandomTileData() {
 		// simple 
 		int index = UnityEngine.Random.Range( 0, _equippedTileData.Count );
 		return _equippedTileData[ index ];
 	}
-
+	
 	private Tile CreateTileAtCoords( TileData data, int xCoords, int yCoords ) {		
 		GameObject tileGO = GameObject.Instantiate( TilePrefab );
 		Tile tile = tileGO.GetComponent<Tile>();
@@ -395,7 +425,7 @@ public class BoardManager : MonoBehaviour {
 
 			for ( int j = _matches[ i ].Count - 1; j >= 0; j-- ) {
 				Tile tile = _matches[ i ][ j ];
-				ClearTileAtCoords( tile );
+				ClearTile( tile );
 			}
 
 			yield return new WaitForSeconds( 0.35f );
@@ -530,11 +560,11 @@ public class BoardManager : MonoBehaviour {
 		if ( _matches.Count > 0 ) {
 			_state = State.Match;
 		} else {
-			_state = State.Input;
+			_state = State.TurnEnd;
 		}
 	}
 
-	private void ClearTileAtCoords( Tile tile ) {
+	private void ClearTile( Tile tile ) {
 		if ( !tile.IsMatching ) {
 			tile.IsMatching = true;
 			iTween.ScaleTo ( tile.gameObject,

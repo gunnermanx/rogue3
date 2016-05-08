@@ -1,8 +1,6 @@
 Microsoft Visual Studio Solution File, Format Version 11.00
 # Visual Studio 2008
 
-Project("{34BD131D-8DB4-716A-8EBF-9D8657A95F3D}") = "Rogue3", "Assembly-CSharp-firstpass-vs.csproj", "{82FE03C2-4FDB-EB70-D584-A2C6E667653F}"
-EndProject
 Project("{34BD131D-8DB4-716A-8EBF-9D8657A95F3D}") = "Rogue3", "Assembly-CSharp-vs.csproj", "{9E727A0D-348F-F0AB-B082-AF468E218FE1}"
 EndProject
 Global
@@ -11,10 +9,6 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{82FE03C2-4FDB-EB70-D584-A2C6E667653F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{82FE03C2-4FDB-EB70-D584-A2C6E667653F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{82FE03C2-4FDB-EB70-D584-A2C6E667653F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{82FE03C2-4FDB-EB70-D584-A2C6E667653F}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9E727A0D-348F-F0AB-B082-AF468E218FE1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9E727A0D-348F-F0AB-B082-AF468E218FE1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9E727A0D-348F-F0AB-B082-AF468E218FE1}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -23,7 +17,7 @@ Global
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-																						GlobalSection(MonoDevelopProperties) = preSolution
+																																										GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Assembly-CSharp.csproj
 		Policies = $0
 		$0.TextStylePolicy = $1
