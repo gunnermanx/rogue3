@@ -40,6 +40,7 @@ public class BoardManager : MonoBehaviour {
 		SwapAnimating, // Idle state where we wait for swap tweens to complete
 		UndoSwapAnimating, // Idle state where we wait for UNDO swap tweens to complete
 		Match, // State to clear out all matches and wait for match tweens
+		ExpireObstructions,
 		DropAndFill, // Fix data so that we have a complete board once more
 		DropAnimating, // Idle state to wait for tiles to visually drop into place
 		Cleanup, // Check for additional matches, either brings us back to Match or to the TurnEnd
@@ -77,6 +78,8 @@ public class BoardManager : MonoBehaviour {
 
 	// The matches that have been made, currently
 	private List<List<Tile>> _matches = new List<List<Tile>>();
+
+	private List<Tile> _expiringObstructions = new List<Tile>();
 
 	private void Awake() {
 		BoardGestureManager.onSelectTile += HandleOnSelectTile;
@@ -151,6 +154,9 @@ public class BoardManager : MonoBehaviour {
 			case State.Match:
 				PerformMatch();
 				break;
+			case State.ExpireObstructions:
+				PerformObstructionExpiration();
+				break;
 			// The matching tiles have been removed from data and visually
 			// We need to drop existing tiles down ( in data ) and also fill up the missing spots ( in data )
 			case State.DropAndFill:
@@ -211,12 +217,14 @@ public class BoardManager : MonoBehaviour {
 		for ( int i = 0, count = attacks.Count; i < count; i++ ) {
 			EnemyAttackDataSet.EnemyAttackData attack = attacks[ i ];
 
-//			if ( attack.Type == BattleStageData.AttackType.ReplaceBlock ) {
-//				BaseTileData data = GameManager.Instance.GetTileDataManager().GetRandomBlockTileData();
-//				Tile tile = _board[ attack.X, attack.Y ];
-//				ClearTile( tile );
-//				CreateTileAtCoords( data, attack.X, attack.Y );
-//			}
+			ObstructionTileData obstructionData = attack.ObstructionTile;
+			Tile tile = _board[ attack.X, attack.Y ];
+			ClearTile( tile );
+			Tile obstructionTile = CreateTileAtCoords( obstructionData, attack.X, attack.Y );
+
+			if ( obstructionTile.TurnsTilExpired != ObstructionTileData.NEVER_EXPIRES ) {
+				_expiringObstructions.Add( obstructionTile );
+			}
 		}
 
 		_state = State.Input;
@@ -410,7 +418,14 @@ public class BoardManager : MonoBehaviour {
 		              );
 	}
 
-
+	private void PerformObstructionExpiration() {
+		for ( int i = _expiringObstructions.Count-1; i >= 0; i-- ) {
+			if ( --_expiringObstructions[ i ].TurnsTilExpired <= 0 ) {
+				ClearTile( _expiringObstructions[ i ] );
+			}
+		}
+		_state = State.DropAndFill;
+	}
 
 	bool isPerformingMatch = false;
 	private void PerformMatch() {
@@ -437,7 +452,7 @@ public class BoardManager : MonoBehaviour {
 
 		isPerformingMatch = false;
 
-		_state = State.DropAndFill;
+		_state = State.ExpireObstructions;
 	}
 
 	private void PerformFill() {

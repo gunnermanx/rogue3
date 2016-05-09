@@ -22,6 +22,9 @@ public class Tile : MonoBehaviour {
 	private bool _isMatching = false;
 	public bool IsMatching { get { return _isMatching; } set { _isMatching = value; } }
 
+	private int _turnsTilExpired = -1;
+	public int TurnsTilExpired { get { return _turnsTilExpired; } set { _turnsTilExpired = value; } }
+
 	public void Initialize( BaseTileData data, int xCoord, int yCoord ) {
 		_tileData = data;
 
@@ -30,6 +33,10 @@ public class Tile : MonoBehaviour {
 
 		_xCoord = xCoord;
 		_yCoord = yCoord;
+
+		if ( data is ObstructionTileData ) {
+			_turnsTilExpired = ( data as ObstructionTileData ).TurnsTilExpired;
+		}
 	}
 
 	public Color GetDebugColor() {

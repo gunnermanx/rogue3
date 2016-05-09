@@ -67,9 +67,8 @@ public class BattleManager : MonoBehaviour {
 	private List<EnemyAttackDataSet.EnemyAttackData> CreateAttack() {
 		if ( _session.AttackPattern == BattleStageData.AttackPattern.RandomSet ) {
 			int index = UnityEngine.Random.Range( 0, _session.AttackSets.Count );
-			//EnemyAttackDataSet.EnemyAttackDataSet set = _session.AttackSets[ index ];
-			//return set.Attacks;
-			return null;
+			EnemyAttackDataSet set = _session.AttackSets[ index ];
+			return set.AttackData;
 		}
 		return null;
 	}

@@ -4,6 +4,8 @@ using System.Collections;
 [System.Serializable]
 public class ObstructionTileData : BaseTileData
 {
-	public int TurnsTilExpired;
+	public const int NEVER_EXPIRES = -1234;
+
+	public int TurnsTilExpired = NEVER_EXPIRES;
 }
 
