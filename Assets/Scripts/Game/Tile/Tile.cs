@@ -66,6 +66,14 @@ public class Tile : MonoBehaviour {
 		get { return _tileData.Type; }
 	}
 
+	public int GetDamage() {
+		WeaponTileData weaponTileData = _tileData as WeaponTileData;
+		if ( weaponTileData ) {
+			return weaponTileData.Damage;
+		}
+		return 0;
+	}
+
 	public void UpdateCoords( int xCoord, int yCoord ) {
 		_xCoord = xCoord;
 		_yCoord = yCoord;

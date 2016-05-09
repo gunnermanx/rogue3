@@ -443,11 +443,25 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	private void PerformObstructionExpiration() {
+		if ( _expiringObstructions.Count > 0 ) {
+			_holdStateChanges = true;
+			StartCoroutine( PerformObstructionExpirationCoroutine() );
+		}
+	}
+
+	private IEnumerator PerformObstructionExpirationCoroutine() {		
+		bool doDelay = false;
 		for ( int i = _expiringObstructions.Count-1; i >= 0; i-- ) {
 			if ( --_expiringObstructions[ i ].TurnsTilExpired <= 0 ) {
 				ClearTile( _expiringObstructions[ i ] );
+				doDelay = true;
 			}
 		}
+		if ( doDelay ) {
+			yield return new WaitForSeconds( 0.35f );
+		}
+
+		_holdStateChanges = false;
 	}
 
 

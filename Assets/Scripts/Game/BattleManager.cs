@@ -50,6 +50,17 @@ public class BattleManager : MonoBehaviour {
 		return attacks;
 	}
 
+	public void AttackEnemy( List<Tile> matches ) {
+		//TODO: doing something simple here for now
+		int totalDamage = 0;
+		for ( int i = 0, count = matches.Count; i < count; i++ ) {
+			totalDamage += matches[ i ].GetDamage();
+		}
+
+		_session.HPRemaining -= totalDamage;
+		UpdateHUD();
+	}
+
 	private List<EnemyAttackDataSet.EnemyAttackData> CheckForAttack() {	
 		// check for stuns/status blah here
 		_session.CurrentEnemyCooldown--;

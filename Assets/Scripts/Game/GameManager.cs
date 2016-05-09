@@ -69,6 +69,8 @@ public class GameManager : MonoBehaviour {
 		Destroy( _battleManager.gameObject );
 
 		_gameHud.gameObject.SetActive( false );
+	
+		_gameStarted = false;
 	}
 
 	public GameHud GetGameHUD() {
@@ -88,7 +90,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void HandleOnTilesMatched( List<Tile> matches ) {
-
+		// TODO 
+		_battleManager.AttackEnemy( matches );
 	}
 
 	public void HandleOnTurnEnded() {
@@ -113,10 +116,10 @@ public class GameManager : MonoBehaviour {
 
 #region Debug
 
-	bool gameStarted = false;
+	bool _gameStarted = false;
 
 	private void OnGUI() {
-		if ( !gameStarted ) {
+		if ( !_gameStarted ) {
 			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Rogue3" );
 			windowRect.x = (int) ( Screen.width * 0.5f - windowRect.width * 0.5f );
 			windowRect.y = (int) ( Screen.height * 0.5f - windowRect.height * 0.5f );
@@ -135,7 +138,7 @@ public class GameManager : MonoBehaviour {
 
 				StartGame( data, stageData );
 
-				gameStarted = true;
+				_gameStarted = true;
 			}
 		}
 		GUILayout.EndVertical();
