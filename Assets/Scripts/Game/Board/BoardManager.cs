@@ -93,16 +93,23 @@ public class BoardManager : MonoBehaviour {
 		BoardGestureManager.onDropTile -= HandleOnDropTile;
 	}
 
+	private bool _holdStateChanges = false;
+
 	/// <summary>
 	/// Basic Game Loop
 	/// </summary>
 	private void Update() {
+
+		if ( _holdStateChanges == true ) {
+			return;
+		}
 
 		switch( _state ) {
 			// On the input state, we are waiting for the player to perform a swap
 			// Only state where user input is valid
 			case State.Input:
 				// TODO: show hints after some time?
+				// Wait until we recieve a drop tile event
 				break;
 			// A selection has been made, the player has dropped the tile, try to swap
 			case State.Swap:
@@ -153,9 +160,11 @@ public class BoardManager : MonoBehaviour {
 			// Successful swap has occured, the tweens are done, we need to clear out the matches
 			case State.Match:
 				PerformMatch();
+				_state = State.ExpireObstructions;
 				break;
 			case State.ExpireObstructions:
 				PerformObstructionExpiration();
+				_state = State.DropAndFill;
 				break;
 			// The matching tiles have been removed from data and visually
 			// We need to drop existing tiles down ( in data ) and also fill up the missing spots ( in data )
@@ -167,11 +176,16 @@ public class BoardManager : MonoBehaviour {
 			// The board state is correct, but visually, we need to drop the tiles down to the correct spots
 			case State.DropAnimating:
 				PerformDroppingAnimation();
+				_state = State.Cleanup;
 				break;
 			// This step will check every tile that has been dropped for matches
 			// If there are any matches, we want to return to the match state, otherwise we can continue back to the user input state
 			case State.Cleanup:
-				PerformCleanup();
+				if ( CheckForCascadingMatches() ) {
+					_state = State.Match;
+				} else {
+					_state = State.TurnEnd;
+				}
 				break;
 			// The board manager idles in this state until the gamemanager tells us we can move
 			case State.TurnEnd:
@@ -219,8 +233,8 @@ public class BoardManager : MonoBehaviour {
 
 			ObstructionTileData obstructionData = attack.ObstructionTile;
 			Tile tile = _board[ attack.X, attack.Y ];
-			ClearTile( tile );
-			Tile obstructionTile = CreateTileAtCoords( obstructionData, attack.X, attack.Y );
+			ClearTile( tile, false /* dont tween out */ );
+			Tile obstructionTile = CreateTileAtCoords( obstructionData, attack.X, attack.Y, true /* tweens in */ );
 
 			if ( obstructionTile.TurnsTilExpired != ObstructionTileData.NEVER_EXPIRES ) {
 				_expiringObstructions.Add( obstructionTile );
@@ -237,13 +251,23 @@ public class BoardManager : MonoBehaviour {
 		return _equippedTileData[ index ];
 	}
 	
-	private Tile CreateTileAtCoords( BaseTileData data, int xCoords, int yCoords ) {		
+	private Tile CreateTileAtCoords( BaseTileData data, int xCoords, int yCoords, bool tweensIn = false ) {		
 		GameObject tileGO = GameObject.Instantiate( TilePrefab );
 		Tile tile = tileGO.GetComponent<Tile>();
 		tile.Initialize( data, xCoords, yCoords );
 
 		tileGO.transform.SetParent( TilesContainer );
 		tileGO.transform.position =  CoordsToWorldPosition( xCoords, yCoords );
+
+		if ( tweensIn ) {
+			tileGO.transform.localScale = Vector3.zero;
+			iTween.ScaleTo ( tile.gameObject,
+				iTween.Hash( "scale", Vector3.one,
+					"easetype", iTween.EaseType.easeOutBack,
+					"time", 0.5f
+				)
+			);
+		}
 		
 		_board[ xCoords, yCoords ] = tile;
 
@@ -424,19 +448,16 @@ public class BoardManager : MonoBehaviour {
 				ClearTile( _expiringObstructions[ i ] );
 			}
 		}
-		_state = State.DropAndFill;
 	}
 
-	bool isPerformingMatch = false;
+
 	private void PerformMatch() {
-		if ( !isPerformingMatch ) {
-			StartCoroutine( PerformMatchCoroutine() );
-		}
+		_holdStateChanges = true;
+		StartCoroutine( PerformMatchCoroutine() );
 	}
 
 	private IEnumerator PerformMatchCoroutine() {
-		isPerformingMatch = true;
-
+		
 		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
 
 			RaiseOnTilesMatched( _matches[ i ] );
@@ -450,9 +471,7 @@ public class BoardManager : MonoBehaviour {
 		}
 		_matches.Clear();
 
-		isPerformingMatch = false;
-
-		_state = State.ExpireObstructions;
+		_holdStateChanges = false;
 	}
 
 	private void PerformFill() {
@@ -519,11 +538,10 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
-	bool isPerformingDroppingAnimation = false;
+
 	private void PerformDroppingAnimation() {
-		if ( !isPerformingDroppingAnimation ) {
-			StartCoroutine( PerformDroppingAnimationCoroutine() );
-		}
+		_holdStateChanges = true;
+		StartCoroutine( PerformDroppingAnimationCoroutine() );	
 	}
 
 	int isWaitingForDroppingTweenToComplete = 0;
@@ -532,8 +550,6 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	private IEnumerator PerformDroppingAnimationCoroutine() {
-
-		isPerformingDroppingAnimation = true;
 
 		isWaitingForDroppingTweenToComplete = _droppingTiles.Count;
 
@@ -554,12 +570,10 @@ public class BoardManager : MonoBehaviour {
 			yield return new WaitForEndOfFrame();
 		}
 
-		isPerformingDroppingAnimation = false;
-
-		_state = State.Cleanup;
+		_holdStateChanges = false;
 	}
 
-	private void PerformCleanup() {
+	private bool CheckForCascadingMatches() {
 	
 		for ( int i = 0, count = _droppingTiles.Count; i < count; i++ ) {
 			List<Tile> horizontalTiles = new List<Tile>();
@@ -576,23 +590,26 @@ public class BoardManager : MonoBehaviour {
 		}
 
 		if ( _matches.Count > 0 ) {
-			_state = State.Match;
-		} else {
-			_state = State.TurnEnd;
+			return true;
 		}
+		return false;
 	}
 
-	private void ClearTile( Tile tile ) {
+	private void ClearTile( Tile tile, bool tweensOut = true ) {
 		if ( !tile.IsMatching ) {
 			tile.IsMatching = true;
-			iTween.ScaleTo ( tile.gameObject,
-			                iTween.Hash( "scale", Vector3.zero,
-			            "easetype", iTween.EaseType.easeInBack,
-			            "time", 0.5f,
-			            "oncomplete", "MatchedComplete"
-			            )
-			                );
-			//Debug.Log( "####Deleting " + tile.ToString() );
+			if ( tweensOut ) {
+				iTween.ScaleTo ( tile.gameObject,
+				                iTween.Hash( "scale", Vector3.zero,
+						            "easetype", iTween.EaseType.easeInBack,
+						            "time", 0.5f,
+						            "oncomplete", "MatchedComplete"
+								)
+				);			
+			}
+			else {
+				tile.MatchedComplete();
+			}
 			_board[ tile.X, tile.Y ] = null;
 		}
 	}
