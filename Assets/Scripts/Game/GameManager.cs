@@ -54,22 +54,36 @@ public class GameManager : MonoBehaviour {
 		_loaded = true;
 	}
 
-	private void StartGame( List<WeaponTileData> tileData, BattleStageData stageData ) {
-		// Initialize game board
-		GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
-		_boardManager = boardManagerGO.GetComponent<BoardManager>();
-		_boardManager.InitializeBoard( tileData );
-		_boardManager.OnTilesSwapped += HandleOnTilesSwapped;
-		_boardManager.OnTilesMatched += HandleOnTilesMatched;
-		_boardManager.OnTurnEnded += HandleOnTurnEnded;
+	List<WeaponTileData> gameTileData = null;
+	BattleStageData gameStageData = null;
 
-		// Initialize battle manager
-		GameObject battleManagerGO = GameObject.Instantiate( _battleManagerPrefab );
-		_battleManager = battleManagerGO.GetComponent<BattleManager>();
-		_battleManager.Initialize( stageData );
+	public void StartGame( List<WeaponTileData> tileData, BattleStageData stageData ) {
 
-		// Initialize Game HUD
-		GameHud.Instance.gameObject.SetActive( true );
+		gameTileData = tileData;
+		gameStageData = stageData;
+
+		SceneManager.LoadScene( "Game" );
+
+	}
+
+	private void OnLevelWasLoaded( int level ) {
+		if ( level == 2 ) {
+			// Initialize game board
+			GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
+			_boardManager = boardManagerGO.GetComponent<BoardManager>();
+			_boardManager.InitializeBoard( gameTileData );
+			_boardManager.OnTilesSwapped += HandleOnTilesSwapped;
+			_boardManager.OnTilesMatched += HandleOnTilesMatched;
+			_boardManager.OnTurnEnded += HandleOnTurnEnded;
+
+			// Initialize battle manager
+			GameObject battleManagerGO = GameObject.Instantiate( _battleManagerPrefab );
+			_battleManager = battleManagerGO.GetComponent<BattleManager>();
+			_battleManager.Initialize( gameStageData );
+
+			// Initialize Game HUD
+			GameHud.Instance.gameObject.SetActive( true );
+		}
 	}
 
 	private void CleanupGame() {
@@ -118,32 +132,6 @@ public class GameManager : MonoBehaviour {
 
 	bool _gameStarted = false;
 	bool _loaded = false;
-
-	private void OnGUI() {
-		if ( _loaded && !_gameStarted ) {
-			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Rogue3" );
-			windowRect.x = (int) ( Screen.width * 0.5f - windowRect.width * 0.5f );
-			windowRect.y = (int) ( Screen.height * 0.5f - windowRect.height * 0.5f );
-			GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Rogue3" );
-		}
-	}
-	
-	private void DrawMenu( int windowId ) {
-		GUILayout.BeginVertical();
-		{
-			if ( GUILayout.Button( "START", GUILayout.Height(100f) ) ) {
-
-				// TODO
-				List<WeaponTileData> data = GetStartingWeaponTileData();
-				BattleStageData stageData = _database.GetRandomTestBattleStageData();
-
-				StartGame( data, stageData );
-
-				_gameStarted = true;
-			}
-		}
-		GUILayout.EndVertical();
-	}
 
 	private List<WeaponTileData> GetStartingWeaponTileData() {	
 		List<WeaponTileData> data = new List<WeaponTileData>();

@@ -1,14 +1,18 @@
-﻿<Properties>
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Game\KillVFXComponent.cs">
+﻿<Properties StartupItem="Assembly-CSharp.csproj">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Core/Persistence/PersistenceManager.cs">
     <Files>
-      <File FileName="Assets\Scripts\Game\GameManager.cs" Line="107" Column="27" />
-      <File FileName="Assets\Scripts\Game\BattleManager.cs" Line="77" Column="59" />
-      <File FileName="Assets\Scripts\Game\KillVFXComponent.cs" Line="4" Column="46" />
+      <File FileName="Assets/Scripts/UI/WeaponPicker.cs" Line="7" Column="41" />
+      <File FileName="Assets/Scripts/Core/Persistence/PersistenceManager.cs" Line="29" Column="36" />
+      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="25" Column="2" />
+      <File FileName="Assets/Scripts/Game/BattleManager.cs" Line="5" Column="45" />
+      <File FileName="Assets/Scripts/UI/GameHud.cs" Line="22" Column="3" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/BattleManager.cs" line="120" column="33" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>
