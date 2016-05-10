@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -14,7 +15,7 @@ public class GameManager : MonoBehaviour {
 	private Database _database;
 
 	[SerializeField]
-	private GameHud _gameHud;
+	private PersistenceManager _persistenceManager;
 
 	// Singleton Accessor
 	private static GameManager _instance = null;
@@ -34,12 +35,23 @@ public class GameManager : MonoBehaviour {
 
 	private void Awake() {
 		_instance = this;
+		DontDestroyOnLoad( gameObject );
+	}
+
+	private void Start() {
+		_persistenceManager.LoadPlayerData( OnPlayerBlobLoaded );
 	}
 
 	private void Update() {
 		if ( Input.GetKeyUp(KeyCode.BackQuote) ) {
 			DebugMenu.ToggleDebugMenu();
 		}
+	}
+
+	private void OnPlayerBlobLoaded( PlayerBlob blob ) {
+		Debug.Log( "gameManager: playerblob loaded" );
+		SceneManager.LoadScene( "Main" );
+		_loaded = true;
 	}
 
 	private void StartGame( List<WeaponTileData> tileData, BattleStageData stageData ) {
@@ -57,7 +69,7 @@ public class GameManager : MonoBehaviour {
 		_battleManager.Initialize( stageData );
 
 		// Initialize Game HUD
-		_gameHud.gameObject.SetActive( true );
+		GameHud.Instance.gameObject.SetActive( true );
 	}
 
 	private void CleanupGame() {
@@ -68,25 +80,13 @@ public class GameManager : MonoBehaviour {
 		Destroy( _boardManager.gameObject );
 		Destroy( _battleManager.gameObject );
 
-		_gameHud.gameObject.SetActive( false );
+		GameHud.Instance.gameObject.SetActive( false );
 	
 		_gameStarted = false;
 	}
 
-	public GameHud GetGameHUD() {
-		return _gameHud;
-	}
-
 #region EventHandlers
 	public void HandleOnTilesSwapped() {
-//		_gameSession.TurnsRemaining--;
-//
-//		_gameHud.UpdateHUD();
-//
-//		bool gameComplete = CheckGameComplete();
-//		if ( gameComplete ) {
-//			CleanupGame();
-//		}
 	}
 
 	public void HandleOnTilesMatched( List<Tile> matches ) {
@@ -117,9 +117,10 @@ public class GameManager : MonoBehaviour {
 #region Debug
 
 	bool _gameStarted = false;
+	bool _loaded = false;
 
 	private void OnGUI() {
-		if ( !_gameStarted ) {
+		if ( _loaded && !_gameStarted ) {
 			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Rogue3" );
 			windowRect.x = (int) ( Screen.width * 0.5f - windowRect.width * 0.5f );
 			windowRect.y = (int) ( Screen.height * 0.5f - windowRect.height * 0.5f );

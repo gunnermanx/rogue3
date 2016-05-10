@@ -12,6 +12,15 @@ public class GameHud : MonoBehaviour {
 	private Slider _hpSlider;
 
 
+	private static GameHud _instance = null;
+	public static GameHud Instance {
+		get { return _instance; }
+	}
+
+	private void Awake() {
+		_instance = this;
+	}
+
 	public void UpdateTurnsRemaining( int turnsRemaining ) {
 		_turnLimitText.text = turnsRemaining.ToString();
 	}

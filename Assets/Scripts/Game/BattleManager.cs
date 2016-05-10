@@ -116,7 +116,7 @@ public class BattleManager : MonoBehaviour {
 	}
 	
 	private void UpdateHUD() {
-		GameHud gameHud = GameManager.Instance.GetGameHUD();
+		GameHud gameHud = GameHud.Instance;
 		gameHud.UpdateHPBar( _session.HPRemaining, _session.HPMax );
 		gameHud.UpdateEnemyTurnCounter( _session.CurrentEnemyCooldown );
 		gameHud.UpdateTurnsRemaining( _session.TurnsRemaining );                              
