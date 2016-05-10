@@ -5,5 +5,7 @@ using System.Collections;
 public class WeaponTileData : BaseTileData
 {
 	public int Damage;
+
+	public GameObject AttackVFXPrefab;
 }
 
