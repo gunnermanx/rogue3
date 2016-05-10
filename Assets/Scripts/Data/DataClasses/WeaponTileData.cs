@@ -7,5 +7,7 @@ public class WeaponTileData : BaseTileData
 	public int Damage;
 
 	public GameObject AttackVFXPrefab;
+
+	public Texture AttackVFXTexture;
 }
 

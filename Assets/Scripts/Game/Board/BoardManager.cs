@@ -7,6 +7,9 @@ using System.Collections.Generic;
 /// 
 /// Handles board/tile state
 /// </summary>
+using System.Text;
+
+
 public class BoardManager : MonoBehaviour {
 
 	// Data class that represents a swap
@@ -464,14 +467,16 @@ public class BoardManager : MonoBehaviour {
 		_holdStateChanges = false;
 	}
 
-
+	bool isPerformingMatch = false;
 	private void PerformMatch() {
 		_holdStateChanges = true;
-		StartCoroutine( PerformMatchCoroutine() );
+		if ( !isPerformingMatch ) {
+			StartCoroutine( PerformMatchCoroutine() );
+		}
 	}
 
 	private IEnumerator PerformMatchCoroutine() {
-		
+		isPerformingMatch = true;
 		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
 
 			RaiseOnTilesMatched( _matches[ i ] );
@@ -486,6 +491,7 @@ public class BoardManager : MonoBehaviour {
 		_matches.Clear();
 
 		_holdStateChanges = false;
+		isPerformingMatch = false;
 	}
 
 	private void PerformFill() {
@@ -595,11 +601,52 @@ public class BoardManager : MonoBehaviour {
 
 			Tile tileToCheck = _droppingTiles[ i ];
 			bool isMatched = CheckForMatchAtCoords( tileToCheck, tileToCheck.X, tileToCheck.Y, out horizontalTiles, out verticalTiles );
+
 			if ( isMatched ) {
 				List<Tile> totalMatches = new List<Tile>();
 				if ( horizontalTiles.Count > 0 ) totalMatches.AddRange( horizontalTiles );
 				if ( verticalTiles.Count > 0 ) totalMatches.AddRange( verticalTiles );
-				if ( totalMatches.Count > 0 ) _matches.Add( totalMatches );
+				if ( totalMatches.Count > 0 ) {
+
+					totalMatches.Sort( delegate(Tile a, Tile b) {
+						int compareX = a.X.CompareTo( b.X );
+						if ( compareX == 0 ) {
+							return a.Y.CompareTo( b.Y );
+						}
+						return compareX;
+					} );
+
+
+					// Assume there is a duplicate match, if there are any matches
+					bool sameMatch = _matches.Count > 0;
+					// Go through the current matchess
+					for ( int n = 0; n < _matches.Count; n++ ) {
+
+						sameMatch = true;
+
+						List<Tile> match = _matches[ n ];
+						for ( int m = 0; m < match.Count; m++ ) {
+							if ( match[ m ] != totalMatches[ m ] ) {
+								sameMatch = false;
+								break;
+							}
+						}
+
+						if ( sameMatch ) break;
+
+					}
+					if ( !sameMatch ) {
+
+//						StringBuilder sb = new StringBuilder();
+//						sb.Append( "MATCH ADDED: " );
+//						for ( int j = 0; j < totalMatches.Count; j++ ) {
+//							sb.Append( totalMatches[j].ToString() + " " );
+//						}
+//						Debug.Log ( sb.ToString() );
+
+						_matches.Add( totalMatches );
+					}
+				}
 			}
 		}
 
@@ -609,17 +656,19 @@ public class BoardManager : MonoBehaviour {
 		return false;
 	}
 
-	private void ClearTile( Tile tile, bool tweensOut = true ) {
+	private void ClearTile( Tile tile, bool tweensOut = true, bool destroyOnComplete = false ) {
 		if ( !tile.IsMatching ) {
 			tile.IsMatching = true;
 			if ( tweensOut ) {
-				iTween.ScaleTo ( tile.gameObject,
-				                iTween.Hash( "scale", Vector3.zero,
-						            "easetype", iTween.EaseType.easeInBack,
-						            "time", 0.5f,
-						            "oncomplete", "MatchedComplete"
-								)
-				);			
+
+				Hashtable hash = iTween.Hash( "scale", Vector3.zero,
+				            "easetype", iTween.EaseType.easeInBack,
+				            "time", 0.35f );
+				if ( destroyOnComplete ) {
+					hash.Add( "oncomplete", "MatchedComplete" );
+				}
+
+				iTween.ScaleTo ( tile.gameObject, hash );			
 			}
 			else {
 				tile.MatchedComplete();

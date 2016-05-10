@@ -74,6 +74,22 @@ public class Tile : MonoBehaviour {
 		return 0;
 	}
 
+	public GameObject GetAttackVFXPrefab() {
+		WeaponTileData weaponTileData = _tileData as WeaponTileData;
+		if ( weaponTileData ) {
+			return weaponTileData.AttackVFXPrefab;
+		}
+		return null;
+	}
+
+	public Texture GetAttackVFXTexture() {
+		WeaponTileData weaponTileData = _tileData as WeaponTileData;
+		if ( weaponTileData ) {
+			return weaponTileData.AttackVFXTexture;
+		}
+		return null;
+	}
+
 	public void UpdateCoords( int xCoord, int yCoord ) {
 		_xCoord = xCoord;
 		_yCoord = yCoord;

@@ -58,6 +58,7 @@
      <Compile Include="Assets\Scripts\Game\Board\BoardGestureManager.cs" />
      <Compile Include="Assets\Scripts\Game\Board\BoardManager.cs" />
      <Compile Include="Assets\Scripts\Game\GameManager.cs" />
+     <Compile Include="Assets\Scripts\Game\KillVFXComponent.cs" />
      <Compile Include="Assets\Scripts\Game\Tile\Tile.cs" />
      <Compile Include="Assets\Scripts\UI\GameHud.cs" />
  <Reference Include="UnityEngine.UI">

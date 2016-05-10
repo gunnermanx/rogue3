@@ -24,9 +24,8 @@ public class BattleManager : MonoBehaviour {
 		}
 	}
 
-	public class EnemyAttack {
-
-	}
+	[SerializeField]
+	private GameObject _enemyGameObject;
 
 	private Session _session;
 
@@ -54,11 +53,43 @@ public class BattleManager : MonoBehaviour {
 		//TODO: doing something simple here for now
 		int totalDamage = 0;
 		for ( int i = 0, count = matches.Count; i < count; i++ ) {
-			totalDamage += matches[ i ].GetDamage();
+
+			Tile matchedTile = matches[ i ];
+			totalDamage += matchedTile.GetDamage();
+
+			Debug.Assert( matchedTile != null, "Tile in matches is null, something is very wrong!" );
+
+			SpawnAttackVFX( matchedTile );
 		}
 
 		_session.HPRemaining -= totalDamage;
 		UpdateHUD();
+	}
+
+	private void SpawnAttackVFX( Tile matchedTile ) {
+	
+		GameObject prefab =  matchedTile.GetAttackVFXPrefab();
+		if ( prefab == null ) {
+			Debug.Log ( "The prefab ref is null? " + matchedTile.ToString() );
+			return;
+		}
+
+		GameObject vfxGO = GameObject.Instantiate( matchedTile.GetAttackVFXPrefab(), 
+		                                          matchedTile.transform.position, 
+		                                          Quaternion.identity ) as GameObject;
+
+		Texture tex = matchedTile.GetAttackVFXTexture();
+		if ( tex != null ) {
+			ParticleSystemRenderer psr = vfxGO.GetComponent<ParticleSystemRenderer>();
+			psr.material.mainTexture = tex; 
+		}
+
+		iTween.MoveTo( vfxGO, iTween.Hash( "position", _enemyGameObject.transform.position, 
+								            "easetype", iTween.EaseType.easeOutQuart, 
+								            "time", 1f,
+			                                  "oncomplete", "KillVFX"
+								           )
+		);
 	}
 
 	private List<EnemyAttackDataSet.EnemyAttackData> CheckForAttack() {	

@@ -26,12 +26,20 @@ public class Database : MonoBehaviour {
 	}
 
 	public BattleStageData GetRandomTestBattleStageData() {
-		Object[] allTestStages = Resources.LoadAll( STAGES_TEST_PATH );
-		for ( int i = 0, count = allTestStages.Length; i < count; i++ ) {
-			BattleStageData data = allTestStages[ i ] as BattleStageData;
-			_testStageData.Add( data.name, data );
+		if ( _testStageData.Count == 0 ) {
+			Object[] allTestStages = Resources.LoadAll( STAGES_TEST_PATH );
+			for ( int i = 0, count = allTestStages.Length; i < count; i++ ) {
+				BattleStageData data = allTestStages[ i ] as BattleStageData;
+				_testStageData.Add( data.name, data );
+			}
+			return (BattleStageData)allTestStages[ UnityEngine.Random.Range( 0, allTestStages.Length )];
 		}
-		return (BattleStageData)allTestStages[ UnityEngine.Random.Range( 0, allTestStages.Length )];
+		else {
+			int index = UnityEngine.Random.Range( 0, _testStageData.Count );
+			string[] keys = new string[ _testStageData.Keys.Count ];
+			_testStageData.Keys.CopyTo( keys, 0 );
+			return _testStageData[ keys[ index ] ];
+		}
 	}
 	
 	public BattleStageData GetBattleStageData( string id ) {
