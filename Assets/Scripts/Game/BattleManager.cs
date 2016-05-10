@@ -86,7 +86,7 @@ public class BattleManager : MonoBehaviour {
 
 		iTween.MoveTo( vfxGO, iTween.Hash( "position", _enemyGameObject.transform.position, 
 								            "easetype", iTween.EaseType.easeOutQuart, 
-								            "time", 1f,
+								            "speed", 4f,
 			                                  "oncomplete", "KillVFX"
 								           )
 		);
