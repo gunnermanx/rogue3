@@ -19,6 +19,11 @@ public class GameHud : MonoBehaviour {
 
 	private void Awake() {
 		_instance = this;
+		GameManager.Instance.RegisterGameHud( this );
+	}
+
+	private void OnDestroy() {
+		GameManager.Instance.UnregisterGameHud();
 	}
 
 	public void UpdateTurnsRemaining( int turnsRemaining ) {

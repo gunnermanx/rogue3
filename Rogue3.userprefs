@@ -1,17 +1,17 @@
-﻿<Properties StartupItem="Assembly-CSharp.csproj">
+﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Core/Persistence/PersistenceManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets\Scripts\Game\GameManager.cs">
     <Files>
-      <File FileName="Assets/Scripts/UI/WeaponPicker.cs" Line="7" Column="41" />
-      <File FileName="Assets/Scripts/Core/Persistence/PersistenceManager.cs" Line="29" Column="36" />
-      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="25" Column="2" />
-      <File FileName="Assets/Scripts/Game/BattleManager.cs" Line="5" Column="45" />
-      <File FileName="Assets/Scripts/UI/GameHud.cs" Line="22" Column="3" />
+      <File FileName="Assets\Scripts\Game\GameManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UI\WeaponPicker.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Core\Persistence\PersistenceManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\Game\BattleManager.cs" Line="1" Column="1" />
+      <File FileName="Assets\Scripts\UI\GameHud.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
-      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/BattleManager.cs" line="120" column="33" />
+      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/BattleManager.cs" line="120" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

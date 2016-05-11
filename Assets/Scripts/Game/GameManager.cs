@@ -16,16 +16,36 @@ public class GameManager : MonoBehaviour {
 
 	[SerializeField]
 	private PersistenceManager _persistenceManager;
+	public PersistenceManager GetPersistenceManager() {
+		return _persistenceManager;
+	}
 
 	// Singleton Accessor
 	private static GameManager _instance = null;
 	public static GameManager Instance {
 		get { return _instance; }
 	}
-	
+
+	private GameHud _gameHud;
+	public void RegisterGameHud( GameHud gameHud ) {
+		_gameHud = gameHud;
+	}
+	public void UnregisterGameHud() {
+		_gameHud = null;
+	}
+
+	private WeaponPicker _weaponPicker;
+	public void RegisterWeaponPicker( WeaponPicker weaponPicker ) {
+		_weaponPicker = weaponPicker;
+	}
+	public void UnregisterWeaponPicker(){
+		_weaponPicker = null;
+	}
+
+
 	private BoardManager _boardManager;
 	private BattleManager _battleManager;
-	
+
 	private int _currentWindowId = 0;
 
 	private static readonly float WIDTH = 400;
@@ -67,7 +87,11 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void OnLevelWasLoaded( int level ) {
-		if ( level == 2 ) {
+		if ( level == 1 ) {
+			List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
+			_weaponPicker.Initialize( ownedTileIds );
+		}
+		else if ( level == 2 ) {
 			// Initialize game board
 			GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
 			_boardManager = boardManagerGO.GetComponent<BoardManager>();
@@ -82,7 +106,7 @@ public class GameManager : MonoBehaviour {
 			_battleManager.Initialize( gameStageData );
 
 			// Initialize Game HUD
-			GameHud.Instance.gameObject.SetActive( true );
+			_gameHud.gameObject.SetActive( true );
 		}
 	}
 
@@ -94,9 +118,11 @@ public class GameManager : MonoBehaviour {
 		Destroy( _boardManager.gameObject );
 		Destroy( _battleManager.gameObject );
 
-		GameHud.Instance.gameObject.SetActive( false );
+		_gameHud.gameObject.SetActive( false );
 	
 		_gameStarted = false;
+
+		SceneManager.LoadScene( "Main" );
 	}
 
 #region EventHandlers

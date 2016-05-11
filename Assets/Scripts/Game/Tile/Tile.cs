@@ -54,8 +54,19 @@ public class Tile : MonoBehaviour {
 		case BaseTileData.TileType.Bow:
 			color = Color.yellow;
 			break;
+		case BaseTileData.TileType.Mace:
+			color = Color.magenta;
+			break;
+			
 		}
 		return color;
+	}
+
+	public bool Matches( Tile other ) {
+		return _tileData.name == other._tileData.name;
+	}
+	public bool Matches( BaseTileData other ) {
+		return _tileData.name == other.name;
 	}
 
 	public bool IsSelectable() {

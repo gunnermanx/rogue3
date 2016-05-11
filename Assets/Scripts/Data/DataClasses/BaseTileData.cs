@@ -9,6 +9,7 @@ public class BaseTileData : ScriptableObject {
 		Sword,
 		Staff,
 		Bow,
+		Mace,
 		Unbreakable
 	}
 

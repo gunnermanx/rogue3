@@ -299,7 +299,7 @@ public class BoardManager : MonoBehaviour {
 		if ( w > 1 ) {
 			int wSearch = w;
 			int found = 0;
-			while( --wSearch >= 0 && data.Type == _board[ wSearch, h ].TileType ) {
+			while( --wSearch >= 0 && _board[ wSearch, h ].Matches( data ) ) {
 				found++;
 			}
 			// 2 because there are two others that match the tile
@@ -312,7 +312,7 @@ public class BoardManager : MonoBehaviour {
 		if ( h > 1 ) {
 			int hSearch = h;
 			int found = 0;
-			while( --hSearch >= 0 && data.Type == _board[ w, hSearch ].TileType ) {
+			while( --hSearch >= 0 && _board[ w, hSearch ].Matches( data ) ) {
 				found++;
 			}
 
@@ -334,12 +334,12 @@ public class BoardManager : MonoBehaviour {
 		horizontalMatches = new List<Tile>();
 		horizontalMatches.Add( movedTile );
 		// Check left
-		while ( --wSearch >= 0 && _board[ wSearch, h ].TileType == movedTile.TileType ) {
+		while ( --wSearch >= 0 && _board[ wSearch, h ].Matches( movedTile ) ) {
 			horizontalMatches.Add( _board[ wSearch, h ] );
 		}
 		wSearch = w;
 		// Check right
-		while ( ++wSearch < BOARD_WIDTH && _board[ wSearch, h ].TileType == movedTile.TileType ) {
+		while ( ++wSearch < BOARD_WIDTH && _board[ wSearch, h ].Matches( movedTile ) ) {
 			horizontalMatches.Add( _board[ wSearch, h ] );
 		}
 
@@ -347,12 +347,12 @@ public class BoardManager : MonoBehaviour {
 		verticalMatches = new List<Tile>();
 		verticalMatches.Add( movedTile );
 		// Check bottom
-		while ( --hSearch >= 0 && _board[ w, hSearch ].TileType == movedTile.TileType ) {
+		while ( --hSearch >= 0 && _board[ w, hSearch ].Matches( movedTile ) ) {
 			verticalMatches.Add( _board[ w, hSearch ] );
 		}
 		hSearch = h;
 		// Check top
-		while ( ++hSearch < BOARD_HEIGHT && _board[ w, hSearch ].TileType == movedTile.TileType ) {
+		while ( ++hSearch < BOARD_HEIGHT && _board[ w, hSearch ].Matches( movedTile ) ) {
 			verticalMatches.Add( _board[ w, hSearch ] );
 		}
 

@@ -3,6 +3,9 @@
 		"WoodenAxe",
 		"WoodenBow",
 		"WoodenSword",
-		"WoodenStaff"
+		"WoodenStaff",
+		"WoodenMace",
+		"SteelMace",
+		"SteelAxe"
 	]
 }
