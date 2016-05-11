@@ -10,6 +10,8 @@ public class GameHud : MonoBehaviour {
 	private Text _enemyTurnCounterText;
 	[SerializeField]
 	private Slider _hpSlider;
+	[SerializeField]
+	private GameResults _resultsPanel;
 
 
 	private static GameHud _instance = null;
@@ -36,6 +38,19 @@ public class GameHud : MonoBehaviour {
 
 	public void UpdateHPBar( int current, int max ) {
 		_hpSlider.value = (float)current / (float) max;
+	}
+
+	public void ShowResults( BattleManager.SessionResults results ) {
+		if ( results != null ) {
+			_resultsPanel.gameObject.SetActive( true );
+			_resultsPanel.Initialize( results );
+		} else {
+			Debug.LogError( "results are null?" );
+		}
+	}
+
+	public void ContinueButtonTapped() {
+		GameManager.Instance.CompleteGame();
 	}
 }
 

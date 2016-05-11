@@ -125,6 +125,10 @@ public class GameManager : MonoBehaviour {
 		SceneManager.LoadScene( "Main" );
 	}
 
+	public void CompleteGame() {
+		CleanupGame();
+	}
+
 #region EventHandlers
 	public void HandleOnTilesSwapped() {
 	}
@@ -139,8 +143,11 @@ public class GameManager : MonoBehaviour {
 
 		bool gameComplete = _battleManager.IsBattleComplete();
 		if ( gameComplete ) {
-			// todo: determine win/loss, show appropriate result then cleanup
-			CleanupGame();
+
+			_boardManager.GameComplete();
+
+			// Show the results panel
+			_gameHud.ShowResults( _battleManager.GetResults() );
 		}
 
 		// There is no attack from the enemy, notify the boardmanager to continue to input

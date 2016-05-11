@@ -12,6 +12,8 @@ public class BattleManager : MonoBehaviour {
 		public int CurrentEnemyCooldown = -1;
 		public List<EnemyAttackDataSet> AttackSets = null;
 		public BattleStageData.AttackPattern AttackPattern;
+
+		public SessionResults Results = null;
 			
 		public Session( BattleStageData stageData ) {
 			TurnsRemaining = UnityEngine.Random.Range( stageData.TurnsMin, stageData.TurnsMax+1 );
@@ -22,6 +24,10 @@ public class BattleManager : MonoBehaviour {
 			AttackSets = stageData.AttackSets;
 			AttackPattern = stageData.Pattern;
 		}
+	}
+
+	public class SessionResults {
+		public bool IsVictory = false;
 	}
 
 	[SerializeField]
@@ -39,10 +45,20 @@ public class BattleManager : MonoBehaviour {
 		return ( _session.TurnsRemaining <= 0 || _session.HPRemaining <= 0 );
 	}
 
+	public SessionResults GetResults() {
+		return _session.Results;
+	}
+
 	public List<EnemyAttackDataSet.EnemyAttackData> IncrementTurnAndGetEnemyAttack() {
 		_session.TurnsRemaining--;
 
 		List<EnemyAttackDataSet.EnemyAttackData> attacks = CheckForAttack();
+
+		if ( _session.TurnsRemaining <= 0 ) {
+			_session.Results = new SessionResults() {
+				IsVictory = false
+			};
+		}
 
 		UpdateHUD();
 
@@ -63,6 +79,13 @@ public class BattleManager : MonoBehaviour {
 		}
 
 		_session.HPRemaining -= totalDamage;
+
+		if ( _session.HPRemaining <= 0 ) {
+			_session.Results = new SessionResults() {
+				IsVictory = true
+			};
+		}
+
 		UpdateHUD();
 	}
 

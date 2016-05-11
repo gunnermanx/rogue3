@@ -84,6 +84,8 @@ public class BoardManager : MonoBehaviour {
 
 	private List<Tile> _expiringObstructions = new List<Tile>();
 
+	private bool _isGameOver = false;
+
 	private void Awake() {
 		BoardGestureManager.onSelectTile += HandleOnSelectTile;
 		BoardGestureManager.onDragTile += HandleOnDragTile;
@@ -103,7 +105,7 @@ public class BoardManager : MonoBehaviour {
 	/// </summary>
 	private void Update() {
 
-		if ( _holdStateChanges == true ) {
+		if ( _isGameOver || _holdStateChanges == true ) {
 			return;
 		}
 
@@ -227,6 +229,10 @@ public class BoardManager : MonoBehaviour {
 
 	public void ContinueToInput() {
 		_state = State.Input;
+	}
+
+	public void GameComplete() {
+		_isGameOver = true;
 	}
 
 	public void ProcessEnemyAttack( List<EnemyAttackDataSet.EnemyAttackData> attacks ) {
@@ -684,7 +690,7 @@ public class BoardManager : MonoBehaviour {
 
 
 	void HandleOnSelectTile( Tile tile ) {
-		if ( _state != State.Input ) return;
+		if ( _isGameOver || _state != State.Input ) return;
 
 		_swap = new Swap {
 			SelectedTile = tile
@@ -692,7 +698,7 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	void HandleOnDragTile( Vector3 dragPosition ) {
-		if ( _state != State.Input ) return;
+		if ( _isGameOver || _state != State.Input ) return;
 
 		if ( _swap != null && _swap.SelectedTile != null ) {
 			_swap.SelectedTile.transform.position = dragPosition;
@@ -700,7 +706,7 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	void HandleOnDropTile( Tile targetTile ) {
-		if ( _state != State.Input ) return;
+		if ( _isGameOver || _state != State.Input ) return;
 
 		if ( targetTile != null ) {
 			_swap.TargetTile = targetTile;
