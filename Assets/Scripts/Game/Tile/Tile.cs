@@ -71,7 +71,11 @@ public class Tile : MonoBehaviour {
 
 	public bool IsSelectable() {
 		return _tileData.Moveable;
-	}	                          
+	}	           
+
+	public bool IsMatchable() {
+		return _tileData.Matchable;
+	}
 
 	public BaseTileData.TileType TileType {
 		get { return _tileData.Type; }

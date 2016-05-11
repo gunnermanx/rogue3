@@ -606,6 +606,12 @@ public class BoardManager : MonoBehaviour {
 			List<Tile> verticalTiles = new List<Tile>();
 
 			Tile tileToCheck = _droppingTiles[ i ];
+
+			// Ignore things that are not matchable
+			if ( !tileToCheck.IsMatchable() ) {
+				continue;
+			}
+
 			bool isMatched = CheckForMatchAtCoords( tileToCheck, tileToCheck.X, tileToCheck.Y, out horizontalTiles, out verticalTiles );
 
 			if ( isMatched ) {

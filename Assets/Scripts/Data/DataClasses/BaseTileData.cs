@@ -18,4 +18,6 @@ public class BaseTileData : ScriptableObject {
 	public Sprite Sprite;
 	
 	public bool Moveable;
+
+	public bool Matchable;
 }
