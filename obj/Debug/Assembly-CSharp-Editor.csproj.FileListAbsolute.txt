@@ -38,3 +38,4 @@ C:\Users\Public\Documents\Unity Projects\Rogue3\Temp\bin\Debug\UnityEditor.TreeE
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp-Editor.csprojResolveAssemblyReference.cache
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp-Editor.dll
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp-Editor.pdb
+C:\Users\Public\Documents\Unity Projects\Rogue3\Temp\bin\Debug\AS3DelaunayExtended.dll

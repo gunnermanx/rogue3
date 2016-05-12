@@ -19,3 +19,4 @@ C:\Users\Public\Documents\Unity Projects\Rogue3\Temp\bin\Debug\UnityEngine.Netwo
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp.csprojResolveAssemblyReference.cache
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp.dll
 C:\Users\Public\Documents\Unity Projects\Rogue3\obj\Debug\Assembly-CSharp.pdb
+C:\Users\Public\Documents\Unity Projects\Rogue3\Temp\bin\Debug\AS3DelaunayExtended.dll
