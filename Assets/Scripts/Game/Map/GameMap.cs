@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using Delaunay.Geo;
 using Delaunay;
-using System.Diagnostics;
 
 public class GameMap : MonoBehaviour {
 
@@ -22,103 +21,70 @@ public class GameMap : MonoBehaviour {
 	[SerializeField]
 	private int _mapHeight = 60;
 
-	private List<GameObject> _nodes = new List<GameObject>();
+	// GameObjects in game map
+	private List<GameObject> _mapNodes = new List<GameObject>();
+	private List<GameObject> _mapEdges = new List<GameObject>();
 
-	private List<LineSegment> m_spanningTree;
-	private List<LineSegment> m_delaunayTriangulation;
-	private Delaunay.Voronoi v;
+	// Data representation of game map nodes/edges
+	private Delaunay.Voronoi _voronoi;
+	private List<Vector2> _points = new List<Vector2>();
+	private List<LineSegment> _edges = new List<LineSegment>();
 
 	private void Start() {
 		GenerateGraphNodes();
+		GenerateGraphEdges();
 	}
 
-	private void GenerateGraphNodes() {
-
-		System.Diagnostics.Stopwatch stopwatch = new Stopwatch();
-		stopwatch.Start();
-
-		List<Vector2> points = new List<Vector2>();
+	private void GenerateGraphNodes() {		
 		for ( int i = 0; i < _nodeCount; i++ ) {
 			Vector3 position = FindOpenPosition();
 			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab, position, Quaternion.identity ) as GameObject;
 			graphNodeGO.transform.SetParent( transform );
-			graphNodeGO.name = "Node_X_" + position.x + "_Y_" + position.y;
+			graphNodeGO.name = "Node" + i + " @X_" + position.x + "_Y_" + position.y;
 
-			_nodes.Add( graphNodeGO );
-
-			points.Add( new Vector2( position.x, position.y ) );
+			_mapNodes.Add( graphNodeGO );
+			_points.Add( new Vector2( position.x, position.y ) );
 		}
-
-		stopwatch.Stop();
-		UnityEngine.Debug.Log( "Generate Graph Done... Took " + stopwatch.ElapsedMilliseconds.ToString() );
-
-		CreateDelaunayTriangulation( points );
 	}
 
-	private bool LineSegEquals( LineSegment a, LineSegment b ) {
-		return ( a.p0.HasValue && b.p0.HasValue && a.p0.Value == b.p0.Value ) && 
-				( a.p1.HasValue && b.p1.HasValue && a.p1.Value == b.p1.Value );
-	}
+	private void GenerateGraphEdges() {
 
-	private void CreateDelaunayTriangulation( List<Vector2> points ) {
+		List<LineSegment> minimumSpanningTree;
+		List<LineSegment> delaunayTriangulation;
 
-		System.Diagnostics.Stopwatch stopwatch = new Stopwatch();
-		stopwatch.Start();
-
-		//List<uint> colors = new List<uint> ();
-
+		// Create the Voronoi diagram using the AS3 Delaunay library
 		List<uint> colors = new List<uint> ();
+		for ( int i = 0; i < _nodeCount; i++ ) { colors.Add (0); }
+		_voronoi = new Delaunay.Voronoi( _points, colors, new Rect( 0, 0, _mapWidth, _mapHeight ) );
+		minimumSpanningTree = _voronoi.SpanningTree( KruskalType.MINIMUM );
+		delaunayTriangulation = _voronoi.DelaunayTriangulation ();
 
-		for (int i = 0; i < _nodeCount; i++) {
-			colors.Add (0);
-		}
+		// First add any line segment in the minimum spanning tree to the list _edges
+		for ( int i = delaunayTriangulation.Count-1; i >= 0; i-- ) {
+			for ( int j = 0; j < minimumSpanningTree.Count; j++ ) {
+				if ( LineSegmentEquals(  minimumSpanningTree[j], delaunayTriangulation[i] ) ) {
 
-		v = new Delaunay.Voronoi( points, colors, new Rect (0, 0, _mapWidth, _mapHeight) );
-		//m_edges = v.VoronoiDiagram ();
+					_edges.Add( delaunayTriangulation[ i ] );
 
-		m_spanningTree = v.SpanningTree (KruskalType.MINIMUM);
-		m_delaunayTriangulation = v.DelaunayTriangulation ();
+					delaunayTriangulation.RemoveAt( i );
 
-		stopwatch.Stop();
-		UnityEngine.Debug.Log( "Delaunay Done... Took " + stopwatch.ElapsedMilliseconds.ToString() );
-	
-		// loop through delaunay triangulation, remove spanning tree item
-
-		// test for equivilence
-		for ( int i = m_delaunayTriangulation.Count-1; i >= 0; i-- ) {
-			for ( int j = 0; j < m_spanningTree.Count; j++ ) {
-
-				if ( LineSegEquals(  m_spanningTree[j], m_delaunayTriangulation[i] ) ) {
-					UnityEngine.Debug.Log( "function" );
-					m_delaunayTriangulation.RemoveAt( i );
 					break;
 				}
 			}
 		}
 
-
-		for ( int i = 0, count = m_spanningTree.Count; i < count; i++ ) {
-			LineSegment line = m_spanningTree[ i ];
-			GameObject graphEdgeGO = GameObject.Instantiate( _graphEdgePrefab ) as GameObject;
-			graphEdgeGO.transform.SetParent( transform );
-
-			Vector2 p0 = line.p0.Value;
-			Vector2 p1 = line.p1.Value;
-			Vector3[] lineVerts = new Vector3[] { new Vector3( p0.x, p0.y, 0 ), new Vector3( p1.x, p1.y, 0 ) };
-
-			//graphEdgeGO.name = "Edge_" + p0.x + "_" + line.p1;
-
-			graphEdgeGO.GetComponent<LineRenderer>().SetPositions( lineVerts );
-		}
-//
-
-		// only create a percentage of this list
-		for ( int i = 0, count = m_delaunayTriangulation.Count; i < count; i++ ) {
-
+		// Add a random amount of line segments in the delaunay triangulation but NOT in the minimum spanning tree to the list _edges
+		for ( int i = 0, count = delaunayTriangulation.Count; i < count; i++ ) {
 			float rand = UnityEngine.Random.value;
-			if ( rand > 0.25 ) continue;
+			if ( rand <= 0.25 ) {
+				_edges.Add( delaunayTriangulation[ i ] );
+			}
+		}
+			
+		// Create the edges on the map
+		for ( int i = 0, count = _edges.Count; i < count; i++ ) {
+			LineSegment line = _edges[ i ];
 
-			LineSegment line = m_delaunayTriangulation[ i ];
 			GameObject graphEdgeGO = GameObject.Instantiate( _graphEdgePrefab ) as GameObject;
 			graphEdgeGO.transform.SetParent( transform );
 
@@ -129,22 +95,29 @@ public class GameMap : MonoBehaviour {
 			//graphEdgeGO.name = "Edge_" + p0.x + "_" + line.p1;
 
 			graphEdgeGO.GetComponent<LineRenderer>().SetPositions( lineVerts );
-		}
 
+			_mapEdges.Add( graphEdgeGO );
+		}
 	}
 
 	private Vector3 FindOpenPosition() {
-
-		Collider[] neighbours;
+		Collider[] overlappingNodes;
 		Vector3 candidatePosition;
+		// Find a random spot, check if there are any nodes, within a distance, at that spot
 		do {
-			// draw a new position
+			// Pick a random position within our map boundaries and check if it is an open spot
 			candidatePosition = new Vector3( Random.Range(0, _mapWidth), Random.Range(0, _mapHeight), 0 );
-			// get neighbours inside minDistance:
-			neighbours = Physics.OverlapSphere( candidatePosition, _minDistance);
-			// if there's any neighbour inside range, repeat the loop:
-		} while (neighbours.Length > 0);
+			overlappingNodes = Physics.OverlapSphere( candidatePosition, _minDistance );
 
-		return candidatePosition; // otherwise return the new position
+		} 
+		// If there are any overlapping nodes, we need to choose a new random spot
+		while ( overlappingNodes.Length > 0 );
+
+		return candidatePosition; 
+	}
+
+	private bool LineSegmentEquals( LineSegment a, LineSegment b ) {
+		return ( a.p0.HasValue && b.p0.HasValue && a.p0.Value == b.p0.Value ) && 
+			( a.p1.HasValue && b.p1.HasValue && a.p1.Value == b.p1.Value );
 	}
 }

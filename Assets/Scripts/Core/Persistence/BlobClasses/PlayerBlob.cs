@@ -6,5 +6,7 @@ public class PlayerBlob {
 
 	[fsProperty]
 	public List<string> OwnedTileIds;
+
+
 }
 
