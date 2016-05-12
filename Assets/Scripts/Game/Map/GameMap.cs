@@ -22,49 +22,88 @@ public class GameMap : MonoBehaviour {
 	private int _mapHeight = 60;
 
 	// GameObjects in game map
-	private List<GameObject> _mapNodes = new List<GameObject>();
-	private List<GameObject> _mapEdges = new List<GameObject>();
+	private Dictionary<string, MapNodeData> _mapNodes = new Dictionary<string, MapNodeData>();
+	private List<MapEdgeData> _mapEdges = new List<MapEdgeData>();
 
-	// Data representation of game map nodes/edges
-	private Delaunay.Voronoi _voronoi;
-	private List<Vector2> _points = new List<Vector2>();
-	private List<LineSegment> _edges = new List<LineSegment>();
-
-	private void Start() {
-		GenerateGraphNodes();
-		GenerateGraphEdges();
+	// Singleton Accessor
+	private static GameMap _instance = null;
+	public static GameMap Instance {
+		get { return _instance; }
 	}
 
-	private void GenerateGraphNodes() {		
-		for ( int i = 0; i < _nodeCount; i++ ) {
-			Vector3 position = FindOpenPosition();
-			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab, position, Quaternion.identity ) as GameObject;
-			graphNodeGO.transform.SetParent( transform );
-			graphNodeGO.name = "Node" + i + " @X_" + position.x + "_Y_" + position.y;
+	private void Awake() {
+		_instance = this;
+	}
 
-			_mapNodes.Add( graphNodeGO );
-			_points.Add( new Vector2( position.x, position.y ) );
+	public void LoadMap( MapBlob blob ) {
+		_mapNodes = blob.MapNodes;
+		_mapEdges = blob.MapEdges;
+
+		// Temp
+		foreach( KeyValuePair<string, MapNodeData> kvp in _mapNodes ) {
+			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab ) as GameObject;
+			graphNodeGO.transform.SetParent( transform );
+			MapNode mapNode = graphNodeGO.GetComponent<MapNode>();
+			mapNode.Initialize( kvp.Value );
+		}
+
+		for ( int i = 0, count = _mapEdges.Count; i < count; i++ ) {
+			GameObject graphEdgeGO = GameObject.Instantiate( _graphEdgePrefab ) as GameObject;
+			graphEdgeGO.transform.SetParent( transform );
+			MapEdge edge = graphEdgeGO.GetComponent<MapEdge>();
+			edge.Initialize( _mapEdges[ i ] );
 		}
 	}
 
-	private void GenerateGraphEdges() {
+
+	public MapBlob GenerateNewMap() {
+
+		MapBlob blob = new MapBlob();
+		GenerateGraph();
+
+		blob.MapNodes = _mapNodes;
+		blob.MapEdges = _mapEdges;
+
+		return blob;
+	}
+
+	private void GenerateGraph() {		
+		List<Vector2> points = new List<Vector2>();
+
+		for ( int i = 0; i < _nodeCount; i++ ) {
+			Vector3 position = FindOpenPosition();
+			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab ) as GameObject;
+			graphNodeGO.transform.SetParent( transform );
+
+			MapNode mapNode = graphNodeGO.GetComponent<MapNode>();
+			mapNode.Initialize( GetNodeIdFromVector3(position), position );
+
+			_mapNodes.Add( mapNode.NodeId, mapNode.Data );
+			points.Add( new Vector2( position.x, position.y ) );
+		}
+
+		GenerateEdges( points );
+	}
+
+	private void GenerateEdges( List<Vector2> points ) {
 
 		List<LineSegment> minimumSpanningTree;
 		List<LineSegment> delaunayTriangulation;
+		List<LineSegment> finalEdges = new List<LineSegment>();
 
 		// Create the Voronoi diagram using the AS3 Delaunay library
 		List<uint> colors = new List<uint> ();
 		for ( int i = 0; i < _nodeCount; i++ ) { colors.Add (0); }
-		_voronoi = new Delaunay.Voronoi( _points, colors, new Rect( 0, 0, _mapWidth, _mapHeight ) );
-		minimumSpanningTree = _voronoi.SpanningTree( KruskalType.MINIMUM );
-		delaunayTriangulation = _voronoi.DelaunayTriangulation ();
+		Delaunay.Voronoi voronoi = new Delaunay.Voronoi( points, colors, new Rect( 0, 0, _mapWidth, _mapHeight ) );
+		minimumSpanningTree = voronoi.SpanningTree( KruskalType.MINIMUM );
+		delaunayTriangulation = voronoi.DelaunayTriangulation ();
 
 		// First add any line segment in the minimum spanning tree to the list _edges
 		for ( int i = delaunayTriangulation.Count-1; i >= 0; i-- ) {
 			for ( int j = 0; j < minimumSpanningTree.Count; j++ ) {
 				if ( LineSegmentEquals(  minimumSpanningTree[j], delaunayTriangulation[i] ) ) {
 
-					_edges.Add( delaunayTriangulation[ i ] );
+					finalEdges.Add( delaunayTriangulation[ i ] );
 
 					delaunayTriangulation.RemoveAt( i );
 
@@ -77,26 +116,30 @@ public class GameMap : MonoBehaviour {
 		for ( int i = 0, count = delaunayTriangulation.Count; i < count; i++ ) {
 			float rand = UnityEngine.Random.value;
 			if ( rand <= 0.25 ) {
-				_edges.Add( delaunayTriangulation[ i ] );
+				finalEdges.Add( delaunayTriangulation[ i ] );
 			}
 		}
 			
 		// Create the edges on the map
-		for ( int i = 0, count = _edges.Count; i < count; i++ ) {
-			LineSegment line = _edges[ i ];
+		// Also update neighbours properties on the nodes
+		for ( int i = 0, count = finalEdges.Count; i < count; i++ ) {
+			LineSegment line = finalEdges[ i ];
 
 			GameObject graphEdgeGO = GameObject.Instantiate( _graphEdgePrefab ) as GameObject;
 			graphEdgeGO.transform.SetParent( transform );
+			MapEdge edge = graphEdgeGO.GetComponent<MapEdge>();
 
-			Vector2 p0 = line.p0.Value;
-			Vector2 p1 = line.p1.Value;
-			Vector3[] lineVerts = new Vector3[] { new Vector3( p0.x, p0.y, 0 ), new Vector3( p1.x, p1.y, 0 ) };
+			Vector3 p0 = new Vector3( line.p0.Value.x, line.p0.Value.y, 0 );
+			Vector3 p1 = new Vector3( line.p1.Value.x, line.p1.Value.y, 0 );
 
-			//graphEdgeGO.name = "Edge_" + p0.x + "_" + line.p1;
+			string node1Id = GetNodeIdFromVector3( p0 );
+			string node2Id = GetNodeIdFromVector3( p1 );
 
-			graphEdgeGO.GetComponent<LineRenderer>().SetPositions( lineVerts );
+			_mapNodes[ node1Id ].AddNeighbour( node2Id );
+			_mapNodes[ node2Id ].AddNeighbour( node1Id );
 
-			_mapEdges.Add( graphEdgeGO );
+			edge.Initialize( p0, p1 );
+			_mapEdges.Add( edge.Data );
 		}
 	}
 
@@ -120,4 +163,9 @@ public class GameMap : MonoBehaviour {
 		return ( a.p0.HasValue && b.p0.HasValue && a.p0.Value == b.p0.Value ) && 
 			( a.p1.HasValue && b.p1.HasValue && a.p1.Value == b.p1.Value );
 	}
+
+	private static string GetNodeIdFromVector3( Vector3 position ) {
+		return "Node@X_" + position.x + "_Y_" + position.y;
+	}
 }
+

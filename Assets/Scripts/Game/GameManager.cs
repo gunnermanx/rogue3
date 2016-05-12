@@ -88,8 +88,17 @@ public class GameManager : MonoBehaviour {
 
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
-			List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
-			_weaponPicker.Initialize( ownedTileIds );
+
+			if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
+				_persistenceManager.PlayerBlob.MapBlob = GameMap.Instance.GenerateNewMap();
+			} else {
+				GameMap.Instance.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
+			}
+
+			_persistenceManager.SavePlayerData();
+
+//			List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
+//			_weaponPicker.Initialize( ownedTileIds );
 		}
 		else if ( level == 2 ) {
 			// Initialize game board
