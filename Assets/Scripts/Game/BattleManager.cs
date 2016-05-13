@@ -35,8 +35,11 @@ public class BattleManager : MonoBehaviour {
 
 	private Session _session;
 
-	public void Initialize( BattleStageData data ) {
+	private GameHud _gameHud;
+
+	public void Initialize( BattleStageData data, GameHud gameHud ) {
 		_session = new Session( data );
+		_gameHud = gameHud;
 
 		UpdateHUD();
 	}
@@ -139,10 +142,9 @@ public class BattleManager : MonoBehaviour {
 	}
 	
 	private void UpdateHUD() {
-		GameHud gameHud = GameHud.Instance;
-		gameHud.UpdateHPBar( _session.HPRemaining, _session.HPMax );
-		gameHud.UpdateEnemyTurnCounter( _session.CurrentEnemyCooldown );
-		gameHud.UpdateTurnsRemaining( _session.TurnsRemaining );                              
+		_gameHud.UpdateHPBar( _session.HPRemaining, _session.HPMax );
+		_gameHud.UpdateEnemyTurnCounter( _session.CurrentEnemyCooldown );
+		_gameHud.UpdateTurnsRemaining( _session.TurnsRemaining );                              
 	}
 }
 

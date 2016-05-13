@@ -2,7 +2,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
-public class GameHud : MonoBehaviour {
+public class GameHud : BaseDialog {
 
 	[SerializeField]
 	private Text _turnLimitText;
@@ -13,19 +13,9 @@ public class GameHud : MonoBehaviour {
 	[SerializeField]
 	private GameResults _resultsPanel;
 
-
-	private static GameHud _instance = null;
-	public static GameHud Instance {
-		get { return _instance; }
-	}
-
-	private void Awake() {
-		_instance = this;
-		GameManager.Instance.RegisterGameHud( this );
-	}
-
-	private void OnDestroy() {
-		GameManager.Instance.UnregisterGameHud();
+	public const string DIALOG_ID = "GAME_HUD";
+	public override string GetDialogId() {
+		return DIALOG_ID;		
 	}
 
 	public void UpdateTurnsRemaining( int turnsRemaining ) {

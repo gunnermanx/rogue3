@@ -44,7 +44,7 @@ public class GameMap : MonoBehaviour {
 			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab ) as GameObject;
 			graphNodeGO.transform.SetParent( transform );
 			MapNode mapNode = graphNodeGO.GetComponent<MapNode>();
-			mapNode.Initialize( kvp.Value );
+			mapNode.Initialize( kvp.Value, MapNodeTappedCallback );
 		}
 
 		for ( int i = 0, count = _mapEdges.Count; i < count; i++ ) {
@@ -67,6 +67,11 @@ public class GameMap : MonoBehaviour {
 		return blob;
 	}
 
+	public void MapNodeTappedCallback( MapNode node ) {
+		Debug.Log( "NodeTapped " + node.Data.Id );
+		GameManager.Instance.ShowWeaponPicker();
+	}
+
 	private void GenerateGraph() {		
 		List<Vector2> points = new List<Vector2>();
 
@@ -76,7 +81,7 @@ public class GameMap : MonoBehaviour {
 			graphNodeGO.transform.SetParent( transform );
 
 			MapNode mapNode = graphNodeGO.GetComponent<MapNode>();
-			mapNode.Initialize( GetNodeIdFromVector3(position), position );
+			mapNode.Initialize( GetNodeIdFromVector3(position), position, MapNodeTappedCallback );
 
 			_mapNodes.Add( mapNode.NodeId, mapNode.Data );
 			points.Add( new Vector2( position.x, position.y ) );

@@ -26,25 +26,10 @@ public class GameManager : MonoBehaviour {
 		get { return _instance; }
 	}
 
-	private GameHud _gameHud;
-	public void RegisterGameHud( GameHud gameHud ) {
-		_gameHud = gameHud;
-	}
-	public void UnregisterGameHud() {
-		_gameHud = null;
-	}
-
-	private WeaponPicker _weaponPicker;
-	public void RegisterWeaponPicker( WeaponPicker weaponPicker ) {
-		_weaponPicker = weaponPicker;
-	}
-	public void UnregisterWeaponPicker(){
-		_weaponPicker = null;
-	}
-
-
 	private BoardManager _boardManager;
 	private BattleManager _battleManager;
+
+	private GameHud _gameHud = null;
 
 	private int _currentWindowId = 0;
 
@@ -86,6 +71,12 @@ public class GameManager : MonoBehaviour {
 
 	}
 
+	public void ShowWeaponPicker() {
+		List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
+		WeaponPicker weaponPicker = UIManager.Instance.OpenDialog( WeaponPicker.DIALOG_ID ) as WeaponPicker;
+		weaponPicker.Initialize( ownedTileIds );
+	}
+
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
 
@@ -96,11 +87,11 @@ public class GameManager : MonoBehaviour {
 			}
 
 			_persistenceManager.SavePlayerData();
-
-//			List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
-//			_weaponPicker.Initialize( ownedTileIds );
 		}
 		else if ( level == 2 ) {
+			// Initialize Game HUD
+			_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
+
 			// Initialize game board
 			GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
 			_boardManager = boardManagerGO.GetComponent<BoardManager>();
@@ -112,10 +103,7 @@ public class GameManager : MonoBehaviour {
 			// Initialize battle manager
 			GameObject battleManagerGO = GameObject.Instantiate( _battleManagerPrefab );
 			_battleManager = battleManagerGO.GetComponent<BattleManager>();
-			_battleManager.Initialize( gameStageData );
-
-			// Initialize Game HUD
-			_gameHud.gameObject.SetActive( true );
+			_battleManager.Initialize( gameStageData, _gameHud );
 		}
 	}
 
@@ -127,7 +115,8 @@ public class GameManager : MonoBehaviour {
 		Destroy( _boardManager.gameObject );
 		Destroy( _battleManager.gameObject );
 
-		_gameHud.gameObject.SetActive( false );
+		UIManager.Instance.CloseDialog( GameHud.DIALOG_ID );
+		_gameHud = null;
 	
 		_gameStarted = false;
 

@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class WeaponPicker : MonoBehaviour {
+public class WeaponPicker : BaseDialog {
 
 	[SerializeField]
 	private DynamicInventory _ownedWeaponsInventory;
@@ -10,12 +10,9 @@ public class WeaponPicker : MonoBehaviour {
 	[SerializeField]
 	private StaticInventory _equippedWeaponsInventory;
 
-	private void Awake() {
-		GameManager.Instance.RegisterWeaponPicker( this );
-	}
-
-	private void OnDestroy() {
-		GameManager.Instance.UnregisterWeaponPicker();
+	public const string DIALOG_ID = "WEAPON_PICKER";
+	public override string GetDialogId() {
+		return DIALOG_ID;		
 	}
 
 	public void Initialize( List<string> weaponDataIds ) {
@@ -49,6 +46,6 @@ public class WeaponPicker : MonoBehaviour {
 
 		GameManager.Instance.StartGame( weaponTileData, stageData );
 
-
+		UIManager.Instance.CloseDialog( DIALOG_ID );
 	}
 }
