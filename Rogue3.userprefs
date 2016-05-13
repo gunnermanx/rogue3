@@ -1,20 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game/GameManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/BaseDialog.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game/Map/GameMap.cs" Line="128" Column="64" />
-      <File FileName="Assets/Scripts/Core/Persistence/BlobClasses/PlayerBlob.cs" Line="11" Column="12" />
-      <File FileName="Assets/Scripts/Core/Persistence/PersistenceManager.cs" Line="60" Column="66" />
-      <File FileName="Assets/Scripts/Game/Map/MapEdge.cs" Line="15" Column="26" />
-      <File FileName="Assets/Scripts/Game/Map/MapNode.cs" Line="29" Column="3" />
-      <File FileName="Assets/Scripts/Core/Persistence/BlobClasses/MapBlob.cs" Line="11" Column="22" />
-      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="38" Column="54" />
+      <File FileName="Assets/Scripts/UI/BaseDialog.cs" Line="20" Column="2" />
+      <File FileName="Assets/Scripts/Game/Map/MapNode.cs" Line="8" Column="14" />
+      <File FileName="Assets/Scripts/Game/Map/MapEdge.cs" Line="28" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore>
       <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/BattleManager.cs" line="120" column="1" />
-      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/Map/MapEdge.cs" line="28" column="1" />
+      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/UI/BaseDialog.cs" line="15" column="1" />
     </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />

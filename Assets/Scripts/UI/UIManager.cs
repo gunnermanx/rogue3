@@ -69,9 +69,13 @@ public class UIManager : MonoBehaviour {
 
 			// Cleanup the dialog
 
+
 			_openedDialogs.Remove( dialogId );
 			GameObject.Destroy( dialog.gameObject );
 		}
 	}
+
+	
+	
 }
 

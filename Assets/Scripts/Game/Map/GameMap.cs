@@ -76,7 +76,16 @@ public class GameMap : MonoBehaviour {
 		List<Vector2> points = new List<Vector2>();
 
 		for ( int i = 0; i < _nodeCount; i++ ) {
-			Vector3 position = FindOpenPosition();
+
+			Vector3 position;
+			if ( i == 0 ) {
+				position = FindStartingPosition();
+			} else if ( i == _nodeCount ) {
+				position = FindEndingPosition();
+			} else {
+				position = FindOpenPosition();
+			}
+
 			GameObject graphNodeGO = GameObject.Instantiate( _graphNodePrefab ) as GameObject;
 			graphNodeGO.transform.SetParent( transform );
 
@@ -85,6 +94,10 @@ public class GameMap : MonoBehaviour {
 
 			_mapNodes.Add( mapNode.NodeId, mapNode.Data );
 			points.Add( new Vector2( position.x, position.y ) );
+
+			if ( i == 0 ) {
+				// save current node		
+			}
 		}
 
 		GenerateEdges( points );
@@ -162,6 +175,14 @@ public class GameMap : MonoBehaviour {
 		while ( overlappingNodes.Length > 0 );
 
 		return candidatePosition; 
+	}
+
+	private Vector3 FindStartingPosition() {
+		return new Vector3( Random.Range(0, _mapWidth), 0, 0 );
+	}
+
+	private Vector3 FindEndingPosition() {
+		return new Vector3( Random.Range(0, _mapWidth), _mapHeight-1, 0 );
 	}
 
 	private bool LineSegmentEquals( LineSegment a, LineSegment b ) {

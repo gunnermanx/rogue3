@@ -9,5 +9,11 @@ public class MapBlob {
 
 	[fsProperty]
 	public List<MapEdgeData> MapEdges = new List<MapEdgeData>();
+
+	[fsProperty]
+	public List<string> CompletedNotes = new List<string>();
+
+	[fsProperty]
+	public string CurrentNode;
 }
 
