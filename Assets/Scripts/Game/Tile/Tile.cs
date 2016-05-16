@@ -42,10 +42,7 @@ public class Tile : MonoBehaviour {
 	public Color GetDebugColor() {
 		Color color = Color.white;
 		switch( _tileData.Type ) {
-		case BaseTileData.TileType.Axe:
-			color = Color.red;
-			break;
-		case BaseTileData.TileType.Staff:
+		case BaseTileData.TileType.Tomes:
 			color = Color.blue;
 			break;
 		case BaseTileData.TileType.Sword:
@@ -55,7 +52,7 @@ public class Tile : MonoBehaviour {
 			color = Color.yellow;
 			break;
 		case BaseTileData.TileType.Mace:
-			color = Color.magenta;
+			color = Color.red;
 			break;
 			
 		}

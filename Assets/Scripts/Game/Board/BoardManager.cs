@@ -127,15 +127,20 @@ public class BoardManager : MonoBehaviour {
 				if ( selectedTileMatched || targetTileMatched ) {
 					
 					_matches.Clear();
-					List<Tile> selectedMatches = new List<Tile>();
-					List<Tile> targetMatches = new List<Tile>();
-					if ( _swap.SelectedHorizontalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedHorizontalMatches );
-					if ( _swap.SelectedVerticalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedVerticalMatches );
-					if ( _swap.TargetHorizontalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetHorizontalMatches );
-					if ( _swap.TargetVerticalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetVerticalMatches );
+					//List<Tile> selectedMatches = new List<Tile>();
+					//List<Tile> targetMatches = new List<Tile>();
+//					if ( _swap.SelectedHorizontalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedHorizontalMatches );
+//					if ( _swap.SelectedVerticalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedVerticalMatches );
+//					if ( _swap.TargetHorizontalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetHorizontalMatches );
+//					if ( _swap.TargetVerticalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetVerticalMatches );
 					
-					if ( selectedMatches.Count > 0 ) _matches.Add( selectedMatches );
-					if ( targetMatches.Count > 0 ) _matches.Add( targetMatches );
+					//if ( selectedMatches.Count > 0 ) _matches.Add( selectedMatches );
+					//if ( targetMatches.Count > 0 ) _matches.Add( targetMatches );
+
+					if ( _swap.SelectedHorizontalMatches.Count > 0 ) _matches.Add( _swap.SelectedHorizontalMatches );
+					if ( _swap.SelectedVerticalMatches.Count > 0 ) _matches.Add( _swap.SelectedVerticalMatches );
+					if ( _swap.TargetHorizontalMatches.Count > 0 ) _matches.Add( _swap.TargetHorizontalMatches );
+					if ( _swap.TargetVerticalMatches.Count > 0 ) _matches.Add( _swap.TargetVerticalMatches );
 
 					RaiseOnTilesSwapped();
 					
@@ -485,6 +490,10 @@ public class BoardManager : MonoBehaviour {
 		isPerformingMatch = true;
 		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
 
+
+			// Examine each match, they should trigger some sort of skill
+			TriggerMatchSkill( _matches[ i ] );
+
 			RaiseOnTilesMatched( _matches[ i ] );
 
 			for ( int j = _matches[ i ].Count - 1; j >= 0; j-- ) {
@@ -694,7 +703,15 @@ public class BoardManager : MonoBehaviour {
 		return new Vector3( xCoord, yCoord, Tile.Z_DEPTH );
 	}
 
+	private void TriggerMatchSkill( List<Tile> match ) {
+		// Check out the first tile to see what tile skill to trigger
+		Tile tile = match[ 0 ];
+		switch ( tile.TileType ) {
+//		case BaseTileData.TileType.
+		}
+	}
 
+#region BoardGestureManager event handlers
 	void HandleOnSelectTile( Tile tile ) {
 		if ( _isGameOver || _state != State.Input ) return;
 
@@ -722,13 +739,12 @@ public class BoardManager : MonoBehaviour {
 			PerformUndoSwapAnimation();
 		}
 	}
+#endregion
 
-	#region Debug
-
+#region Debug
 	public Tile[,] DebugGetBoard() {
 		return _board;
 	}
-
-	#endregion
+#endregion
 
 }

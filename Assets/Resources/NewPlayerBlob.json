@@ -1,11 +1,9 @@
 {
 	"OwnedTileIds": [
-		"WoodenAxe",
 		"WoodenBow",
 		"WoodenSword",
-		"WoodenStaff",
+		"WoodenTome",
 		"WoodenMace",
-		"SteelMace",
-		"SteelAxe"
+		"SteelMace"
 	]
 }

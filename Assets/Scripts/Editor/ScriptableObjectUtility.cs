@@ -24,6 +24,25 @@ public class ScriptableObjectUtility {
 		CreateScriptableObject<EnemyAttackDataSet>();
 	}
 
+	[MenuItem("Assets/Create/ScriptableObjects/WeaponSkills/Stun")]
+	public static void CreateStunWeaponSkillData() {
+		CreateScriptableObject<StunWeaponSkillData>();
+	}
+
+	[MenuItem("Assets/Create/ScriptableObjects/WeaponSkills/DoT")]
+	public static void CreateDoTWeaponSkillData() {
+		CreateScriptableObject<DoTWeaponSkillData>();
+	}
+
+	[MenuItem("Assets/Create/ScriptableObjects/WeaponSkills/Crit")]
+	public static void CreateCriticalWeaponSkillData() {
+		CreateScriptableObject<CriticalWeaponSkillData>();
+	}
+
+	[MenuItem("Assets/Create/ScriptableObjects/WeaponSkills/ObsClear")]
+	public static void CreateObstructionClearWeaponSkillData() {
+		CreateScriptableObject<ObstructionClearWeaponSkillData>();
+	}
 	
 	private static void CreateScriptableObject<T> () where T: ScriptableObject {
 		T sObject = ScriptableObject.CreateInstance<T>();

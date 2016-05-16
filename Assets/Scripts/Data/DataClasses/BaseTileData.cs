@@ -1,13 +1,13 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 [System.Serializable]
 public class BaseTileData : ScriptableObject {
 
 	public enum TileType {
-		Axe,
 		Sword,
-		Staff,
+		Tomes,
 		Bow,
 		Mace,
 		Unbreakable
@@ -20,4 +20,6 @@ public class BaseTileData : ScriptableObject {
 	public bool Moveable;
 
 	public bool Matchable;
+
+	public List<BaseWeaponSkillData> WeaponSkills;
 }
