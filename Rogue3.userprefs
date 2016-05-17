@@ -1,11 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/UI/UIManager.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Editor/ScriptableObjectUtility.cs">
     <Files>
-      <File FileName="Assets/Scripts/UI/BaseDialog.cs" Line="13" Column="27" />
-      <File FileName="Assets/Scripts/Game/Map/MapNode.cs" Line="19" Column="3" />
-      <File FileName="Assets/Scripts/UI/UIManager.cs" Line="19" Column="2" />
-      <File FileName="Assets/Scripts/Core/Persistence/BlobClasses/MapBlob.cs" Line="10" Column="14" />
+      <File FileName="Assets/Scripts/Game/Board/BoardManager.cs" Line="710" Column="32" />
+      <File FileName="Assets/Scripts/Data/DataClasses/BaseTileData.cs" Line="26" Column="1" />
+      <File FileName="Assets/Scripts/Game/Tile/Tile.cs" Line="27" Column="2" />
+      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/StunWeaponSkillData.cs" Line="7" Column="1" />
+      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/BaseWeaponSkillData.cs" Line="11" Column="1" />
+      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/DoTWeaponSkillData.cs" Line="10" Column="1" />
+      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/CriticalWeaponSkillData.cs" Line="3" Column="1" />
+      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/ObstructionClearWeaponSkillData.cs" Line="8" Column="1" />
+      <File FileName="Assets/Scripts/Editor/ScriptableObjectUtility.cs" Line="38" Column="54" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
