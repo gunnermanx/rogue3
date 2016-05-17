@@ -5,7 +5,7 @@ public class BaseWeaponSkillData : ScriptableObject {
 	public float ThreeTileActivationPercentage;
 	public float FourTileActivationPercentage;
 
-	public virtual void PerformWeaponSkill( BoardManager boardManager, BattleManager battleManager ) {
+	public virtual void PerformWeaponSkill( GameBoard gameBoard, Battle battle, int matchSize, object contextData = null ) {
 	}	
 }
 

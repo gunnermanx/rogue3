@@ -10,7 +10,7 @@ using System.Collections.Generic;
 using System.Text;
 
 
-public class BoardManager : MonoBehaviour {
+public class GameBoard : MonoBehaviour {
 
 	// Data class that represents a swap
 	private class Swap {
@@ -31,7 +31,7 @@ public class BoardManager : MonoBehaviour {
 	private GameObject TilePrefab;
 
 	[SerializeField]
-	private BoardGestureManager BoardGestureManager;
+	private GameBoardGestureHandler GameBoardGestureHandler;
 
 	[SerializeField]
 	private Transform TilesContainer;
@@ -86,16 +86,18 @@ public class BoardManager : MonoBehaviour {
 
 	private bool _isGameOver = false;
 
+	private Battle _battle = null;
+
 	private void Awake() {
-		BoardGestureManager.onSelectTile += HandleOnSelectTile;
-		BoardGestureManager.onDragTile += HandleOnDragTile;
-		BoardGestureManager.onDropTile += HandleOnDropTile;
+		GameBoardGestureHandler.onSelectTile += HandleOnSelectTile;
+		GameBoardGestureHandler.onDragTile += HandleOnDragTile;
+		GameBoardGestureHandler.onDropTile += HandleOnDropTile;
 	}
 
 	private void OnDestroy() {
-		BoardGestureManager.onSelectTile -= HandleOnSelectTile;
-		BoardGestureManager.onDragTile -= HandleOnDragTile;
-		BoardGestureManager.onDropTile -= HandleOnDropTile;
+		GameBoardGestureHandler.onSelectTile -= HandleOnSelectTile;
+		GameBoardGestureHandler.onDragTile -= HandleOnDragTile;
+		GameBoardGestureHandler.onDropTile -= HandleOnDropTile;
 	}
 
 	private bool _holdStateChanges = false;
@@ -105,6 +107,7 @@ public class BoardManager : MonoBehaviour {
 	/// </summary>
 	private void Update() {
 
+		// If the game is over or we dont want state changes or logic to be done, we should return
 		if ( _isGameOver || _holdStateChanges == true ) {
 			return;
 		}
@@ -127,15 +130,6 @@ public class BoardManager : MonoBehaviour {
 				if ( selectedTileMatched || targetTileMatched ) {
 					
 					_matches.Clear();
-					//List<Tile> selectedMatches = new List<Tile>();
-					//List<Tile> targetMatches = new List<Tile>();
-//					if ( _swap.SelectedHorizontalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedHorizontalMatches );
-//					if ( _swap.SelectedVerticalMatches.Count > 0 ) selectedMatches.AddRange( _swap.SelectedVerticalMatches );
-//					if ( _swap.TargetHorizontalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetHorizontalMatches );
-//					if ( _swap.TargetVerticalMatches.Count > 0 ) targetMatches.AddRange( _swap.TargetVerticalMatches );
-					
-					//if ( selectedMatches.Count > 0 ) _matches.Add( selectedMatches );
-					//if ( targetMatches.Count > 0 ) _matches.Add( targetMatches );
 
 					if ( _swap.SelectedHorizontalMatches.Count > 0 ) _matches.Add( _swap.SelectedHorizontalMatches );
 					if ( _swap.SelectedVerticalMatches.Count > 0 ) _matches.Add( _swap.SelectedVerticalMatches );
@@ -204,9 +198,10 @@ public class BoardManager : MonoBehaviour {
 		}
 	}
 
-	public void InitializeBoard( List<WeaponTileData> tileData ) {
+	public void Initialize( List<WeaponTileData> tileData, Battle battle ) {
 
 		_equippedTileData = tileData;
+		_battle = battle;
 
 		// 0, 0 is the bottom left corner tile
 		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
@@ -391,9 +386,6 @@ public class BoardManager : MonoBehaviour {
 			_board[ _swap.TargetTile.X, _swap.TargetTile.Y ] = _swap.TargetTile;
 			_board[ _swap.SelectedTile.X, _swap.SelectedTile.Y ] = _swap.SelectedTile;
 		}
-
-
-
 	}
 
 	private void PerformUndoSwapAnimation() {
@@ -410,9 +402,6 @@ public class BoardManager : MonoBehaviour {
 	}
 
 	private void PerformSwap() {
-		// Tween Swap
-		//Debug.Log( "TARGET: " + _swap.TargetTile.ToString() );
-
 		// Swap the coords
 		int selectedX =  _swap.TargetTile.X;
 		int selectedY =  _swap.TargetTile.Y;
@@ -427,9 +416,6 @@ public class BoardManager : MonoBehaviour {
 		// Update the board
 		_board[ _swap.TargetTile.X, _swap.TargetTile.Y ] = _swap.TargetTile;
 		_board[ _swap.SelectedTile.X, _swap.SelectedTile.Y ] = _swap.SelectedTile;
-
-
-
 	}
 
 	private void PerformSwapAnimation() {
@@ -657,14 +643,6 @@ public class BoardManager : MonoBehaviour {
 
 					}
 					if ( !sameMatch ) {
-
-//						StringBuilder sb = new StringBuilder();
-//						sb.Append( "MATCH ADDED: " );
-//						for ( int j = 0; j < totalMatches.Count; j++ ) {
-//							sb.Append( totalMatches[j].ToString() + " " );
-//						}
-//						Debug.Log ( sb.ToString() );
-
 						_matches.Add( totalMatches );
 					}
 				}
@@ -706,7 +684,20 @@ public class BoardManager : MonoBehaviour {
 	private void TriggerMatchSkill( List<Tile> match ) {
 		// Check out the first tile to see what tile skill to trigger
 		Tile tile = match[ 0 ];
+		List<BaseWeaponSkillData> weaponSkills = tile.GetWeaponSkills();
+		for ( int i = 0, count = weaponSkills.Count; i < count; i++ ) {
+			weaponSkills[ i ].PerformWeaponSkill( this, _battle, match.Count );
+		}
+	}
 
+	public bool IsObstructionsOnGameBoard() {
+		return _expiringObstructions.Count > 0;
+	}
+
+	public void DestroyRandomObstruction() {
+		int randomIndex = UnityEngine.Random.Range( 0, _expiringObstructions.Count );
+		ClearTile( _expiringObstructions[ randomIndex ] );
+		_expiringObstructions.RemoveAt( randomIndex );
 	}
 
 #region BoardGestureManager event handlers

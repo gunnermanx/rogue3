@@ -6,7 +6,7 @@ public class GameResults : MonoBehaviour {
 	//temp
 	public Text ResultLabel;
 
-	public void Initialize( BattleManager.SessionResults results ) {
+	public void Initialize( Battle.SessionResults results ) {
 
 		// Temp
 		if ( results.IsVictory ) {

@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class BoardGestureManager : MonoBehaviour {
+public class GameBoardGestureHandler : MonoBehaviour {
 
 	private enum GestureState {
 		None,

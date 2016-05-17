@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 
-public class BattleManager : MonoBehaviour {
+public class Battle : MonoBehaviour {
 
 	public class Session {
 		public int TurnsRemaining = -1;
@@ -37,11 +37,26 @@ public class BattleManager : MonoBehaviour {
 
 	private GameHud _gameHud;
 
-	public void Initialize( BattleStageData data, GameHud gameHud ) {
+	private GameBoard _gameBoard;
+
+	public void Initialize( BattleStageData data, GameHud gameHud, GameBoard gameBoard ) {
 		_session = new Session( data );
 		_gameHud = gameHud;
+		_gameBoard = gameBoard;
+
+
+		_gameBoard.OnTilesSwapped += HandleOnTilesSwapped;
+		_gameBoard.OnTilesMatched += HandleOnTilesMatched;
+		_gameBoard.OnTurnEnded += HandleOnTurnEnded;
 
 		UpdateHUD();
+	}
+
+	private void OnDestroy()
+	{
+		_gameBoard.OnTilesSwapped -= HandleOnTilesSwapped;
+		_gameBoard.OnTilesMatched -= HandleOnTilesMatched;
+		_gameBoard.OnTurnEnded -= HandleOnTurnEnded;
 	}
 
 	public bool IsBattleComplete() {
@@ -146,5 +161,37 @@ public class BattleManager : MonoBehaviour {
 		_gameHud.UpdateEnemyTurnCounter( _session.CurrentEnemyCooldown );
 		_gameHud.UpdateTurnsRemaining( _session.TurnsRemaining );                              
 	}
+
+#region EventHandlers
+	public void HandleOnTilesSwapped() {
+	}
+
+	public void HandleOnTilesMatched( List<Tile> matches ) {
+		// TODO 
+		AttackEnemy( matches );
+	}
+
+	public void HandleOnTurnEnded() {
+		List<EnemyAttackDataSet.EnemyAttackData> attacks = IncrementTurnAndGetEnemyAttack();
+
+		bool gameComplete = IsBattleComplete();
+		if ( gameComplete ) {
+
+			_gameBoard.GameComplete();
+
+			// Show the results panel
+			_gameHud.ShowResults( GetResults() );
+		}
+
+		// There is no attack from the enemy, notify the boardmanager to continue to input
+		if ( attacks == null ) {
+			_gameBoard.ContinueToInput();
+		}
+		// Otherwise we need to attack the board
+		else {
+			_gameBoard.ProcessEnemyAttack( attacks );
+		}
+	}
+#endregion
 }
 

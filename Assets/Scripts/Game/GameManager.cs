@@ -6,10 +6,10 @@ using System.Collections.Generic;
 public class GameManager : MonoBehaviour {
 
 	[SerializeField]
-	private GameObject _boardManagerPrefab;
+	private GameObject _gameBoardPrefab;
 
 	[SerializeField]
-	private GameObject _battleManagerPrefab;
+	private GameObject _battlePrefab;
 
 	[SerializeField]
 	private Database _database;
@@ -26,17 +26,10 @@ public class GameManager : MonoBehaviour {
 		get { return _instance; }
 	}
 
-	private BoardManager _boardManager;
-	private BattleManager _battleManager;
+	private GameBoard _gameBoard;
+	private Battle _battle;
 
 	private GameHud _gameHud = null;
-
-	private int _currentWindowId = 0;
-
-	private static readonly float WIDTH = 400;
-	private static readonly float HEIGHT = 400;
-	
-	public Rect windowRect = new Rect( (Screen.width - WIDTH)/2, (Screen.height + HEIGHT)/2, 100, 100);
 
 	private void Awake() {
 		_instance = this;
@@ -56,7 +49,6 @@ public class GameManager : MonoBehaviour {
 	private void OnPlayerBlobLoaded( PlayerBlob blob ) {
 		Debug.Log( "gameManager: playerblob loaded" );
 		SceneManager.LoadScene( "Main" );
-		_loaded = true;
 	}
 
 	List<WeaponTileData> gameTileData = null;
@@ -91,35 +83,30 @@ public class GameManager : MonoBehaviour {
 		else if ( level == 2 ) {
 			// Initialize Game HUD
 			_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
+		
+			// Create the gameboard and battle
+			GameObject boardManagerGO = GameObject.Instantiate( _gameBoardPrefab );
+			_gameBoard = boardManagerGO.GetComponent<GameBoard>();
 
-			// Initialize game board
-			GameObject boardManagerGO = GameObject.Instantiate( _boardManagerPrefab );
-			_boardManager = boardManagerGO.GetComponent<BoardManager>();
-			_boardManager.InitializeBoard( gameTileData );
-			_boardManager.OnTilesSwapped += HandleOnTilesSwapped;
-			_boardManager.OnTilesMatched += HandleOnTilesMatched;
-			_boardManager.OnTurnEnded += HandleOnTurnEnded;
+			GameObject battleManagerGO = GameObject.Instantiate( _battlePrefab );
+			_battle = battleManagerGO.GetComponent<Battle>();
 
 			// Initialize battle manager
-			GameObject battleManagerGO = GameObject.Instantiate( _battleManagerPrefab );
-			_battleManager = battleManagerGO.GetComponent<BattleManager>();
-			_battleManager.Initialize( gameStageData, _gameHud );
+			_battle.Initialize( gameStageData, _gameHud, _gameBoard );
+
+			// Initialize game board
+			_gameBoard.Initialize( gameTileData, _battle );
 		}
 	}
 
 	private void CleanupGame() {
-		_boardManager.OnTilesSwapped -= HandleOnTilesSwapped;
-		_boardManager.OnTilesMatched -= HandleOnTilesMatched;
-		_boardManager.OnTurnEnded -= HandleOnTurnEnded;
 
-		Destroy( _boardManager.gameObject );
-		Destroy( _battleManager.gameObject );
+		Destroy( _gameBoard.gameObject );
+		Destroy( _battle.gameObject );
 
 		UIManager.Instance.CloseDialog( GameHud.DIALOG_ID );
 		_gameHud = null;
 	
-		_gameStarted = false;
-
 		SceneManager.LoadScene( "Main" );
 	}
 
@@ -127,60 +114,15 @@ public class GameManager : MonoBehaviour {
 		CleanupGame();
 	}
 
-#region EventHandlers
-	public void HandleOnTilesSwapped() {
-	}
-
-	public void HandleOnTilesMatched( List<Tile> matches ) {
-		// TODO 
-		_battleManager.AttackEnemy( matches );
-	}
-
-	public void HandleOnTurnEnded() {
-		List<EnemyAttackDataSet.EnemyAttackData> attacks = _battleManager.IncrementTurnAndGetEnemyAttack();
-
-		bool gameComplete = _battleManager.IsBattleComplete();
-		if ( gameComplete ) {
-
-			_boardManager.GameComplete();
-
-			// Show the results panel
-			_gameHud.ShowResults( _battleManager.GetResults() );
-		}
-
-		// There is no attack from the enemy, notify the boardmanager to continue to input
-		if ( attacks == null ) {
-			_boardManager.ContinueToInput();
-		}
-		// Otherwise we need to attack the board
-		else {
-			_boardManager.ProcessEnemyAttack( attacks );
-		}
-	}
-#endregion
-
 #region Debug
-
-	bool _gameStarted = false;
-	bool _loaded = false;
-
-	private List<WeaponTileData> GetStartingWeaponTileData() {	
-		List<WeaponTileData> data = new List<WeaponTileData>();
-		data.Add( _database.GetWeaponTileData( "WoodenAxe" ) );
-		data.Add( _database.GetWeaponTileData( "WoodenBow" ) );
-		data.Add( _database.GetWeaponTileData( "WoodenSword" ) );
-		data.Add( _database.GetWeaponTileData( "WoodenStaff" ) );
-		return data;
-	}
-
 	public Tile[,] DebugGetBoard() {
-		return _boardManager.DebugGetBoard();
+		return _gameBoard.DebugGetBoard();
 	}
 
 	public void ResetBoard() {
-		_boardManager.ClearBoard();
-		List<WeaponTileData> tileData = GetStartingWeaponTileData();
-		_boardManager.InitializeBoard( tileData );
+//		_boardManager.ClearBoard();
+//		List<WeaponTileData> tileData = GetStartingWeaponTileData();
+//		_boardManager.Initialize( tileData );
 	}
 #endregion
 }

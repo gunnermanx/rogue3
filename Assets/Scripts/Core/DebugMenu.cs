@@ -64,12 +64,12 @@ public class DebugMenu : MonoBehaviour {
 
 			GUILayout.BeginVertical("box");
 			{
-				for ( int h = BoardManager.BOARD_HEIGHT-1; h >= 0; h-- ) {
+				for ( int h = GameBoard.BOARD_HEIGHT-1; h >= 0; h-- ) {
 					GUILayout.BeginHorizontal();
 					{
 						GUILayout.Box( h.ToString(), GUILayout.Height(50f), GUILayout.Width(25f) );
 
-						for ( int w = 0, count = BoardManager.BOARD_WIDTH; w < count; w++ ) {
+						for ( int w = 0, count = GameBoard.BOARD_WIDTH; w < count; w++ ) {
 							Tile tile = board[ w, h ];
 
 							if ( tile != null ) {
@@ -88,7 +88,7 @@ public class DebugMenu : MonoBehaviour {
 				GUILayout.BeginHorizontal();
 				{
 					GUILayout.Box( string.Empty, GUILayout.Height(25f), GUILayout.Width(25f) );
-					for ( int w = 0, count = BoardManager.BOARD_WIDTH; w < count; w++ ) {
+					for ( int w = 0, count = GameBoard.BOARD_WIDTH; w < count; w++ ) {
 						GUILayout.Box( w.ToString(), GUILayout.Height(25f), GUILayout.Width(50f) );
 					}
 				}

@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Tile : MonoBehaviour {
 
@@ -37,6 +38,10 @@ public class Tile : MonoBehaviour {
 		if ( data is ObstructionTileData ) {
 			_turnsTilExpired = ( data as ObstructionTileData ).TurnsTilExpired;
 		}
+	}
+
+	public List<BaseWeaponSkillData> GetWeaponSkills() {
+		return _tileData.WeaponSkills;
 	}
 
 	public Color GetDebugColor() {

@@ -30,7 +30,7 @@ public class GameHud : BaseDialog {
 		_hpSlider.value = (float)current / (float) max;
 	}
 
-	public void ShowResults( BattleManager.SessionResults results ) {
+	public void ShowResults( Battle.SessionResults results ) {
 		if ( results != null ) {
 			_resultsPanel.gameObject.SetActive( true );
 			_resultsPanel.Initialize( results );
