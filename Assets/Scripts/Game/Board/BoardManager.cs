@@ -706,9 +706,7 @@ public class BoardManager : MonoBehaviour {
 	private void TriggerMatchSkill( List<Tile> match ) {
 		// Check out the first tile to see what tile skill to trigger
 		Tile tile = match[ 0 ];
-		switch ( tile.TileType ) {
-//		case BaseTileData.TileType.
-		}
+
 	}
 
 #region BoardGestureManager event handlers
