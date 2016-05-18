@@ -60,4 +60,8 @@ public class PersistenceManager : MonoBehaviour {
 		string playerDataText = Serializer.Serialize( typeof(PlayerBlob), _playerBlob );
 		System.IO.File.WriteAllText( Application.persistentDataPath + "/PlayerBlob.json", playerDataText );
 	}
+
+	public void DeletePlayerData() {
+		System.IO.File.Delete( Application.persistentDataPath + "/PlayerBlob.json" );
+	}
 }

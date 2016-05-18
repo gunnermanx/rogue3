@@ -20,13 +20,16 @@ public class DebugMenu : MonoBehaviour {
 
 	void OnGUI() {
 		if ( _isShown ) {
-			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Debug", GUILayout.Width(400));
+
+			GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,new Vector3(Screen.width / 480, Screen.height / 800, 1)); 
+
+			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Debug", GUILayout.Width(400), GUILayout.Height(400));
 		}
 	}
 
 	void DrawMenu( int windowID ) {
 		GUILayout.BeginHorizontal();
-		if ( GUILayout.Button( "Main Menu" ) ) {
+		if ( GUILayout.Button( "Main Menu", GUILayout.Height(50f) ) ) {
 			_currentWindowId = (int)WindowIds.Options;
 		}
 		GUILayout.EndHorizontal();
@@ -45,11 +48,14 @@ public class DebugMenu : MonoBehaviour {
 	}
 
 	void DrawOptions() {
-		if ( GUILayout.Button( "Board" ) ) {
+		if ( GUILayout.Button( "Board", GUILayout.Height(50f) ) ) {
 			_currentWindowId = (int)WindowIds.Board;
 		}
-		if ( GUILayout.Button( "Tiles" ) ) {
+		if ( GUILayout.Button( "Tiles", GUILayout.Height(50f) ) ) {
 			_currentWindowId =(int) WindowIds.Tiles;
+		}
+		if ( GUILayout.Button( "Reset PlayerBlob", GUILayout.Height(50f) ) ) {
+			GameManager.Instance.ResetPlayerBlob();
 		}
 	}
 

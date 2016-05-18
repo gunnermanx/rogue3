@@ -41,7 +41,15 @@ public class GameManager : MonoBehaviour {
 	}
 
 	private void Update() {
+
+#if UNITY_EDITOR
 		if ( Input.GetKeyUp(KeyCode.BackQuote) ) {
+#else
+		if ( Input.touchCount >= 3 && 
+			Input.GetTouch(0).phase == TouchPhase.Began && 
+			Input.GetTouch(1).phase == TouchPhase.Began &&
+			Input.GetTouch(2).phase == TouchPhase.Began ) {
+#endif
 			DebugMenu.ToggleDebugMenu();
 		}
 	}
@@ -123,6 +131,13 @@ public class GameManager : MonoBehaviour {
 //		_boardManager.ClearBoard();
 //		List<WeaponTileData> tileData = GetStartingWeaponTileData();
 //		_boardManager.Initialize( tileData );
+	}
+
+	public void ResetPlayerBlob() {
+		_persistenceManager.DeletePlayerData();
+		Destroy( gameObject );
+		Destroy( UIManager.Instance.gameObject );
+		SceneManager.LoadScene( "Loader" );
 	}
 #endregion
 }
