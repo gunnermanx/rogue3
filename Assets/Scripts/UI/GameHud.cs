@@ -12,10 +12,45 @@ public class GameHud : BaseDialog {
 	private Slider _hpSlider;
 	[SerializeField]
 	private GameResults _resultsPanel;
+	[SerializeField]
+	private Text _dotStatusDurationText;
+	[SerializeField]
+	private Text _dotStatusStackSizeText;
+	[SerializeField]
+	private Text _stunStatusDurationText;
+	[SerializeField]
+	private GameObject _dotStatus;
+	[SerializeField]
+	private GameObject _stunStatus;
 
 	public const string DIALOG_ID = "GAME_HUD";
 	public override string GetDialogId() {
 		return DIALOG_ID;		
+	}
+
+	public void HideDoTStatus() {
+		_dotStatus.SetActive( false );
+	}
+
+	public void UpdateDoTStatus( int duration, int stacksize ) {
+		if ( !_dotStatus.activeSelf ) {
+			_dotStatus.SetActive( true );
+		}
+		
+		_dotStatusDurationText.text = duration.ToString();
+		_dotStatusStackSizeText.text = stacksize.ToString();
+	}
+
+	public void HideStunStatus() {
+		_stunStatus.SetActive( false );
+	}
+
+	public void UpdateStunStatus( int duration ) {
+		if ( !_stunStatus.activeSelf ) {
+			_stunStatus.SetActive( true );
+		}
+
+		_stunStatusDurationText.text = duration.ToString();
 	}
 
 	public void UpdateTurnsRemaining( int turnsRemaining ) {

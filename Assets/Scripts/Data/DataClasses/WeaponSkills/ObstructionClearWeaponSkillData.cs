@@ -1,18 +1,19 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class ObstructionClearWeaponSkillData : BaseWeaponSkillData {
 	public BaseTileData.TileType[] TypesCleared;
 
-	public override void PerformWeaponSkill( GameBoard gameBoard, Battle battle, int matchSize, object contextData = null ) {
+	public override void PerformWeaponSkill( GameBoard gameBoard, Battle battle, List<Tile> match ) {
 
 		if ( !gameBoard.IsObstructionsOnGameBoard() ) {
 			return;
 		}
 
 		float rand = UnityEngine.Random.Range( 0f, 1f );
-		if ( matchSize == 3 && rand <= ThreeTileActivationPercentage || 
-			 matchSize >= 4 && rand <= FourTileActivationPercentage ) {
+		if ( match.Count == 3 && rand <= ThreeTileActivationPercentage || 
+			 match.Count >= 4 && rand <= FourTileActivationPercentage ) {
 
 			// tell the gameboard to clear an obs
 			gameBoard.DestroyRandomObstruction();

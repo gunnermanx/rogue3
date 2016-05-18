@@ -686,7 +686,7 @@ public class GameBoard : MonoBehaviour {
 		Tile tile = match[ 0 ];
 		List<BaseWeaponSkillData> weaponSkills = tile.GetWeaponSkills();
 		for ( int i = 0, count = weaponSkills.Count; i < count; i++ ) {
-			weaponSkills[ i ].PerformWeaponSkill( this, _battle, match.Count );
+			weaponSkills[ i ].PerformWeaponSkill( this, _battle, match );
 		}
 	}
 

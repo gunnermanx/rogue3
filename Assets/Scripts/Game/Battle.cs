@@ -4,6 +4,18 @@ using System.Collections.Generic;
 
 public class Battle : MonoBehaviour {
 
+	public class StatusEffect {
+		public int DurationRemaining = 0;
+	}
+
+	public class DoTStatus : StatusEffect {
+		public int StackSize = 0;
+	}
+
+	public class StunStatus : StatusEffect {
+		public int DurationRemaining = 0;
+	}
+
 	public class Session {
 		public int TurnsRemaining = -1;
 		public int HPMax = -1;
@@ -12,6 +24,9 @@ public class Battle : MonoBehaviour {
 		public int CurrentEnemyCooldown = -1;
 		public List<EnemyAttackDataSet> AttackSets = null;
 		public BattleStageData.AttackPattern AttackPattern;
+
+		public DoTStatus DoTStatus = null;
+		public StunStatus StunStatus = null;
 
 		public SessionResults Results = null;
 			
@@ -68,11 +83,26 @@ public class Battle : MonoBehaviour {
 	}
 
 	public List<EnemyAttackDataSet.EnemyAttackData> IncrementTurnAndGetEnemyAttack() {
+		
 		_session.TurnsRemaining--;
+
+		if ( _session.DoTStatus != null ) {
+			int damage = (int)Mathf.Max( 1, _session.HPMax * _session.DoTStatus.StackSize * 0.01f );
+			_session.HPRemaining -= damage;
+				
+			if ( --_session.DoTStatus.DurationRemaining <= 0 ) {
+				_session.DoTStatus = null;
+			}
+		}
 
 		List<EnemyAttackDataSet.EnemyAttackData> attacks = CheckForAttack();
 
-		if ( _session.TurnsRemaining <= 0 ) {
+		if ( _session.HPRemaining <= 0 ) {
+			_session.Results = new SessionResults() {
+				IsVictory = true
+			};
+		}
+		else if ( _session.TurnsRemaining <= 0 ) {
 			_session.Results = new SessionResults() {
 				IsVictory = false
 			};
@@ -98,13 +128,35 @@ public class Battle : MonoBehaviour {
 
 		_session.HPRemaining -= totalDamage;
 
-		if ( _session.HPRemaining <= 0 ) {
-			_session.Results = new SessionResults() {
-				IsVictory = true
-			};
-		}
+
 
 		UpdateHUD();
+	}
+
+
+	public void ApplyDoT( int duration, int stackSize ) {
+		if ( _session.DoTStatus != null ) {
+			int currentDuration = _session.DoTStatus.DurationRemaining;
+			_session.DoTStatus.DurationRemaining = Mathf.Max( currentDuration, duration );
+			_session.DoTStatus.StackSize += stackSize;
+		} else {
+			_session.DoTStatus = new DoTStatus() { DurationRemaining = duration, StackSize = stackSize };
+		}	
+
+		_gameHud.UpdateDoTStatus( duration, stackSize );
+	}
+
+	public void ApplyStun( int duration ) {
+
+		// cant restun
+		if ( _session.StunStatus != null ) {
+			return;
+		}
+
+		//TODO: create vfx?
+		_session.StunStatus = new StunStatus() { DurationRemaining = duration };
+
+		_gameHud.UpdateStunStatus( duration );
 	}
 
 	private void SpawnAttackVFX( Tile matchedTile ) {
@@ -134,6 +186,15 @@ public class Battle : MonoBehaviour {
 	}
 
 	private List<EnemyAttackDataSet.EnemyAttackData> CheckForAttack() {	
+
+		// TODO: delete vfx?
+		if ( _session.StunStatus != null ) {
+			if ( --_session.StunStatus.DurationRemaining <= 0 ) {
+				_session.StunStatus = null;
+			}
+			return null;
+		}
+
 		// check for stuns/status blah here
 		_session.CurrentEnemyCooldown--;
 
@@ -157,6 +218,19 @@ public class Battle : MonoBehaviour {
 	}
 	
 	private void UpdateHUD() {
+
+		if ( _session.DoTStatus == null ) {
+			_gameHud.HideDoTStatus();
+		} else {
+			_gameHud.UpdateDoTStatus( _session.DoTStatus.DurationRemaining, _session.DoTStatus.StackSize );
+		}
+
+		if ( _session.StunStatus == null ) {
+			_gameHud.HideStunStatus();
+		} else {
+			_gameHud.UpdateStunStatus( _session.StunStatus.DurationRemaining );
+		}
+
 		_gameHud.UpdateHPBar( _session.HPRemaining, _session.HPMax );
 		_gameHud.UpdateEnemyTurnCounter( _session.CurrentEnemyCooldown );
 		_gameHud.UpdateTurnsRemaining( _session.TurnsRemaining );                              
