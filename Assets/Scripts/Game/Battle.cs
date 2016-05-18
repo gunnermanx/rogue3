@@ -113,6 +113,8 @@ public class Battle : MonoBehaviour {
 		return attacks;
 	}
 
+
+
 	public void AttackEnemy( List<Tile> matches ) {
 		//TODO: doing something simple here for now
 		int totalDamage = 0;
@@ -133,6 +135,10 @@ public class Battle : MonoBehaviour {
 		UpdateHUD();
 	}
 
+
+	public void DealCritDamage( int damage ) {
+		_session.HPRemaining -= damage;
+	}
 
 	public void ApplyDoT( int duration, int stackSize ) {
 		if ( _session.DoTStatus != null ) {
