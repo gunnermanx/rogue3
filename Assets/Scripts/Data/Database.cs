@@ -12,7 +12,6 @@ public class Database : MonoBehaviour {
 #region Database Dictionaries
 	private Dictionary<string,BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
 	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
-	private Dictionary<string, ObstructionTileData> _obstructionTileData = new Dictionary<string, ObstructionTileData>();	
 #endregion
 
 	// Singleton Accessor

@@ -13,7 +13,6 @@ public class Battle : MonoBehaviour {
 	}
 
 	public class StunStatus : StatusEffect {
-		public int DurationRemaining = 0;
 	}
 
 	public class Session {
