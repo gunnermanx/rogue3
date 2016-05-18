@@ -73,7 +73,7 @@ public class GameManager : MonoBehaviour {
 
 	public void ShowWeaponPicker() {
 		List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
-		WeaponPicker weaponPicker = UIManager.Instance.OpenDialog( WeaponPicker.DIALOG_ID ) as WeaponPicker;
+		TilePickerDialog weaponPicker = UIManager.Instance.OpenDialog( TilePickerDialog.DIALOG_ID ) as TilePickerDialog;
 		weaponPicker.Initialize( ownedTileIds );
 	}
 

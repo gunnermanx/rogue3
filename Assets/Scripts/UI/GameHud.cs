@@ -11,8 +11,6 @@ public class GameHud : BaseDialog {
 	[SerializeField]
 	private Slider _hpSlider;
 	[SerializeField]
-	private GameResults _resultsPanel;
-	[SerializeField]
 	private Text _dotStatusDurationText;
 	[SerializeField]
 	private Text _dotStatusStackSizeText;
@@ -67,8 +65,8 @@ public class GameHud : BaseDialog {
 
 	public void ShowResults( Battle.SessionResults results ) {
 		if ( results != null ) {
-			_resultsPanel.gameObject.SetActive( true );
-			_resultsPanel.Initialize( results );
+			GameResultsDialog dialog = UIManager.Instance.OpenDialog( GameResultsDialog.DIALOG_ID ) as GameResultsDialog;
+			dialog.Initialize( results );
 		} else {
 			Debug.LogError( "results are null?" );
 		}

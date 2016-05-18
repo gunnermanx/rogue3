@@ -51,10 +51,6 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	// Delegates
-	public delegate void OnTilesSwappedDelegate();
-	public OnTilesSwappedDelegate OnTilesSwapped;
-	private void RaiseOnTilesSwapped() { if ( OnTilesSwapped != null ) OnTilesSwapped(); }
-
 	public delegate void OnTilesMatchedDelegate( List<Tile> matches );
 	public OnTilesMatchedDelegate OnTilesMatched;
 	private void RaiseOnTilesMatched( List<Tile> matches ) { if ( OnTilesMatched != null ) OnTilesMatched( matches ); }
@@ -136,8 +132,6 @@ public class GameBoard : MonoBehaviour {
 					if ( _swap.TargetHorizontalMatches.Count > 0 ) _matches.Add( _swap.TargetHorizontalMatches );
 					if ( _swap.TargetVerticalMatches.Count > 0 ) _matches.Add( _swap.TargetVerticalMatches );
 
-					RaiseOnTilesSwapped();
-					
 					PerformSwapAnimation();
 					_state = State.SwapAnimating;
 				}

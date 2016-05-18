@@ -58,8 +58,6 @@ public class Battle : MonoBehaviour {
 		_gameHud = gameHud;
 		_gameBoard = gameBoard;
 
-
-		_gameBoard.OnTilesSwapped += HandleOnTilesSwapped;
 		_gameBoard.OnTilesMatched += HandleOnTilesMatched;
 		_gameBoard.OnTurnEnded += HandleOnTurnEnded;
 
@@ -68,7 +66,6 @@ public class Battle : MonoBehaviour {
 
 	private void OnDestroy()
 	{
-		_gameBoard.OnTilesSwapped -= HandleOnTilesSwapped;
 		_gameBoard.OnTilesMatched -= HandleOnTilesMatched;
 		_gameBoard.OnTurnEnded -= HandleOnTurnEnded;
 	}
@@ -242,8 +239,6 @@ public class Battle : MonoBehaviour {
 	}
 
 #region EventHandlers
-	public void HandleOnTilesSwapped() {
-	}
 
 	public void HandleOnTilesMatched( List<Tile> matches ) {
 		// TODO 

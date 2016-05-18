@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-public class WeaponPicker : BaseDialog {
+public class TilePickerDialog : BaseDialog {
 
 	[SerializeField]
 	private DynamicInventory _ownedWeaponsInventory;
