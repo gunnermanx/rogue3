@@ -11,23 +11,19 @@ public class MapNodeData {
 	public string Id = null;
 	[fsProperty]
 	public List<string> NeighbourIds = new List<string>();
-
-	public void AddNeighbour( string neighbourId ) {
-		if ( !NeighbourIds.Contains( neighbourId ) ) {
-			NeighbourIds.Add ( neighbourId );
-		}
-	}
 }
 
 public class MapNode : MonoBehaviour, IPointerClickHandler {
 
 	[fsProperty]
-	public MapNodeData Data;
+	private MapNodeData Data;
 
 	public string NodeId { get { return Data.Id; } }
 
 	public delegate void MapNodeTappedCallback( MapNode node );
 	private MapNodeTappedCallback _callback;
+
+	private List<MapEdge> _edges = new List<MapEdge>();
 
 	public void Initialize( string id, Vector3 position, MapNodeTappedCallback callback ) {
 		Data = new MapNodeData();
@@ -42,6 +38,30 @@ public class MapNode : MonoBehaviour, IPointerClickHandler {
 		Data = data;
 		transform.position = Data.Coordinates;
 		_callback = callback;
+	}
+
+	public void AddNeighbour( string neighbourId ) {
+		if ( !Data.NeighbourIds.Contains( neighbourId ) ) {
+			Data.NeighbourIds.Add ( neighbourId );
+		}
+	}
+
+	public void AddEdge( MapEdge edge ) {
+		_edges.Add( edge );
+	}
+
+	public bool HasNeighbour( string neighbourId ) {
+		return Data.NeighbourIds.Contains( neighbourId );
+	}
+
+	public MapNodeData GetData() {
+		return Data;
+	}
+
+	public void ToggleEdgeVisibility( bool toggle ) {
+		for ( int i = 0, count = _edges.Count; i < count; i++ ) {
+			_edges[ i ].gameObject.SetActive( toggle );
+		}
 	}
 
 	#region IPointerClickHandler implementation

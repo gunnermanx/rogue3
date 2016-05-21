@@ -11,15 +11,17 @@ public class MapEdgeData {
 
 public class MapEdge : MonoBehaviour {
 
+	private const float Z_DEPTH = 1;
+
 	[fsProperty]
-	public MapEdgeData Data;
+	private MapEdgeData Data;
 
 	public void Initialize( Vector3 p0, Vector3 p1 ) {
 		Data = new MapEdgeData();
-		Data.P0 = p0;
-		Data.P1 = p1;
+		Data.P0 = new Vector3( p0.x, p0.y, Z_DEPTH );
+		Data.P1 = new Vector3( p1.x, p1.y, Z_DEPTH );
 
-		Vector3[] lineVerts = new Vector3[] { p0, p1 };
+		Vector3[] lineVerts = new Vector3[] { Data.P0, Data.P1 };
 		GetComponent<LineRenderer>().SetPositions( lineVerts );
 	}
 
@@ -27,6 +29,10 @@ public class MapEdge : MonoBehaviour {
 		Data = data;
 		Vector3[] lineVerts = new Vector3[] { Data.P0, Data.P1 };
 		GetComponent<LineRenderer>().SetPositions( lineVerts );
+	}
+
+	public MapEdgeData GetData() {
+		return Data;
 	}
 }
 

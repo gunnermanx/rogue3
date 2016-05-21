@@ -64,4 +64,9 @@ public class PersistenceManager : MonoBehaviour {
 	public void DeletePlayerData() {
 		System.IO.File.Delete( Application.persistentDataPath + "/PlayerBlob.json" );
 	}
+
+	public void SaveMapData( MapBlob blob ) {
+		_playerBlob.MapBlob = blob;
+		SavePlayerData();
+	}
 }

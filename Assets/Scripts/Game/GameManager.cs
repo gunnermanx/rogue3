@@ -81,10 +81,15 @@ public class GameManager : MonoBehaviour {
 		if ( level == 1 ) {
 
 			if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
-				_persistenceManager.PlayerBlob.MapBlob = GameMap.Instance.GenerateNewMap();
+				GameMap.Instance.GenerateNewMap();
+
+				// todo: need to save the map data from elsewhere
+
 			} else {
 				GameMap.Instance.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
 			}
+
+			GameMap.Instance.CreatePlayer();
 
 			_persistenceManager.SavePlayerData();
 		}
