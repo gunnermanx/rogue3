@@ -1,23 +1,13 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Editor/ScriptableObjectUtility.cs">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game/Map/GameMap.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game/Board/BoardManager.cs" Line="710" Column="32" />
-      <File FileName="Assets/Scripts/Data/DataClasses/BaseTileData.cs" Line="26" Column="1" />
-      <File FileName="Assets/Scripts/Game/Tile/Tile.cs" Line="27" Column="2" />
-      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/StunWeaponSkillData.cs" Line="7" Column="1" />
-      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/BaseWeaponSkillData.cs" Line="11" Column="1" />
-      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/DoTWeaponSkillData.cs" Line="10" Column="1" />
-      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/CriticalWeaponSkillData.cs" Line="3" Column="1" />
-      <File FileName="Assets/Scripts/Data/DataClasses/WeaponSkills/ObstructionClearWeaponSkillData.cs" Line="8" Column="1" />
-      <File FileName="Assets/Scripts/Editor/ScriptableObjectUtility.cs" Line="38" Column="54" />
+      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="2" Column="1" />
+      <File FileName="Assets/Scripts/Game/Map/GameMap.cs" Line="16" Column="13" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore>
-      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Game/BattleManager.cs" line="120" column="1" />
-      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/UI/BaseDialog.cs" line="15" column="1" />
-    </BreakpointStore>
+    <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

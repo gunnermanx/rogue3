@@ -6,7 +6,8 @@ public class DebugMenu : MonoBehaviour {
 	private enum WindowIds {
 		Options = 0,
 		Board = 1,
-		Tiles = 2
+		Tiles = 2,
+		StageData = 3
 	}
 
 	private static bool _isShown = false;
@@ -20,9 +21,9 @@ public class DebugMenu : MonoBehaviour {
 
 	void OnGUI() {
 		if ( _isShown ) {
-
+#if !UNITY_EDITOR
 			GUI.matrix = Matrix4x4.TRS(Vector3.zero, Quaternion.identity,new Vector3(Screen.width / 480, Screen.height / 800, 1)); 
-
+#endif
 			windowRect = GUILayout.Window( _currentWindowId, windowRect, DrawMenu, "Debug", GUILayout.Width(400), GUILayout.Height(400));
 		}
 	}
@@ -44,6 +45,9 @@ public class DebugMenu : MonoBehaviour {
 		case (int)WindowIds.Tiles:
 			DrawTiles();
 			break;
+		case (int)WindowIds.StageData:
+			DrawStageData();
+			break;
 		}
 	}
 
@@ -53,6 +57,9 @@ public class DebugMenu : MonoBehaviour {
 		}
 		if ( GUILayout.Button( "Tiles", GUILayout.Height(50f) ) ) {
 			_currentWindowId =(int) WindowIds.Tiles;
+		}
+		if ( GUILayout.Button( "Stage Data", GUILayout.Height(50f) ) ) {
+			_currentWindowId =(int) WindowIds.StageData;
 		}
 		if ( GUILayout.Button( "Reset PlayerBlob", GUILayout.Height(50f) ) ) {
 			GameManager.Instance.ResetPlayerBlob();
@@ -106,5 +113,19 @@ public class DebugMenu : MonoBehaviour {
 	}
 
 	void DrawTiles() {
+		
+	}
+
+	void DrawStageData() {
+		GUILayout.BeginVertical();
+		{
+			if ( GUILayout.Button( "Load World Data" ) ) {
+				Database.Instance.LoadWorldStageData( 1 );
+			}
+			if ( GUILayout.Button( "Unload World Data" ) ) {
+				Database.Instance.UnloadWorldStageData();
+			}
+		}
+		GUILayout.EndVertical();
 	}
 }

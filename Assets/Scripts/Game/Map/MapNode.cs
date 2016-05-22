@@ -11,6 +11,8 @@ public class MapNodeData {
 	public string Id = null;
 	[fsProperty]
 	public List<string> NeighbourIds = new List<string>();
+	[fsProperty]
+	private string BattleStageDataId;
 }
 
 public class MapNode : MonoBehaviour, IPointerClickHandler {

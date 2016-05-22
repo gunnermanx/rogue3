@@ -37,6 +37,8 @@ public class GameMap : MonoBehaviour {
 	private MapNode _currentNode = null;
 	private MapNode _selectedNode = null;
 
+	private MapHud _mapHud = null;
+
 	// Singleton Accessor
 	private static GameMap _instance = null;
 	public static GameMap Instance {
@@ -48,7 +50,13 @@ public class GameMap : MonoBehaviour {
 		_mainCamera = Camera.main;
 	}
 
-	public void CreatePlayer() {
+	public void Initialize( MapHud hud ) {
+		_mapHud = hud;
+		_mapHud.Initialize( MoveToSelectedNode );
+		CreatePlayer();
+	}
+
+	private void CreatePlayer() {
 		_player = GameObject.Instantiate( _playerPrefab );
 		_player.transform.position = _currentNode.transform.position;
 	}
@@ -67,6 +75,10 @@ public class GameMap : MonoBehaviour {
 
 		if ( _selectedNode == _currentNode ) {
 			GameManager.Instance.ShowWeaponPicker();
+			_mapHud.ToggleTravelButton( false );
+		} else {
+			bool canTravelToNode = CanTravelToNode( _selectedNode.NodeId );
+			_mapHud.ToggleTravelButton( canTravelToNode );
 		}
 	}
 
@@ -78,9 +90,16 @@ public class GameMap : MonoBehaviour {
 		return false;
 	}
 
-	public void MoveToNode( string nodeId ) {
+	public void MoveToSelectedNode() {
 		// move the character...
-		// 
+		// TODO
+
+
+		_currentNode.ToggleEdgeVisibility( false );
+		_currentNode = _selectedNode;
+		_currentNode.ToggleEdgeVisibility( true );
+
+		_player.transform.position = _currentNode.transform.position;
 	}
 
 

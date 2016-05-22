@@ -31,6 +31,8 @@ public class GameManager : MonoBehaviour {
 
 	private GameHud _gameHud = null;
 
+	private MapHud _mapHud = null;
+
 	private void Awake() {
 		_instance = this;
 		DontDestroyOnLoad( gameObject );
@@ -80,20 +82,24 @@ public class GameManager : MonoBehaviour {
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
 
+			_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
+
 			if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
 				GameMap.Instance.GenerateNewMap();
-
-				// todo: need to save the map data from elsewhere
-
 			} else {
 				GameMap.Instance.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
 			}
 
-			GameMap.Instance.CreatePlayer();
+			GameMap.Instance.Initialize( _mapHud );
 
 			_persistenceManager.SavePlayerData();
 		}
 		else if ( level == 2 ) {
+
+			if ( _mapHud != null ) {
+				UIManager.Instance.CloseDialog( MapHud.DIALOG_ID );
+			}
+
 			// Initialize Game HUD
 			_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
 		

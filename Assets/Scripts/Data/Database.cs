@@ -5,6 +5,7 @@ public class Database : MonoBehaviour {
 	
 #region Path Constants
 	private const string STAGES_TEST_PATH = "Database/Stages/Test/";
+	private const string STAGES_PATH = "Database/Stages/World{worldNum}/";
 	private const string TILES_WEAPONS_PATH = "Database/Tiles_Weapons/";
 	private const string TILES_OBSTRUCTIONS_PATH = "Database/Tiles_Obstructions/";
 #endregion
@@ -12,6 +13,8 @@ public class Database : MonoBehaviour {
 #region Database Dictionaries
 	private Dictionary<string,BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
 	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
+
+	private Dictionary<string, BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
 #endregion
 
 	// Singleton Accessor
@@ -22,6 +25,25 @@ public class Database : MonoBehaviour {
 
 	private void Awake() {
 		_instance = this;
+	}
+
+	public void LoadWorldStageData( int worldId ) {
+		if ( _worldStageData.Count == 0 ) {
+			string path = STAGES_PATH;
+			path.Replace( "{worldNum}", worldId.ToString() );
+			Object[] allWorldStages = Resources.LoadAll( path );
+			for ( int i = 0, count = allWorldStages.Length; i < count; i++ ) {
+				BattleStageData data = allWorldStages[ i ] as BattleStageData;
+				_worldStageData.Add( data.name, data );
+			}
+		}
+	}
+
+	public void UnloadWorldStageData() {		
+		foreach( KeyValuePair<string, BattleStageData> kvp in _worldStageData ) {
+			Resources.UnloadAsset( kvp.Value );
+		}
+		_worldStageData.Clear();
 	}
 
 	public BattleStageData GetRandomTestBattleStageData() {
@@ -40,7 +62,7 @@ public class Database : MonoBehaviour {
 			return _testStageData[ keys[ index ] ];
 		}
 	}
-	
+		
 	public BattleStageData GetBattleStageData( string id ) {
 		BattleStageData data = null;
 		string path = null;
