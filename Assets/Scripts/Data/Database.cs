@@ -29,6 +29,13 @@ public class Database : MonoBehaviour {
 	}
 
 	public void LoadWorldStageData( int worldId ) {
+
+		//temp
+		string worldName = "World" + worldId.ToString();
+		if ( _worldData != null && _worldData.name == worldName ) {
+			return;
+		}
+
 		string worldPath = WORLD_PATH;
 		worldPath = worldPath.Replace( "{worldNum}", worldId.ToString() );
 		_worldData = Resources.Load( worldPath ) as WorldData;

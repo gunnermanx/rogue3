@@ -12,6 +12,9 @@ public class GameManager : MonoBehaviour {
 	private GameObject _battlePrefab;
 
 	[SerializeField]
+	private GameObject _gameMapPrefab;
+
+	[SerializeField]
 	private Database _database;
 
 	[SerializeField]
@@ -28,10 +31,14 @@ public class GameManager : MonoBehaviour {
 
 	private GameBoard _gameBoard;
 	private Battle _battle;
+	private GameMap _gameMap;
 
 	private GameHud _gameHud = null;
 
 	private MapHud _mapHud = null;
+
+	private string _currentNodeId = null;
+
 
 	private void Awake() {
 		_instance = this;
@@ -73,32 +80,22 @@ public class GameManager : MonoBehaviour {
 
 	}
 
+	public void MapNodeSelected( MapNode node ) {
+		_currentNodeId = node.NodeId;
+	}
+
 	public void ShowWeaponPicker() {
 		List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
 		TilePickerDialog weaponPicker = UIManager.Instance.OpenDialog( TilePickerDialog.DIALOG_ID ) as TilePickerDialog;
 		weaponPicker.Initialize( ownedTileIds, delegate(List<WeaponTileData> tileData ) {
-			StartGame( tileData, GameMap.Instance.GetCurrentStageData() );
+			StartGame( tileData, _gameMap.GetCurrentStageData() );
 		});
 	}
 
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
 
-			// TODO: load world data properly
-			Database.Instance.LoadWorldStageData( 1 );
-
-
-			_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
-
-			if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
-				GameMap.Instance.GenerateNewMap();
-			} else {
-				GameMap.Instance.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
-			}
-
-			GameMap.Instance.Initialize( _mapHud );
-
-			_persistenceManager.SavePlayerData();
+			InitializeWorldMap();
 		}
 		else if ( level == 2 ) {
 
@@ -106,22 +103,48 @@ public class GameManager : MonoBehaviour {
 				UIManager.Instance.CloseDialog( MapHud.DIALOG_ID );
 			}
 
-			// Initialize Game HUD
-			_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
-		
-			// Create the gameboard and battle
-			GameObject boardManagerGO = GameObject.Instantiate( _gameBoardPrefab );
-			_gameBoard = boardManagerGO.GetComponent<GameBoard>();
-
-			GameObject battleManagerGO = GameObject.Instantiate( _battlePrefab );
-			_battle = battleManagerGO.GetComponent<Battle>();
-
-			// Initialize battle manager
-			_battle.Initialize( gameStageData, _gameHud, _gameBoard );
-
-			// Initialize game board
-			_gameBoard.Initialize( gameTileData, _battle );
+			StartGame();
 		}
+	}
+
+
+	private void InitializeWorldMap() {
+		
+		// TODO: load world data properly
+		Database.Instance.LoadWorldStageData( 1 );
+
+		// Open map hud
+		_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
+
+		// Create map
+		GameObject gameMapGO = GameObject.Instantiate( _gameMapPrefab ) as GameObject;
+		_gameMap = gameMapGO.GetComponent<GameMap>();
+
+		if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
+			_gameMap.GenerateNewMap();
+		} else {
+			_gameMap.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
+		}
+		_gameMap.Initialize( _mapHud );
+	}
+
+	private void StartGame() {
+
+		// Initialize Game HUD
+		_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
+
+		// Create the gameboard and battle
+		GameObject gameBoard = GameObject.Instantiate( _gameBoardPrefab );
+		_gameBoard = gameBoard.GetComponent<GameBoard>();
+
+		GameObject battle = GameObject.Instantiate( _battlePrefab );
+		_battle = battle.GetComponent<Battle>();
+
+		// Initialize battle manager
+		_battle.Initialize( gameStageData, _gameHud, _gameBoard );
+
+		// Initialize game board
+		_gameBoard.Initialize( gameTileData, _battle );
 	}
 
 	private void CleanupGame() {
@@ -131,12 +154,27 @@ public class GameManager : MonoBehaviour {
 
 		UIManager.Instance.CloseDialog( GameHud.DIALOG_ID );
 		_gameHud = null;
+
+		_currentNodeId = null;
 	
 		SceneManager.LoadScene( "Main" );
 	}
 
-	public void CompleteGame() {
+	public void CompleteGame( bool isVictory ) {
+
+		// this should check failure or success
+		if ( isVictory ) {
+			// we need to save which node was completed
+			_persistenceManager.SaveCompletedNode( _currentNodeId );
+		} else {
+			// TODO lose life
+		}
+
 		CleanupGame();
+	}
+
+	public bool IsMapNodeComplete( string nodeId ) {
+		return _persistenceManager.PlayerBlob.MapBlob.CompletedNotes.Contains( nodeId );
 	}
 
 #region Debug
@@ -155,6 +193,10 @@ public class GameManager : MonoBehaviour {
 		Destroy( gameObject );
 		Destroy( UIManager.Instance.gameObject );
 		SceneManager.LoadScene( "Loader" );
+	}
+
+	public void SetEnemyHP( int hp ) {
+		_battle.SetEnemyRemainingHP( hp );
 	}
 #endregion
 }

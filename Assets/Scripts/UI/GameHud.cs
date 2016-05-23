@@ -62,18 +62,5 @@ public class GameHud : BaseDialog {
 	public void UpdateHPBar( int current, int max ) {
 		_hpSlider.value = (float)current / (float) max;
 	}
-
-	public void ShowResults( Battle.SessionResults results ) {
-		if ( results != null ) {
-			GameResultsDialog dialog = UIManager.Instance.OpenDialog( GameResultsDialog.DIALOG_ID ) as GameResultsDialog;
-			dialog.Initialize( results );
-		} else {
-			Debug.LogError( "results are null?" );
-		}
-	}
-
-	public void ContinueButtonTapped() {
-		GameManager.Instance.CompleteGame();
-	}
 }
 

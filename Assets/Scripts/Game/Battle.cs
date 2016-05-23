@@ -256,7 +256,7 @@ public class Battle : MonoBehaviour {
 			_gameBoard.GameComplete();
 
 			// Show the results panel
-			_gameHud.ShowResults( GetResults() );
+			ShowResults();
 		}
 
 		// There is no attack from the enemy, notify the boardmanager to continue to input
@@ -267,6 +267,26 @@ public class Battle : MonoBehaviour {
 		else {
 			_gameBoard.ProcessEnemyAttack( attacks );
 		}
+	}
+#endregion
+
+	public void ShowResults() {
+		if ( _session.Results != null ) {
+			GameResultsDialog dialog = UIManager.Instance.OpenDialog( GameResultsDialog.DIALOG_ID ) as GameResultsDialog;
+			dialog.Initialize( _session.Results, OnReturnFromResults );
+		} else {
+			Debug.LogError( "results are null?" );
+		}
+	}
+
+	public void OnReturnFromResults() {
+		GameManager.Instance.CompleteGame( _session.Results.IsVictory );
+	}
+
+#region Debug
+	public void SetEnemyRemainingHP( int hp ) {
+		_session.HPRemaining = hp;
+		UpdateHUD();
 	}
 #endregion
 }

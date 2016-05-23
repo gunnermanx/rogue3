@@ -7,7 +7,9 @@ public class DebugMenu : MonoBehaviour {
 		Options = 0,
 		Board = 1,
 		Tiles = 2,
-		StageData = 3
+		StageData = 3,
+		Battle = 4,
+		Blob = 5
 	}
 
 	private static bool _isShown = false;
@@ -48,6 +50,12 @@ public class DebugMenu : MonoBehaviour {
 		case (int)WindowIds.StageData:
 			DrawStageData();
 			break;
+		case (int)WindowIds.Battle:
+			DrawBattle();
+			break;
+		case (int)WindowIds.Blob:
+			DrawBlob();
+			break;
 		}
 	}
 
@@ -61,8 +69,11 @@ public class DebugMenu : MonoBehaviour {
 		if ( GUILayout.Button( "Stage Data", GUILayout.Height(50f) ) ) {
 			_currentWindowId =(int) WindowIds.StageData;
 		}
-		if ( GUILayout.Button( "Reset PlayerBlob", GUILayout.Height(50f) ) ) {
-			GameManager.Instance.ResetPlayerBlob();
+		if ( GUILayout.Button( "Battle", GUILayout.Height(50f) ) ) {
+			_currentWindowId =(int) WindowIds.Battle;
+		}
+		if ( GUILayout.Button( "Blob", GUILayout.Height(50f) ) ) {
+			_currentWindowId = (int) WindowIds.Blob;
 		}
 	}
 
@@ -127,5 +138,17 @@ public class DebugMenu : MonoBehaviour {
 			}
 		}
 		GUILayout.EndVertical();
+	}
+
+	void DrawBlob() {
+		if ( GUILayout.Button( "Reset PlayerBlob", GUILayout.Height(50f) ) ) {
+			GameManager.Instance.ResetPlayerBlob();
+		}
+	}
+
+	void DrawBattle() {
+		if ( GUILayout.Button( "Set Enemy HP to 10", GUILayout.Height(50f) ) ) {
+			GameManager.Instance.SetEnemyHP( 10 );
+		}
 	}
 }

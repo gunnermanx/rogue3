@@ -28,27 +28,14 @@ public class GameMap : MonoBehaviour {
 	private Dictionary<string, MapNode> _mapNodes = new Dictionary<string, MapNode>();
 	private List<MapEdge> _mapEdges = new List<MapEdge>();
 
-	private Camera _mainCamera = null;
-
 	private GameObject _player = null;
-
-	//private MapNodeData _currentNodeData = null;
 
 	private MapNode _currentNode = null;
 	private MapNode _selectedNode = null;
 
 	private MapHud _mapHud = null;
 
-	// Singleton Accessor
-	private static GameMap _instance = null;
-	public static GameMap Instance {
-		get { return _instance; }
-	}
-
-	private void Awake() {
-		_instance = this;
-		_mainCamera = Camera.main;
-	}
+	private MapBlob _blob = null;
 
 	public BattleStageData GetCurrentStageData() {
 		return _currentNode.StageData;
@@ -78,6 +65,7 @@ public class GameMap : MonoBehaviour {
 		}
 
 		if ( _selectedNode == _currentNode ) {
+			GameManager.Instance.MapNodeSelected( _currentNode );
 			GameManager.Instance.ShowWeaponPicker();
 			_mapHud.ToggleTravelButton( false );
 		} else {
@@ -88,7 +76,8 @@ public class GameMap : MonoBehaviour {
 
 	public bool CanTravelToNode( string nodeId ) {
 		// Simple for now
-		if ( _currentNode.HasNeighbour(nodeId) ) {
+		bool completedCurrentNode = GameManager.Instance.IsMapNodeComplete( _currentNode.NodeId );
+		if ( completedCurrentNode && _currentNode.HasNeighbour(nodeId) ) {
 			return true;
 		}
 		return false;
@@ -104,13 +93,16 @@ public class GameMap : MonoBehaviour {
 		_currentNode.ToggleEdgeVisibility( true );
 
 		_player.transform.position = _currentNode.transform.position;
-	}
 
+		GameManager.Instance.ShowWeaponPicker();
+	}
 
 
 #region Loading/Generation of Map Data
 
 	public void LoadMap( MapBlob blob ) {
+
+		_blob = blob;
 
 		// Temp
 		foreach( KeyValuePair<string, MapNodeData> kvp in blob.MapNodes ) {
@@ -131,8 +123,10 @@ public class GameMap : MonoBehaviour {
 
 	public void GenerateNewMap() {
 		_currentNode = GenerateGraph();
-		MapBlob blob = CreateMapSaveData();
-		GameManager.Instance.GetPersistenceManager().SaveMapData( blob );
+
+		_blob = CreateNewMapBlob();
+		SaveMap();
+
 		_currentNode.ToggleEdgeVisibility( true );
 	}
 
@@ -279,7 +273,7 @@ public class GameMap : MonoBehaviour {
 #endregion
 
 #region SerializeMap
-	private MapBlob CreateMapSaveData() {
+	private MapBlob CreateNewMapBlob() {
 		MapBlob blob = new MapBlob();
 		Dictionary<string, MapNodeData> mapNodeData = new Dictionary<string, MapNodeData>();
 		foreach( KeyValuePair<string, MapNode> kvp in _mapNodes ) {
@@ -295,6 +289,10 @@ public class GameMap : MonoBehaviour {
 		blob.MapEdges = mapEdgeData;
 		blob.CurrentNode = _currentNode.NodeId;
 		return blob;
+	}
+
+	private void SaveMap() {
+		GameManager.Instance.GetPersistenceManager().SaveMapData( _blob );
 	}
 #endregion
 
