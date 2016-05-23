@@ -3,7 +3,12 @@ using UnityEditor;
 using System.IO;
 
 public class ScriptableObjectUtility {
-	
+
+	[MenuItem("Assets/Create/ScriptableObjects/WorldData")]
+	public static void CreateWorldData() {
+		CreateScriptableObject<WorldData>();
+	}
+
 	[MenuItem("Assets/Create/ScriptableObjects/BattleStageData")]
 	public static void CreateBattleStageData() {
 		CreateScriptableObject<BattleStageData>();

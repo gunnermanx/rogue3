@@ -12,7 +12,7 @@ public class MapNodeData {
 	[fsProperty]
 	public List<string> NeighbourIds = new List<string>();
 	[fsProperty]
-	private string BattleStageDataId;
+	public string BattleStageDataId;
 }
 
 public class MapNode : MonoBehaviour, IPointerClickHandler {
@@ -27,17 +27,24 @@ public class MapNode : MonoBehaviour, IPointerClickHandler {
 
 	private List<MapEdge> _edges = new List<MapEdge>();
 
-	public void Initialize( string id, Vector3 position, MapNodeTappedCallback callback ) {
+	private BattleStageData _stageData = null;
+	public BattleStageData StageData { get { return _stageData; } }
+
+	public void Initialize( string id, Vector3 position, BattleStageData stageData, MapNodeTappedCallback callback ) {
 		Data = new MapNodeData();
 		Data.Coordinates = position;
 		Data.Id = id;
+		Data.BattleStageDataId = stageData.name;
 
+		_stageData = stageData;
 		transform.position = position;
 		_callback = callback;
 	}
 
 	public void Initialize( MapNodeData data, MapNodeTappedCallback callback ) {
 		Data = data;
+
+		_stageData = Database.Instance.GetBattleStageData( data.BattleStageDataId );
 		transform.position = Data.Coordinates;
 		_callback = callback;
 	}

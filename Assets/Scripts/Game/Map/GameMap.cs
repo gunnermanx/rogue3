@@ -50,6 +50,10 @@ public class GameMap : MonoBehaviour {
 		_mainCamera = Camera.main;
 	}
 
+	public BattleStageData GetCurrentStageData() {
+		return _currentNode.StageData;
+	}
+
 	public void Initialize( MapHud hud ) {
 		_mapHud = hud;
 		_mapHud.Initialize( MoveToSelectedNode );
@@ -147,9 +151,12 @@ public class GameMap : MonoBehaviour {
 				position = FindOpenPosition();
 			}
 
+
+			BattleStageData stageData = Database.Instance.GetRandomBattleStageData();
+
 			string nodeId = GetNodeIdFromVector3(position);
 			MapNode mapNode = CreateMapNode( nodeId );
-			mapNode.Initialize( nodeId, position, MapNodeTappedCallback );
+			mapNode.Initialize( nodeId, position, stageData, MapNodeTappedCallback );
 
 			points.Add( new Vector2( position.x, position.y ) );
 

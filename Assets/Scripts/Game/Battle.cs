@@ -61,6 +61,8 @@ public class Battle : MonoBehaviour {
 		_gameBoard.OnTilesMatched += HandleOnTilesMatched;
 		_gameBoard.OnTurnEnded += HandleOnTurnEnded;
 
+		_enemyGameObject.GetComponent<SpriteRenderer>().sprite = data.EnemySprite;
+
 		UpdateHUD();
 	}
 

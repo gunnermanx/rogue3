@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class TilePickerDialog : BaseDialog {
 
@@ -15,7 +16,9 @@ public class TilePickerDialog : BaseDialog {
 		return DIALOG_ID;		
 	}
 
-	public void Initialize( List<string> weaponDataIds ) {
+	private Action<List<WeaponTileData>> _startButtonCallback = null;
+
+	public void Initialize( List<string> weaponDataIds, Action<List<WeaponTileData>> startButtonCallback ) {
 		// Initialize the owned weapons inventory ( dynamic )
 		List<InventoryItemData> inventoryData = new List<InventoryItemData>();
 		for ( int i = 0, count = weaponDataIds.Count; i < count; i++ ) {
@@ -30,6 +33,8 @@ public class TilePickerDialog : BaseDialog {
 
 		// Initialize the equipped weapons inventory ( static )
 		_equippedWeaponsInventory.Initialize( null );
+
+		_startButtonCallback = startButtonCallback;
 	}
 
 	public void StartButtonTapped() {
@@ -41,10 +46,9 @@ public class TilePickerDialog : BaseDialog {
 			weaponTileData.Add( Database.Instance.GetWeaponTileData( itemData[i].DataId ) );
 		}
 
-		// Get stage data
-		BattleStageData stageData = Database.Instance.GetRandomTestBattleStageData();
-
-		GameManager.Instance.StartGame( weaponTileData, stageData );
+		if ( _startButtonCallback != null ) {
+			_startButtonCallback( weaponTileData );
+		}
 
 		UIManager.Instance.CloseDialog( DIALOG_ID );
 	}

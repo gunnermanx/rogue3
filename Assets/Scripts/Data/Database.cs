@@ -5,7 +5,8 @@ public class Database : MonoBehaviour {
 	
 #region Path Constants
 	private const string STAGES_TEST_PATH = "Database/Stages/Test/";
-	private const string STAGES_PATH = "Database/Stages/World{worldNum}/";
+	private const string WORLD_PATH = "Database/Worlds/World{worldNum}";
+	private const string WORLD_STAGES_PATH = "Database/Stages/World{worldNum}/";
 	private const string TILES_WEAPONS_PATH = "Database/Tiles_Weapons/";
 	private const string TILES_OBSTRUCTIONS_PATH = "Database/Tiles_Obstructions/";
 #endregion
@@ -13,8 +14,8 @@ public class Database : MonoBehaviour {
 #region Database Dictionaries
 	private Dictionary<string,BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
 	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
-
-	private Dictionary<string, BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string,BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
+	private WorldData _worldData = null;
 #endregion
 
 	// Singleton Accessor
@@ -28,23 +29,43 @@ public class Database : MonoBehaviour {
 	}
 
 	public void LoadWorldStageData( int worldId ) {
-		if ( _worldStageData.Count == 0 ) {
-			string path = STAGES_PATH;
-			path.Replace( "{worldNum}", worldId.ToString() );
-			Object[] allWorldStages = Resources.LoadAll( path );
-			for ( int i = 0, count = allWorldStages.Length; i < count; i++ ) {
-				BattleStageData data = allWorldStages[ i ] as BattleStageData;
-				_worldStageData.Add( data.name, data );
-			}
+		string worldPath = WORLD_PATH;
+		worldPath = worldPath.Replace( "{worldNum}", worldId.ToString() );
+		_worldData = Resources.Load( worldPath ) as WorldData;
+
+		string stagesPath = WORLD_STAGES_PATH;
+		stagesPath = stagesPath.Replace( "{worldNum}", worldId.ToString() );
+		Object[] stages = Resources.LoadAll( stagesPath );
+		for ( int i = 0, count = stages.Length; i < count; i++ ) {
+			BattleStageData data = stages[ i ] as BattleStageData;
+			_worldStageData.Add( data.name, data );
 		}
 	}
 
-	public void UnloadWorldStageData() {		
+	public void UnloadWorldStageData() {
+		if ( _worldData != null ) {
+			Resources.UnloadAsset( _worldData );
+		}
+		_worldData = null;
+
 		foreach( KeyValuePair<string, BattleStageData> kvp in _worldStageData ) {
 			Resources.UnloadAsset( kvp.Value );
 		}
 		_worldStageData.Clear();
 	}
+
+	public BattleStageData GetRandomBattleStageData() {
+		List<string> keys = new List<string>( _worldStageData.Keys );
+		string randomStageId = keys[ UnityEngine.Random.Range( 0, keys.Count ) ];
+		return _worldStageData[ randomStageId ];
+	}
+
+	public BattleStageData GetBattleStageData( string id ) {
+		BattleStageData data = null;
+		_worldStageData.TryGetValue( id, out data );
+		return data;
+	}
+
 
 	public BattleStageData GetRandomTestBattleStageData() {
 		if ( _testStageData.Count == 0 ) {
@@ -63,19 +84,6 @@ public class Database : MonoBehaviour {
 		}
 	}
 		
-	public BattleStageData GetBattleStageData( string id ) {
-		BattleStageData data = null;
-		string path = null;
-		if ( !_testStageData.TryGetValue( id, out data ) ) {
-			path = STAGES_TEST_PATH + id;
-			data = Resources.Load( path ) as BattleStageData;
-		}
-		#if DEBUG		
-		Debug.Assert( data != null, "No BattleStageData found with id " + id + " at path " + path );
-		#endif
-		return data;
-	}
-
 	public WeaponTileData GetWeaponTileData( string id ) {
 		WeaponTileData data = null;
 		string path = null;

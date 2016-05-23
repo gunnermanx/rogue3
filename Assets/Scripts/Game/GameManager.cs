@@ -76,11 +76,17 @@ public class GameManager : MonoBehaviour {
 	public void ShowWeaponPicker() {
 		List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
 		TilePickerDialog weaponPicker = UIManager.Instance.OpenDialog( TilePickerDialog.DIALOG_ID ) as TilePickerDialog;
-		weaponPicker.Initialize( ownedTileIds );
+		weaponPicker.Initialize( ownedTileIds, delegate(List<WeaponTileData> tileData ) {
+			StartGame( tileData, GameMap.Instance.GetCurrentStageData() );
+		});
 	}
 
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
+
+			// TODO: load world data properly
+			Database.Instance.LoadWorldStageData( 1 );
+
 
 			_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
 
