@@ -74,5 +74,6 @@ public class PersistenceManager : MonoBehaviour {
 		Debug.Assert( !_playerBlob.MapBlob.CompletedNotes.Contains( completedNodeId ), "Trying to complete already completed stage" );
 
 		_playerBlob.MapBlob.CompletedNotes.Add( completedNodeId );
+		SavePlayerData();
 	}
 }

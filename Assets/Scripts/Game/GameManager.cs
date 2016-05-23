@@ -147,7 +147,7 @@ public class GameManager : MonoBehaviour {
 		_gameBoard.Initialize( gameTileData, _battle );
 	}
 
-	private void CleanupGame() {
+	public void CleanupGame() {
 
 		Destroy( _gameBoard.gameObject );
 		Destroy( _battle.gameObject );
@@ -160,7 +160,7 @@ public class GameManager : MonoBehaviour {
 		SceneManager.LoadScene( "Main" );
 	}
 
-	public void CompleteGame( bool isVictory ) {
+	public void GameComplete( bool isVictory ) {
 
 		// this should check failure or success
 		if ( isVictory ) {
@@ -169,12 +169,6 @@ public class GameManager : MonoBehaviour {
 		} else {
 			// TODO lose life
 		}
-
-		CleanupGame();
-	}
-
-	public bool IsMapNodeComplete( string nodeId ) {
-		return _persistenceManager.PlayerBlob.MapBlob.CompletedNotes.Contains( nodeId );
 	}
 
 #region Debug

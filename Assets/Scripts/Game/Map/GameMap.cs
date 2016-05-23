@@ -76,8 +76,10 @@ public class GameMap : MonoBehaviour {
 
 	public bool CanTravelToNode( string nodeId ) {
 		// Simple for now
-		bool completedCurrentNode = GameManager.Instance.IsMapNodeComplete( _currentNode.NodeId );
-		if ( completedCurrentNode && _currentNode.HasNeighbour(nodeId) ) {
+
+		bool completedSelectedNode = _blob.CompletedNotes.Contains( nodeId );
+		bool completedCurrentNode = _blob.CompletedNotes.Contains( _currentNode.NodeId );
+		if ( (completedCurrentNode || completedSelectedNode) && _currentNode.HasNeighbour(nodeId) ) {
 			return true;
 		}
 		return false;
@@ -93,6 +95,10 @@ public class GameMap : MonoBehaviour {
 		_currentNode.ToggleEdgeVisibility( true );
 
 		_player.transform.position = _currentNode.transform.position;
+
+		// Might need saving to elsewhere later
+		_blob.CurrentNode = _currentNode.NodeId;
+		SaveMap();
 
 		GameManager.Instance.ShowWeaponPicker();
 	}

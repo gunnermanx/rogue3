@@ -254,6 +254,7 @@ public class Battle : MonoBehaviour {
 		if ( gameComplete ) {
 
 			_gameBoard.GameComplete();
+			GameManager.Instance.GameComplete( _session.Results.IsVictory );
 
 			// Show the results panel
 			ShowResults();
@@ -280,7 +281,8 @@ public class Battle : MonoBehaviour {
 	}
 
 	public void OnReturnFromResults() {
-		GameManager.Instance.CompleteGame( _session.Results.IsVictory );
+		//GameManager.Instance.GameComplete( _session.Results.IsVictory );
+		GameManager.Instance.CleanupGame();
 	}
 
 #region Debug
