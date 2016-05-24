@@ -1,13 +1,16 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
-  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="MonoDevelop.Default" />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
   <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game/Map/GameMap.cs">
     <Files>
-      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="2" Column="1" />
-      <File FileName="Assets/Scripts/Game/Map/GameMap.cs" Line="16" Column="13" />
+      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="168" Column="24" />
+      <File FileName="Assets/Scripts/Game/Battle.cs" Line="285" Column="33" />
+      <File FileName="Assets/Scripts/Game/Map/GameMap.cs" Line="301" Column="55" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
-    <BreakpointStore />
+    <BreakpointStore>
+      <Breakpoint file="/Users/ayuen/rogue3/Assets/Scripts/Core/Persistence/PersistenceManager.cs" line="77" column="1" />
+    </BreakpointStore>
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
 </Properties>

@@ -100,6 +100,8 @@ public class GameMap : MonoBehaviour {
 		_blob.CurrentNode = _currentNode.NodeId;
 		SaveMap();
 
+		GameManager.Instance.MapNodeSelected( _currentNode );
+
 		GameManager.Instance.ShowWeaponPicker();
 	}
 
