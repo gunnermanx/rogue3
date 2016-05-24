@@ -84,6 +84,33 @@ public class GameBoard : MonoBehaviour {
 
 	private Battle _battle = null;
 
+#region PsuedoRandom Tile Picking
+	private int _randomIndex = 0;
+	private int[] _psuedoRandomIndices = new int[] { 
+		0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 
+		1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 
+		2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 
+		3, 3, 3, 3, 3, 3, 3, 3, 3, 3 }; 
+
+	private void ShufflePsuedoRandomIndices() {
+		_randomIndex = 0;
+
+		for ( int i = _psuedoRandomIndices.Length - 1; i > 0; i-- ) {
+			int randomIndex = Random.Range( 0, i );
+			int tmp = _psuedoRandomIndices[ i ];
+			_psuedoRandomIndices[ i ] = _psuedoRandomIndices[ randomIndex ];
+			_psuedoRandomIndices[ randomIndex ] = tmp;
+		}
+	}
+
+	private BaseTileData PickRandomTileData() {
+		if ( _randomIndex >= _psuedoRandomIndices.Length ) {
+			ShufflePsuedoRandomIndices();
+		}
+		return _equippedTileData[ _psuedoRandomIndices[_randomIndex++] ];
+	}
+#endregion
+
 	private void Awake() {
 		GameBoardGestureHandler.onSelectTile += HandleOnSelectTile;
 		GameBoardGestureHandler.onDragTile += HandleOnDragTile;
@@ -248,11 +275,9 @@ public class GameBoard : MonoBehaviour {
 	}
 
 
-	private BaseTileData PickRandomTileData() {
-		// simple 
-		int index = UnityEngine.Random.Range( 0, _equippedTileData.Count );
-		return _equippedTileData[ index ];
-	}
+
+
+
 	
 	private Tile CreateTileAtCoords( BaseTileData data, int xCoords, int yCoords, bool tweensIn = false ) {		
 		GameObject tileGO = GameObject.Instantiate( TilePrefab );
