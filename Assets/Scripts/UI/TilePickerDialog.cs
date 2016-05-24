@@ -21,18 +21,34 @@ public class TilePickerDialog : BaseDialog {
 	public void Initialize( List<string> weaponDataIds, Action<List<WeaponTileData>> startButtonCallback ) {
 		// Initialize the owned weapons inventory ( dynamic )
 		List<InventoryItemData> inventoryData = new List<InventoryItemData>();
+		List<InventoryItemData> equippedData = new List<InventoryItemData>();
+
 		for ( int i = 0, count = weaponDataIds.Count; i < count; i++ ) {
-			inventoryData.Add( 
-				new InventoryItemData() {
-					DataId = weaponDataIds[i],
-					Count = 1
-				}
-			);
+			if ( i < 4 ) {
+				equippedData.Add( 
+					new InventoryItemData() {
+						DataId = weaponDataIds[i],
+						Count = 1
+					}
+				);
+			}
+			else {
+				inventoryData.Add( 
+					new InventoryItemData() {
+						DataId = weaponDataIds[i],
+						Count = 1
+					}
+				);
+			}
 		}	
+			
+		// Choose 4 tiles as your starting equipped weapons inventory
+		// TODO persist these 4 choices
+
 		_ownedWeaponsInventory.Initialize( inventoryData );
 
 		// Initialize the equipped weapons inventory ( static )
-		_equippedWeaponsInventory.Initialize( null );
+		_equippedWeaponsInventory.Initialize( equippedData );
 
 		_startButtonCallback = startButtonCallback;
 	}
