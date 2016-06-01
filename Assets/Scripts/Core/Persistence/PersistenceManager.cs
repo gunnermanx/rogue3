@@ -76,4 +76,14 @@ public class PersistenceManager : MonoBehaviour {
 		_playerBlob.MapBlob.CompletedNotes.Add( completedNodeId );
 		SavePlayerData();
 	}
+
+	public void UpdateCurrentLives( int currentLives ) {
+		_playerBlob.CurrentLives = currentLives;
+		SavePlayerData();
+	}
+
+	public void UpdateMaxLives( int maxLives ) {
+		_playerBlob.MaxLives = maxLives;
+		SavePlayerData();
+	}
 }

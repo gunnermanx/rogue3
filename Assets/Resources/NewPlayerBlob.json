@@ -5,5 +5,7 @@
 		"WoodenTome",
 		"WoodenMace",
 		"SteelMace"
-	]
+	],
+	"MaxLives": 3,
+	"CurrentLives": 3
 }

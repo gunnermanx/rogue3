@@ -86,15 +86,20 @@ public class GameMap : MonoBehaviour {
 	}
 
 	public void MoveToSelectedNode() {
-		// move the character...
-		// TODO
-
-
+		
 		_currentNode.ToggleEdgeVisibility( false );
 		_currentNode = _selectedNode;
 		_currentNode.ToggleEdgeVisibility( true );
 
-		_player.transform.position = _currentNode.transform.position;
+
+		iTween.MoveTo( _player, 
+			iTween.Hash( "position", _currentNode.transform.position, 
+				"easetype", iTween.EaseType.easeOutQuart, 
+				"time", 1f,
+				"oncomplete", "MovedToNode",
+				"oncompletetarget", gameObject
+			)
+		);
 
 		// Might need saving to elsewhere later
 		_blob.CurrentNode = _currentNode.NodeId;
@@ -102,6 +107,10 @@ public class GameMap : MonoBehaviour {
 
 		GameManager.Instance.MapNodeSelected( _currentNode );
 
+
+	}
+
+	public void MovedToNode() {
 		GameManager.Instance.ShowWeaponPicker();
 	}
 

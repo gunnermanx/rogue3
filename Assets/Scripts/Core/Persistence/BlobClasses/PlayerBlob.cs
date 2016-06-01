@@ -9,5 +9,11 @@ public class PlayerBlob {
 
 	[fsProperty]
 	public MapBlob MapBlob;
+
+	[fsProperty]
+	public int MaxLives;
+
+	[fsProperty]
+	public int CurrentLives;
 }
 

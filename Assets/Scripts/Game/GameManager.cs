@@ -115,6 +115,7 @@ public class GameManager : MonoBehaviour {
 
 		// Open map hud
 		_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
+		_mapHud.UpdateLife( _persistenceManager.PlayerBlob.CurrentLives, _persistenceManager.PlayerBlob.MaxLives );
 
 		// Create map
 		GameObject gameMapGO = GameObject.Instantiate( _gameMapPrefab ) as GameObject;
@@ -168,6 +169,7 @@ public class GameManager : MonoBehaviour {
 			_persistenceManager.SaveCompletedNode( _currentNodeId );
 		} else {
 			// TODO lose life
+			_persistenceManager.UpdateCurrentLives( _persistenceManager.PlayerBlob.CurrentLives - 1 );
 		}
 	}
 
