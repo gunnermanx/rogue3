@@ -43,6 +43,7 @@ public class GameBoard : MonoBehaviour {
 		SwapAnimating, // Idle state where we wait for swap tweens to complete
 		UndoSwapAnimating, // Idle state where we wait for UNDO swap tweens to complete
 		Match, // State to clear out all matches and wait for match tweens
+		CheckDirtyPostMatch,
 		ExpireObstructions,
 		DropAndFill, // Fix data so that we have a complete board once more
 		DropAnimating, // Idle state to wait for tiles to visually drop into place
@@ -74,6 +75,8 @@ public class GameBoard : MonoBehaviour {
 
 	// Tiles that are pending a tween to drop down to its correct location ( visually )
 	private List<Tile> _droppingTiles = new List<Tile>();
+
+	private List<Tile> _dirtyTiles = new List<Tile>();
 
 	// The matches that have been made, currently
 	private List<List<Tile>> _matches = new List<List<Tile>>();
@@ -185,7 +188,14 @@ public class GameBoard : MonoBehaviour {
 			// Successful swap has occured, the tweens are done, we need to clear out the matches
 			case State.Match:
 				PerformMatch();
-				_state = State.ExpireObstructions;
+				_state = State.CheckDirtyPostMatch;
+				break;
+			case State.CheckDirtyPostMatch:
+				if ( PerformDirtyTileCleanup() ) {
+					_state = State.Match;
+				} else {
+					_state = State.ExpireObstructions;
+				}
 				break;
 			case State.ExpireObstructions:
 				PerformObstructionExpiration();
@@ -206,7 +216,7 @@ public class GameBoard : MonoBehaviour {
 			// This step will check every tile that has been dropped for matches
 			// If there are any matches, we want to return to the match state, otherwise we can continue back to the user input state
 			case State.Cleanup:
-				if ( CheckForCascadingMatches() ) {
+				if ( CheckForCascadingMatches( _droppingTiles ) ) {
 					_state = State.Match;
 				} else {
 					_state = State.TurnEnd;
@@ -506,12 +516,31 @@ public class GameBoard : MonoBehaviour {
 				ClearTile( tile );
 			}
 
-			yield return new WaitForSeconds( 0.35f );
+			yield return new WaitForSeconds( TuningData.Instance.MatchTimeDelay );
 		}
 		_matches.Clear();
 
 		_holdStateChanges = false;
 		isPerformingMatch = false;
+	}
+
+	private bool PerformDirtyTileCleanup() {
+
+		// sanity check the dirtyTiles list
+		for ( int i = _dirtyTiles.Count-1; i >= 0; i-- ) {
+			if ( _dirtyTiles[ i ].IsMatching ) {
+				_dirtyTiles.RemoveAt( i );
+			}
+		}
+
+
+		bool matchesFound = CheckForCascadingMatches( _dirtyTiles );
+		_dirtyTiles.Clear();
+		if ( matchesFound ) {
+			return true;
+		} else {
+			return false;
+		}
 	}
 
 	private void PerformFill() {
@@ -613,13 +642,13 @@ public class GameBoard : MonoBehaviour {
 		_holdStateChanges = false;
 	}
 
-	private bool CheckForCascadingMatches() {
+	private bool CheckForCascadingMatches( List<Tile> tilesToCheck ) {
 	
-		for ( int i = 0, count = _droppingTiles.Count; i < count; i++ ) {
+		for ( int i = 0, count = tilesToCheck.Count; i < count; i++ ) {
 			List<Tile> horizontalTiles = new List<Tile>();
 			List<Tile> verticalTiles = new List<Tile>();
 
-			Tile tileToCheck = _droppingTiles[ i ];
+			Tile tileToCheck = tilesToCheck[ i ];
 
 			// Ignore things that are not matchable
 			if ( !tileToCheck.IsMatchable() ) {
@@ -748,17 +777,35 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
-	public void ReplaceRandomTiles( BaseTileData data ) {
-		// todo : temp pick 4 random tiles to replace to a book
-		int replacedAmount = 0;
-		while ( replacedAmount < 4 ) {
-			int randX = UnityEngine.Random.Range( 0, BOARD_WIDTH );
-			int randY = UnityEngine.Random.Range( 0, BOARD_HEIGHT );
+	public void ReplaceNRandomTiles( int n, BaseTileData data, List<Tile> excludedTiles ) {		
 
+		// first find a set of tiles that do not match the tiledata passed in
+		List<Tile> eligibleTiles = new List<Tile>();
+		for ( int x = 0; x < BOARD_WIDTH; x++ ) {
+			for ( int y = 0; y < BOARD_HEIGHT; y++ ) {
 
-			if ( _board[ randX, randY ] != null &&_board[ randX, randY ].TileType != BaseTileData.TileType.Tomes ) {
-				_board[ randX, randY ].Initialize( data, randX, randY );
-				replacedAmount++;
+				if ( _board[ x, y ] == null ) {
+					continue;
+				}
+
+				if ( _board[ x, y ].TileType != data.Type && !excludedTiles.Contains( _board[ x, y ] ) ) {
+					eligibleTiles.Add( _board[ x, y ] );
+				}
+			}
+		}
+
+		// pick n tiles out of the list to replace
+		int numReplaced = 0;
+		while ( eligibleTiles.Count > 0 && numReplaced < n ) {
+			int randIndex = UnityEngine.Random.Range( 0, eligibleTiles.Count );
+			Tile tile = eligibleTiles[ randIndex ];
+			tile.Initialize( data, tile.X, tile.Y );
+
+			numReplaced++;
+			eligibleTiles.RemoveAt( randIndex );
+
+			if ( !_dirtyTiles.Contains( tile ) ) {
+				_dirtyTiles.Add( tile );
 			}
 		}
 	}
