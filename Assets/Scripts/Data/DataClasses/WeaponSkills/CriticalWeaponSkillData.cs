@@ -6,15 +6,13 @@ public class CriticalWeaponSkillData : BaseWeaponSkillData {
 	public float CriticalMultiplier;
 
 	public override void PerformWeaponSkill( GameBoard gameBoard, Battle battle, List<Tile> match ) {
-		// todo: lazy simple thing for now
+		
+		float rand = UnityEngine.Random.Range( 0f, 1f );
+		if ( match.Count == 3 && rand <= ThreeTileActivationPercentage || 
+			match.Count >= 4 && rand <= FourTileActivationPercentage ) {
 
-		int totalDamage = 0;
-		for ( int i = 0, count = match.Count; i < count; i++ ) {
-			Tile matchedTile = match[ i ];
-			totalDamage += matchedTile.GetDamage();
+			gameBoard.ExtendMatch( match );
 		}
-
-		battle.DealCritDamage( (int)( totalDamage * CriticalMultiplier ) );
 	}
 }
 

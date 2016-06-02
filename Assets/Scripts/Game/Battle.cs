@@ -132,12 +132,7 @@ public class Battle : MonoBehaviour {
 
 		UpdateHUD();
 	}
-
-
-	public void DealCritDamage( int damage ) {
-		_session.HPRemaining -= damage;
-	}
-
+		
 	public void ApplyDoT( int duration, int stackSize ) {
 		if ( _session.DoTStatus != null ) {
 			int currentDuration = _session.DoTStatus.DurationRemaining;
@@ -182,9 +177,9 @@ public class Battle : MonoBehaviour {
 		}
 
 		iTween.MoveTo( vfxGO, iTween.Hash( "position", _enemyGameObject.transform.position, 
-								            "easetype", iTween.EaseType.easeOutQuart, 
-								            "speed", 4f,
-			                                  "oncomplete", "KillVFX"
+											"easetype", TuningData.Instance.AttackVFXEaseType, 
+											"time", TuningData.Instance.AttackVFXTime,
+			                                "oncomplete", "KillVFX"
 								           )
 		);
 	}

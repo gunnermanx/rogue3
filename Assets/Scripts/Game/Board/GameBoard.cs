@@ -414,7 +414,7 @@ public class GameBoard : MonoBehaviour {
 		iTween.MoveTo( _swap.SelectedTile.gameObject, 
 		              iTween.Hash( "position", selectedTilePos, 
 		            "easetype", iTween.EaseType.easeOutQuart, 
-		            "time", 0.25f,
+					"time", TuningData.Instance.SwapAnimationTime,
 		            "oncomplete", "StopSwapping"
 		            )
 		              );
@@ -444,7 +444,7 @@ public class GameBoard : MonoBehaviour {
 		iTween.MoveTo( _swap.TargetTile.gameObject, 
 		              iTween.Hash( "position", targetTilePos, 
 		            "easetype", iTween.EaseType.easeOutQuart, 
-		            "time", 0.25f,
+					"time", TuningData.Instance.SwapAnimationTime,
 		            "oncomplete", "StopSwapping"
 		            )
 		              );
@@ -455,7 +455,7 @@ public class GameBoard : MonoBehaviour {
 		iTween.MoveTo( _swap.SelectedTile.gameObject, 
 		              iTween.Hash( "position", selectedTilePos, 
 		            "easetype", iTween.EaseType.easeOutQuart, 
-		            "time", 0.25f,
+					"time", TuningData.Instance.SwapAnimationTime,
 		            "oncomplete", "StopSwapping"
 		            )
 		              );
@@ -598,10 +598,10 @@ public class GameBoard : MonoBehaviour {
 			Vector3 position = CoordsToWorldPosition( tile.X, tile.Y );
 			iTween.MoveTo( tile.gameObject, 
 			              iTween.Hash( "position", position, 
-			            "easetype", iTween.EaseType.linear, 
-			            "speed", 6f,
-			            "oncomplete", "FinishedDroppingAnimation",
-			            "oncompletetarget", gameObject
+										"easetype", TuningData.Instance.TileDropEaseType, 
+										"speed", TuningData.Instance.TileDropSpeed,
+							            "oncomplete", "FinishedDroppingAnimation",
+							            "oncompletetarget", gameObject
 			            )
 			);
 		}
@@ -680,8 +680,8 @@ public class GameBoard : MonoBehaviour {
 			if ( tweensOut ) {
 
 				Hashtable hash = iTween.Hash( "scale", Vector3.zero,
-				            "easetype", iTween.EaseType.easeInBack,
-				            "time", 0.35f );
+												"easetype", TuningData.Instance.TileClearEaseType,
+												"time", TuningData.Instance.TileClearTime );
 				if ( destroyOnComplete ) {
 					hash.Add( "oncomplete", "MatchedComplete" );
 				}
@@ -717,6 +717,50 @@ public class GameBoard : MonoBehaviour {
 		int randomIndex = UnityEngine.Random.Range( 0, _expiringObstructions.Count );
 		ClearTile( _expiringObstructions[ randomIndex ] );
 		_expiringObstructions.RemoveAt( randomIndex );
+	}
+
+	public void ExtendMatch( List<Tile> match ) {
+
+		// find out if we need to extend vertically or horizontally
+		bool isHorizontal = match[ 0 ].Y == match[ 1 ].Y;
+
+		if ( isHorizontal ) {
+			int y =  match[ 0 ].Y;
+			for ( int x = 0; x < BOARD_WIDTH; x++ ) {
+				Tile tile = _board[ x, y ];
+				if ( tile != null ) {
+					if ( !match.Contains( tile ) ) {
+						ClearTile( tile );
+					}
+				}
+			}
+		}
+		else {
+			int x =  match[ 0 ].X;
+			for ( int y = 0; y < BOARD_WIDTH; y++ ) {
+				Tile tile = _board[ x, y ];
+				if ( tile != null ) {
+					if ( !match.Contains( tile ) ) {
+						ClearTile( tile );
+					}
+				}
+			}
+		}
+	}
+
+	public void ReplaceRandomTiles( BaseTileData data ) {
+		// todo : temp pick 4 random tiles to replace to a book
+		int replacedAmount = 0;
+		while ( replacedAmount < 4 ) {
+			int randX = UnityEngine.Random.Range( 0, BOARD_WIDTH );
+			int randY = UnityEngine.Random.Range( 0, BOARD_HEIGHT );
+
+
+			if ( _board[ randX, randY ] != null &&_board[ randX, randY ].TileType != BaseTileData.TileType.Tomes ) {
+				_board[ randX, randY ].Initialize( data, randX, randY );
+				replacedAmount++;
+			}
+		}
 	}
 
 #region BoardGestureManager event handlers

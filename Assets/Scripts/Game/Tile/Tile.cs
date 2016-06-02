@@ -8,6 +8,7 @@ public class Tile : MonoBehaviour {
 	private SpriteRenderer _spriteRenderer;
 
 	private BaseTileData _tileData = null;
+	public BaseTileData TileData { get { return _tileData; } }
 
 	public const float Z_DEPTH = 0f;
 
