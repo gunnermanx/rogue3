@@ -17,6 +17,12 @@ public class GameManager : MonoBehaviour {
 	[SerializeField]
 	private Database _database;
 
+
+
+	public LootTableData _test;
+
+
+
 	[SerializeField]
 	private PersistenceManager _persistenceManager;
 	public PersistenceManager GetPersistenceManager() {
@@ -193,6 +199,10 @@ public class GameManager : MonoBehaviour {
 
 	public void SetEnemyHP( int hp ) {
 		_battle.SetEnemyRemainingHP( hp );
+	}
+
+	public void TestLootTable() {
+		LootTableDrop drop = LootTableData.RollForDrop( _test );
 	}
 #endregion
 }

@@ -9,7 +9,8 @@ public class DebugMenu : MonoBehaviour {
 		Tiles = 2,
 		StageData = 3,
 		Battle = 4,
-		Blob = 5
+		Blob = 5,
+		Misc = 6
 	}
 
 	private static bool _isShown = false;
@@ -56,6 +57,9 @@ public class DebugMenu : MonoBehaviour {
 		case (int)WindowIds.Blob:
 			DrawBlob();
 			break;
+		case (int)WindowIds.Misc:
+			DrawMisc();
+			break;
 		}
 	}
 
@@ -75,6 +79,10 @@ public class DebugMenu : MonoBehaviour {
 		if ( GUILayout.Button( "Blob", GUILayout.Height(50f) ) ) {
 			_currentWindowId = (int) WindowIds.Blob;
 		}
+		if ( GUILayout.Button( "Misc", GUILayout.Height(50f) ) ) {
+			_currentWindowId = (int) WindowIds.Misc;
+		}
+
 	}
 
 	void DrawBoard() {
@@ -149,6 +157,12 @@ public class DebugMenu : MonoBehaviour {
 	void DrawBattle() {
 		if ( GUILayout.Button( "Set Enemy HP to 10", GUILayout.Height(50f) ) ) {
 			GameManager.Instance.SetEnemyHP( 10 );
+		}
+	}
+
+	void DrawMisc() {
+		if ( GUILayout.Button( "Roll", GUILayout.Height(50f) ) ) {
+			GameManager.Instance.TestLootTable();
 		}
 	}
 }

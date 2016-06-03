@@ -20,5 +20,7 @@ public class BattleStageData : ScriptableObject {
 
 	public AttackPattern Pattern;
 	public List<EnemyAttackDataSet> AttackSets;
+
+	public LootTableData LootTable;
 }
 
