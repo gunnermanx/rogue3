@@ -369,12 +369,12 @@ public class GameBoard : MonoBehaviour {
 		horizontalMatches = new List<Tile>();
 		horizontalMatches.Add( movedTile );
 		// Check left
-		while ( --wSearch >= 0 && _board[ wSearch, h ].Matches( movedTile ) ) {
+		while ( --wSearch >= 0 && _board[ wSearch, h ] != null && _board[ wSearch, h ].Matches( movedTile ) ) {
 			horizontalMatches.Add( _board[ wSearch, h ] );
 		}
 		wSearch = w;
 		// Check right
-		while ( ++wSearch < BOARD_WIDTH && _board[ wSearch, h ].Matches( movedTile ) ) {
+		while ( ++wSearch < BOARD_WIDTH && _board[ wSearch, h ] != null && _board[ wSearch, h ].Matches( movedTile ) ) {
 			horizontalMatches.Add( _board[ wSearch, h ] );
 		}
 
@@ -382,12 +382,12 @@ public class GameBoard : MonoBehaviour {
 		verticalMatches = new List<Tile>();
 		verticalMatches.Add( movedTile );
 		// Check bottom
-		while ( --hSearch >= 0 && _board[ w, hSearch ].Matches( movedTile ) ) {
+		while ( --hSearch >= 0 && _board[ w, hSearch ] != null && _board[ w, hSearch ].Matches( movedTile ) ) {
 			verticalMatches.Add( _board[ w, hSearch ] );
 		}
 		hSearch = h;
 		// Check top
-		while ( ++hSearch < BOARD_HEIGHT && _board[ w, hSearch ].Matches( movedTile ) ) {
+		while ( ++hSearch < BOARD_HEIGHT && _board[ w, hSearch ] != null && _board[ w, hSearch ].Matches( movedTile ) ) {
 			verticalMatches.Add( _board[ w, hSearch ] );
 		}
 
