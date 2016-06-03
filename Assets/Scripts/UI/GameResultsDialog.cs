@@ -19,9 +19,15 @@ public class GameResultsDialog : BaseDialog {
 		// Temp
 		if ( results.IsVictory ) {
 			ResultLabel.text = "VICTORY";
+
+
 		} else {
 			ResultLabel.text = "DEFEAT";
 		}
+
+
+
+
 
 		_continueButtonCallback = continueButtonCallback;
 	}
