@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
+[CreateAssetMenu]
 public class BattleStageData : ScriptableObject {
 
 	public enum AttackPattern {

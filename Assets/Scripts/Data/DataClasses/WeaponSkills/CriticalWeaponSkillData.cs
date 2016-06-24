@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[CreateAssetMenu]
 public class CriticalWeaponSkillData : BaseWeaponSkillData {
 	public float CriticalMultiplier;
 

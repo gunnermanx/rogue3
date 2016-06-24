@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[CreateAssetMenu]
 public class DoTWeaponSkillData : BaseWeaponSkillData {
 	public int DoTDuration;
 	public int DoTStackSize;

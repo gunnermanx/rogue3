@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 
 [System.Serializable]
-
+[CreateAssetMenu]
 public class EnemyAttackDataSet : ScriptableObject
 {
 	[System.Serializable]

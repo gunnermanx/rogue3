@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 
+[CreateAssetMenu]
 public class ObstructionClearWeaponSkillData : BaseWeaponSkillData {
 	public BaseTileData.TileType[] TypesCleared;
 
