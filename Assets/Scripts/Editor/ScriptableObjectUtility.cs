@@ -48,11 +48,6 @@ public class ScriptableObjectUtility {
 	public static void CreateObstructionClearWeaponSkillData() {
 		CreateScriptableObject<ObstructionClearWeaponSkillData>();
 	}
-
-	[MenuItem("Assets/Create/ScriptableObjects/LootTables/LootTable")]
-	public static void CreateLootTableData() {
-		CreateScriptableObject<LootTableData>();
-	}
 	
 	private static void CreateScriptableObject<T> () where T: ScriptableObject {
 		T sObject = ScriptableObject.CreateInstance<T>();
