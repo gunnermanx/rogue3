@@ -1,10 +1,9 @@
-{
+{	
 	"OwnedTileIds": [
 		"WoodenBow",
 		"WoodenSword",
 		"WoodenTome",
-		"WoodenMace",
-		"SteelMace"
+		"WoodenMace"
 	],
 	"MaxLives": 3,
 	"CurrentLives": 3

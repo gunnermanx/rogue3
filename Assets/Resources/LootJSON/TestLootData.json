@@ -1,0 +1,68 @@
+{
+	"Set": [
+		{
+			"Id": "testTableId",
+			"Entries": [
+				{
+					"Weight": 0.85,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 0.3,
+							"ItemId": "testTableId2"
+						}
+					]
+				},
+				{
+					"Weight": 0.25,
+					"Style": "ANY_OF",
+					"Drops": [
+						{
+							"Weight": 0.5,
+							"ItemId": "testItemId"
+						},
+						{
+							"Weight": 0.5,
+							"ItemId": "testItemId2"
+						},
+						{
+							"Weight": 0.5,
+							"ItemId": "testItemId3"
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "testTableId2",
+			"Entries": [
+				{
+					"Weight": 0.5,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 0.3,
+							"ItemId": "testTableId3"
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "testTableId3",
+			"Entries": [
+				{
+					"Weight": 0.5,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 0.3,
+							"ItemId": "testItemId6"
+						}
+					]
+				}
+			]
+		}
+
+	]
+}

@@ -17,17 +17,11 @@ public class PersistenceManager : MonoBehaviour {
 	private PlayerBlob _playerBlob;
 	public PlayerBlob PlayerBlob{ get { return _playerBlob; } }
 
-
-	public void LoadPlayerData( PlayerBlobLoadedDelegate playerDataLoadedCallback ) {
-		PlayerBlob playerData = null;
-		_callback = playerDataLoadedCallback;
-
-		StartCoroutine( LoadPlayerDataFile( playerData ) );
-	}
+	private CharacterBlob _characterBlob;
+	public CharacterBlob CharacterBlob { get { return _characterBlob; } }
 
 
-	private IEnumerator LoadPlayerDataFile( PlayerBlob playerData ){
-
+	public IEnumerator LoadPlayerDataFile(){
 		Debug.Log ( "LoadPlayerData start" );
 
 		string playerDataText = null;
@@ -40,20 +34,50 @@ public class PersistenceManager : MonoBehaviour {
 			if( _fileWWW.bytes.Length > 0 ){
 				playerDataText = _fileWWW.text;
 			}
+
+			_playerBlob = (PlayerBlob) Serializer.Deserialize( typeof(PlayerBlob), playerDataText );
 		}
 		// first time load
 		else {
-			TextAsset textData = (TextAsset) Resources.Load("NewPlayerBlob");
-			playerDataText = textData.text;
+			_playerBlob = PlayerBlob.NewPlayerBlob();
 		}
-
-		if ( !string.IsNullOrEmpty( playerDataText ) ) {
-			_playerBlob = (PlayerBlob) Serializer.Deserialize( typeof(PlayerBlob), playerDataText );
-		}
-			
-		_callback( _playerBlob );
 
 		Debug.Log ( "LoadPlayerData done!" );
+	}
+
+	public void CreateNewCharacter( string slotName ) {
+		CharacterBlob blob;
+		if ( _playerBlob.CharacterBlobSlots.TryGetValue( slotName, out blob ) ) {
+			if ( blob != null ) {
+				Debug.Log( "Can't create new character on existing slot, Delete the character first" );
+			} else {
+				CharacterBlob newChar = CharacterBlob.NewCharacterBlob( "testName" );
+				_playerBlob.CharacterBlobSlots[ slotName ] = newChar;
+			}
+		}
+
+		SavePlayerData();
+	}
+
+	public void DeleteCharacter( string slotName ) {
+		CharacterBlob blob;
+		if ( _playerBlob.CharacterBlobSlots.TryGetValue( slotName, out blob ) ) {
+			if ( blob != null ) {
+				_playerBlob.CharacterBlobSlots[ slotName ] = null;
+			} else {
+				Debug.Log( "Slot " + slotName + " is empty, nothing to delete" );
+			}
+		}
+
+		SavePlayerData();
+	}
+
+	public void PickCharacter( string slotName ) {
+		CharacterBlob blob = null;
+		if ( !_playerBlob.CharacterBlobSlots.TryGetValue( slotName, out blob ) ) {
+			Debug.LogError( "Tried to pick character in slot: " + slotName + " and it does not exist in the blob" );
+		}
+		_characterBlob = blob;
 	}
 
 	public void SavePlayerData() {
@@ -66,24 +90,24 @@ public class PersistenceManager : MonoBehaviour {
 	}
 
 	public void SaveMapData( MapBlob blob ) {
-		_playerBlob.MapBlob = blob;
+		_characterBlob.MapBlob = blob;
 		SavePlayerData();
 	}
 
 	public void SaveCompletedNode( string completedNodeId ) {
-		Debug.Assert( !_playerBlob.MapBlob.CompletedNotes.Contains( completedNodeId ), "Trying to complete already completed stage" );
+		Debug.Assert( !_characterBlob.MapBlob.CompletedNotes.Contains( completedNodeId ), "Trying to complete already completed stage" );
 
-		_playerBlob.MapBlob.CompletedNotes.Add( completedNodeId );
+		_characterBlob.MapBlob.CompletedNotes.Add( completedNodeId );
 		SavePlayerData();
 	}
 
 	public void UpdateCurrentLives( int currentLives ) {
-		_playerBlob.CurrentLives = currentLives;
+		_characterBlob.CurrentLives = currentLives;
 		SavePlayerData();
 	}
 
 	public void UpdateMaxLives( int maxLives ) {
-		_playerBlob.MaxLives = maxLives;
+		_characterBlob.MaxLives = maxLives;
 		SavePlayerData();
 	}
 }

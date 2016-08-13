@@ -45,8 +45,8 @@ public class GameManager : MonoBehaviour {
 		DontDestroyOnLoad( gameObject );
 	}
 
-	private void Start() {
-		_persistenceManager.LoadPlayerData( OnPlayerBlobLoaded );
+	public void Startup() {
+		SceneManager.LoadScene( "Main" );
 	}
 
 	private void Update() {
@@ -63,9 +63,20 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	private void OnPlayerBlobLoaded( PlayerBlob blob ) {
-		Debug.Log( "gameManager: playerblob loaded" );
-		SceneManager.LoadScene( "Main" );
+	private void OnLevelWasLoaded( int level ) {
+		if ( level == 1 ) {
+
+			InitializeMainMenu();
+			//InitializeWorldMap();
+		}
+		else if ( level == 2 ) {
+
+			if ( _mapHud != null ) {
+				UIManager.Instance.CloseDialog( MapHud.DIALOG_ID );
+			}
+
+			StartGame();
+		}
 	}
 
 	List<WeaponTileData> gameTileData = null;
@@ -85,26 +96,20 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void ShowWeaponPicker() {
-		List<string> ownedTileIds = _persistenceManager.PlayerBlob.OwnedTileIds;
+		List<string> ownedTileIds = _persistenceManager.CharacterBlob.OwnedTileIds;
 		TilePickerDialog weaponPicker = UIManager.Instance.OpenDialog( TilePickerDialog.DIALOG_ID ) as TilePickerDialog;
 		weaponPicker.Initialize( ownedTileIds, delegate(List<WeaponTileData> tileData ) {
 			StartGame( tileData, _gameMap.GetCurrentStageData() );
 		});
 	}
 
-	private void OnLevelWasLoaded( int level ) {
-		if ( level == 1 ) {
 
-			InitializeWorldMap();
-		}
-		else if ( level == 2 ) {
 
-			if ( _mapHud != null ) {
-				UIManager.Instance.CloseDialog( MapHud.DIALOG_ID );
-			}
 
-			StartGame();
-		}
+
+	private void InitializeMainMenu() {
+		MainMenuDialog dialog = UIManager.Instance.OpenDialog( MainMenuDialog.DIALOG_ID ) as MainMenuDialog;
+		dialog.Initialize( _persistenceManager );
 	}
 
 
@@ -115,18 +120,24 @@ public class GameManager : MonoBehaviour {
 
 		// Open map hud
 		_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
-		_mapHud.UpdateLife( _persistenceManager.PlayerBlob.CurrentLives, _persistenceManager.PlayerBlob.MaxLives );
+		_mapHud.UpdateLife( _persistenceManager.CharacterBlob.CurrentLives, _persistenceManager.CharacterBlob.MaxLives );
 
 		// Create map
 		GameObject gameMapGO = GameObject.Instantiate( _gameMapPrefab ) as GameObject;
 		_gameMap = gameMapGO.GetComponent<GameMap>();
 
-		if ( _persistenceManager.PlayerBlob.MapBlob == null ) {
+		if ( _persistenceManager.CharacterBlob.MapBlob == null ) {
 			_gameMap.GenerateNewMap();
 		} else {
-			_gameMap.LoadMap( _persistenceManager.PlayerBlob.MapBlob );
+			_gameMap.LoadMap( _persistenceManager.CharacterBlob.MapBlob );
 		}
 		_gameMap.Initialize( _mapHud );
+	}
+
+
+	public void LoadGameMap() {
+		UIManager.Instance.CloseDialog( MainMenuDialog.DIALOG_ID );
+		InitializeWorldMap();
 	}
 
 	private void StartGame() {
@@ -169,7 +180,7 @@ public class GameManager : MonoBehaviour {
 			_persistenceManager.SaveCompletedNode( _currentNodeId );
 		} else {
 			// TODO lose life
-			_persistenceManager.UpdateCurrentLives( _persistenceManager.PlayerBlob.CurrentLives - 1 );
+			_persistenceManager.UpdateCurrentLives( _persistenceManager.CharacterBlob.CurrentLives - 1 );
 		}
 	}
 

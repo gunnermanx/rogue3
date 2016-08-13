@@ -25,5 +25,7 @@ public class TuningData : MonoBehaviour
 	public iTween.EaseType AttackVFXEaseType;
 
 	public float MatchTimeDelay;
+
+	public int NumSaveSlots;
 }
 
