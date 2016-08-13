@@ -15,8 +15,5 @@ public class PlayerBlob {
 
 	[fsProperty]
 	public int CurrentLives;
-
-	[fsProperty]
-	public int Gold;
 }
 

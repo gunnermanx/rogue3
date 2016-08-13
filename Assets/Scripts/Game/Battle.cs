@@ -23,7 +23,6 @@ public class Battle : MonoBehaviour {
 		public int CurrentEnemyCooldown = -1;
 		public List<EnemyAttackDataSet> AttackSets = null;
 		public BattleStageData.AttackPattern AttackPattern;
-		public BattleStageData BattleData;
 
 		public DoTStatus DoTStatus = null;
 		public StunStatus StunStatus = null;
@@ -31,7 +30,6 @@ public class Battle : MonoBehaviour {
 		public SessionResults Results = null;
 			
 		public Session( BattleStageData stageData ) {
-			BattleData = stageData;
 			TurnsRemaining = UnityEngine.Random.Range( stageData.TurnsMin, stageData.TurnsMax+1 );
 			HPMax = UnityEngine.Random.Range( stageData.HPMin, stageData.HPMax+1 );
 			HPRemaining = HPMax;
@@ -44,7 +42,6 @@ public class Battle : MonoBehaviour {
 
 	public class SessionResults {
 		public bool IsVictory = false;
-		public LootTableDrop Reward;
 	}
 
 	[SerializeField]
@@ -100,8 +97,7 @@ public class Battle : MonoBehaviour {
 
 		if ( _session.HPRemaining <= 0 ) {
 			_session.Results = new SessionResults() {
-				IsVictory = true,
-				Reward = LootTableData.RollForDrop( _session.BattleData.LootTable )
+				IsVictory = true
 			};
 		}
 		else if ( _session.TurnsRemaining <= 0 ) {
@@ -255,10 +251,6 @@ public class Battle : MonoBehaviour {
 			_gameBoard.GameComplete();
 			GameManager.Instance.GameComplete( _session.Results.IsVictory );
 
-			// Save the rewards
-			//if ( 
-				//_session.Results.Reward.g
-
 			// Show the results panel
 			ShowResults();
 		}
@@ -275,7 +267,7 @@ public class Battle : MonoBehaviour {
 #endregion
 
 	public void ShowResults() {
-		if ( _session.Results != null ) {			
+		if ( _session.Results != null ) {
 			GameResultsDialog dialog = UIManager.Instance.OpenDialog( GameResultsDialog.DIALOG_ID ) as GameResultsDialog;
 			dialog.Initialize( _session.Results, OnReturnFromResults );
 		} else {
