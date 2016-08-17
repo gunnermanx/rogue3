@@ -28,6 +28,8 @@ public class Battle : MonoBehaviour {
 		public StunStatus StunStatus = null;
 
 		public SessionResults Results = null;
+
+		public string LootTableId = null;
 			
 		public Session( BattleStageData stageData ) {
 			TurnsRemaining = UnityEngine.Random.Range( stageData.TurnsMin, stageData.TurnsMax+1 );
@@ -37,11 +39,13 @@ public class Battle : MonoBehaviour {
 			CurrentEnemyCooldown = EnemyCooldown;
 			AttackSets = stageData.AttackSets;
 			AttackPattern = stageData.Pattern;
+			LootTableId = stageData.LootTableId;
 		}
 	}
 
 	public class SessionResults {
 		public bool IsVictory = false;
+		public List<LootTableDrop> Drops;
 	}
 
 	[SerializeField]
@@ -95,23 +99,10 @@ public class Battle : MonoBehaviour {
 
 		List<EnemyAttackDataSet.EnemyAttackData> attacks = CheckForAttack();
 
-		if ( _session.HPRemaining <= 0 ) {
-			_session.Results = new SessionResults() {
-				IsVictory = true
-			};
-		}
-		else if ( _session.TurnsRemaining <= 0 ) {
-			_session.Results = new SessionResults() {
-				IsVictory = false
-			};
-		}
-
 		UpdateHUD();
 
 		return attacks;
 	}
-
-
 
 	public void AttackEnemy( List<Tile> matches ) {
 		//TODO: doing something simple here for now
@@ -185,20 +176,21 @@ public class Battle : MonoBehaviour {
 	}
 
 	private List<EnemyAttackDataSet.EnemyAttackData> CheckForAttack() {	
-
-		// TODO: delete vfx?
-		if ( _session.StunStatus != null ) {
-			if ( --_session.StunStatus.DurationRemaining <= 0 ) {
-				_session.StunStatus = null;
-			}
-			return null;
-		}
-
+		
 		// check for stuns/status blah here
 		_session.CurrentEnemyCooldown--;
 
 		if ( _session.CurrentEnemyCooldown == 0 ) {
+
 			_session.CurrentEnemyCooldown = _session.EnemyCooldown;
+
+			// TODO: delete vfx?
+			if ( _session.StunStatus != null ) {
+				if ( --_session.StunStatus.DurationRemaining <= 0 ) {
+					_session.StunStatus = null;
+				}
+				return null;
+			}
 
 			// create an attack
 			return CreateAttack();
@@ -242,11 +234,41 @@ public class Battle : MonoBehaviour {
 		AttackEnemy( matches );
 	}
 
+	private void CheckGameCompletion() {
+		if ( _session.HPRemaining <= 0 ) {
+
+			PersistenceManager persistenceManager = GameManager.Instance.GetPersistenceManager();
+			// Roll for stuff here??
+			List<LootTableDrop> drops = LootTableManager.Instance.RollFromTable( _session.LootTableId );
+			for ( int i = 0, count = drops.Count; i < count; i++ ) {
+				if ( drops[ i ].Type == LootTableDrop.DropType.WEAPON ) {
+					persistenceManager.AddWeapon( drops[ i ].ItemId );
+				} 
+				else if ( drops[ i ].Type == LootTableDrop.DropType.CURRENCY ) {
+					persistenceManager.AddGold( drops[ i ].Amount );
+				}
+			}
+
+			_session.Results = new SessionResults() {
+				IsVictory = true,
+				Drops = drops
+			};
+		}
+		else if ( _session.TurnsRemaining <= 0 ) {
+			_session.Results = new SessionResults() {
+				IsVictory = false
+			};
+		}
+	}
+
 	public void HandleOnTurnEnded() {
 		List<EnemyAttackDataSet.EnemyAttackData> attacks = IncrementTurnAndGetEnemyAttack();
 
+		CheckGameCompletion();
+
 		bool gameComplete = IsBattleComplete();
 		if ( gameComplete ) {
+			
 
 			_gameBoard.GameComplete();
 			GameManager.Instance.GameComplete( _session.Results.IsVictory );

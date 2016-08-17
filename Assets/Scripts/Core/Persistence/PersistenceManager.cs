@@ -17,7 +17,7 @@ public class PersistenceManager : MonoBehaviour {
 	private PlayerBlob _playerBlob;
 	public PlayerBlob PlayerBlob{ get { return _playerBlob; } }
 
-	private CharacterBlob _characterBlob;
+	private CharacterBlob _characterBlob = null;
 	public CharacterBlob CharacterBlob { get { return _characterBlob; } }
 
 
@@ -108,6 +108,18 @@ public class PersistenceManager : MonoBehaviour {
 
 	public void UpdateMaxLives( int maxLives ) {
 		_characterBlob.MaxLives = maxLives;
+		SavePlayerData();
+	}
+
+	public void AddWeapon( string weaponId ) {
+		if ( !_characterBlob.OwnedTileIds.Contains( weaponId ) ) {			
+			_characterBlob.OwnedTileIds.Add( weaponId );
+		}
+		SavePlayerData();
+	}
+
+	public void AddGold( int amount ) {
+		_characterBlob.Gold += amount;
 		SavePlayerData();
 	}
 }

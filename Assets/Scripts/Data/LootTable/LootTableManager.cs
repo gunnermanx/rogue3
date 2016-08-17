@@ -10,8 +10,8 @@ public class LootTableManager : MonoBehaviour {
 
 	private Dictionary<string, LootTableData> _cachedLootTableData = new Dictionary<string, LootTableData>();
 
-	private LootTableManager _instance = null;
-	public LootTableManager Instance {
+	private static LootTableManager _instance = null;
+	public static LootTableManager Instance {
 		get { return _instance; }
 	}
 
@@ -67,7 +67,7 @@ public class LootTableManager : MonoBehaviour {
 			for ( int i = drops.Count-1; i >= 0; i-- ) {
 				// Check if the drop is a table
 				LootTableDrop drop = drops[ i ];
-				if ( IsDropATable( drop ) ) {
+				if ( drop.Type == LootTableDrop.DropType.TABLE ) {
 					// first remove the drop, add results list to tableDrops
 					drops.RemoveAt( i );
 					// Add new drops to the unprocessed drops list
@@ -77,7 +77,7 @@ public class LootTableManager : MonoBehaviour {
 				}
 			}
 			// Things that we've found need to be processed
-			drops = unprocessedDrops;
+			drops = new List<LootTableDrop>( unprocessedDrops );
 			unprocessedDrops.Clear();
 		}
 
@@ -125,9 +125,12 @@ public class LootTableManager : MonoBehaviour {
 			float roll = UnityEngine.Random.Range( 0, totalWeight );
 			float rollingTotalWeight = 0f;
 			for ( int i = 0, count = possibleDrops.Count; i < count; i++ ) {
-				rollingTotalWeight += possibleDrops[ i ].Weight;
+				LootTableDrop drop = possibleDrops[ i ];
+				rollingTotalWeight += drop.Weight;
 				if ( roll <= rollingTotalWeight ) {
-					drops.Add( possibleDrops[ i ] );
+					// +1 because range for ints is max exlusive
+					drop.Amount = UnityEngine.Random.Range( drop.AmountMin, drop.AmountMax+1 );
+					drops.Add( drop );
 					break;
 				}
 			}
@@ -136,21 +139,16 @@ public class LootTableManager : MonoBehaviour {
 			// We want to roll a dice for each drop, the weights of an ANY_OF are treated as a percentage
 			for ( int i = 0, count = possibleDrops.Count; i < count; i++ ) {
 				float roll = UnityEngine.Random.Range( 0f, 1f );
-				if ( roll <= possibleDrops[ i ].Weight ) {
-					drops.Add( possibleDrops[ i ] );
+				LootTableDrop drop = possibleDrops[ i ];
+				if ( roll <= drop.Weight ) {
+					// +1 because range for ints is max exlusive
+					drop.Amount = UnityEngine.Random.Range( drop.AmountMin, drop.AmountMax+1 );
+					drops.Add( drop );
 				}
 			}
 		}
 
 		return drops;
-	}
-
-	private bool IsDropATable( LootTableDrop drop ) {
-		// kind of temp for now
-		if ( _cachedLootTableData.ContainsKey( drop.ItemId ) ) {
-			return true;
-		}
-		return false;
 	}
 }
 

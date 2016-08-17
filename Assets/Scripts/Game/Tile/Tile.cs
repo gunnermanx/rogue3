@@ -42,26 +42,28 @@ public class Tile : MonoBehaviour {
 	}
 
 	public List<BaseWeaponSkillData> GetWeaponSkills() {
-		return _tileData.WeaponSkills;
+		return (_tileData as WeaponTileData).WeaponSkills;
 	}
 
 	public Color GetDebugColor() {
-		Color color = Color.white;
-		switch( _tileData.Type ) {
-		case BaseTileData.TileType.Tomes:
-			color = Color.blue;
-			break;
-		case BaseTileData.TileType.Sword:
-			color = Color.green;
-			break;
-		case BaseTileData.TileType.Bow:
-			color = Color.yellow;
-			break;
-		case BaseTileData.TileType.Mace:
-			color = Color.red;
-			break;
-			
-		}
+		
+		Color color = ((WeaponTileData)_tileData).Tint;
+
+//		switch( _tileData.Type ) {
+//		case BaseTileData.TileType.Tomes:
+//			color = Color.blue;
+//			break;
+//		case BaseTileData.TileType.Sword:
+//			color = Color.green;
+//			break;
+//		case BaseTileData.TileType.Bow:
+//			color = Color.yellow;
+//			break;
+//		case BaseTileData.TileType.Mace:
+//			color = Color.red;
+//			break;
+//			
+//		}
 		return color;
 	}
 

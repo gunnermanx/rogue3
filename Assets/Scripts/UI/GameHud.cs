@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.UI;
+using System;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GameHud : BaseDialog {
 
@@ -20,6 +22,10 @@ public class GameHud : BaseDialog {
 	private GameObject _dotStatus;
 	[SerializeField]
 	private GameObject _stunStatus;
+	[SerializeField]
+	private Slider _recipeSkillChargeSlider;
+	[SerializeField]
+	private Button _recipeSkillButton;
 
 	public const string DIALOG_ID = "GAME_HUD";
 	public override string GetDialogId() {
@@ -61,6 +67,39 @@ public class GameHud : BaseDialog {
 
 	public void UpdateHPBar( int current, int max ) {
 		_hpSlider.value = (float)current / (float) max;
+	}
+
+	private int _recipeMatches = 0;
+	private int _requiredMatches = 0;
+	private Action _recipeChargeButtonCallback = null;
+	public void SetupRecipeChargeHud( GameBoard board, TileRecipe recipe, Action callback ) {
+		if ( recipe == null ) {
+			_recipeSkillButton.gameObject.SetActive( false );
+			_recipeSkillChargeSlider.gameObject.SetActive( false );
+		} else {
+			_recipeMatches = 0;
+			_requiredMatches = recipe.RequiredMatches;
+			_recipeSkillChargeSlider.value = 0f;
+			_recipeSkillButton.interactable = false;
+			_recipeChargeButtonCallback = callback;
+
+			board.OnTilesMatched += delegate( List<Tile> matches ) {
+				_recipeMatches = Mathf.Min( _recipeMatches + 1, _requiredMatches );
+				_recipeSkillChargeSlider.value = (float) _recipeMatches / (float) _requiredMatches;
+				_recipeSkillButton.interactable = ( _recipeMatches == _requiredMatches );
+			};
+		}	
+	}
+
+	public void RecipeSkillButtonPressed() {
+		if ( _recipeChargeButtonCallback != null ) {
+
+			_recipeMatches = 0;
+			_recipeSkillChargeSlider.value = 0;
+			_recipeSkillButton.interactable = false;
+
+			_recipeChargeButtonCallback();
+		}
 	}
 }
 

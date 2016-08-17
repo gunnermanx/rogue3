@@ -14,6 +14,9 @@ public class MapHud : BaseDialog {
 	[SerializeField]
 	private GridLayoutGroup _lifeCounterGrid;
 
+	[SerializeField]
+	private Text _goldLabel;
+
 	private List<LifeCounter> _lifeCounters = new List<LifeCounter>();
 
 
@@ -49,6 +52,10 @@ public class MapHud : BaseDialog {
 		for ( int i = life; i < maxLife; i++ ) {
 			_lifeCounters[ i ].ToggleFilledState( false );
 		}
+	}
+
+	public void UpdateGold( int gold ) {
+		_goldLabel.text = gold.ToString();
 	}
 
 	public void Initialize( Action travelButtonCallback ) {

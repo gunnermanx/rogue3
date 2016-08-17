@@ -9,12 +9,14 @@ public class Database : MonoBehaviour {
 	private const string WORLD_STAGES_PATH = "Database/Stages/World{worldNum}/";
 	private const string TILES_WEAPONS_PATH = "Database/Tiles_Weapons/";
 	private const string TILES_OBSTRUCTIONS_PATH = "Database/Tiles_Obstructions/";
+	private const string ITEMS_PATH = "Database/Items/";
 #endregion
 	
 #region Database Dictionaries
-	private Dictionary<string,BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string, BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
 	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
-	private Dictionary<string,BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string, BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string, BaseItemData> _itemData = new Dictionary<string, BaseItemData>();
 	private WorldData _worldData = null;
 #endregion
 
@@ -100,6 +102,19 @@ public class Database : MonoBehaviour {
 		}
 		#if DEBUG		
 		Debug.Assert( data != null, "No WeaponTileData found with id " + id + " at path " + path );
+		#endif
+		return data;
+	}
+
+	public BaseItemData GetItemData( string id ) {
+		BaseItemData data = null;
+		string path = null;
+		if ( !_itemData.TryGetValue( id, out data ) ) {
+			path = ITEMS_PATH + id;
+			data = Resources.Load( path ) as BaseItemData;
+		}
+		#if DEBUG		
+		Debug.Assert( data != null, "No ItemData found with id " + id + " at path " + path );
 		#endif
 		return data;
 	}

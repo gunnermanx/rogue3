@@ -1,15 +1,79 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
+
+public class InputState : IGameState {
+
+	public void OnEnterState() {
+		
+	}
+
+	public void OnExitState() {
+		
+	}
+
+	public void GetNextState( GameStateManager.Transition transition ) {
+		
+	}
+}
+
+public class SwapState : IGameState {
+	
+	public void OnEnterState() {
+
+	}
+
+	public void OnExitState() {
+
+	}
+
+	public void GetNextState( GameStateManager.Transition transition ) {
+
+	}
+}
+
+public interface IGameState {
+	void OnEnterState();
+	void OnExitState();
+	void GetNextState( GameStateManager.Transition transition );
+}
+
+public class GameStateManager {
+
+	// Game states
+	public enum GameStateId {
+		Input, // User input state, may also show hints during this state in the future
+		Swap, // User input has occured, checking for a valid swap
+		SwapAnimating, // Idle state where we wait for swap tweens to complete
+		UndoSwapAnimating, // Idle state where we wait for UNDO swap tweens to complete
+		Match, // State to clear out all matches and wait for match tweens
+		CheckDirtyPostMatch,
+		ExpireObstructions,
+		DropAndFill, // Fix data so that we have a complete board once more
+		DropAnimating, // Idle state to wait for tiles to visually drop into place
+		Cleanup, // Check for additional matches, either brings us back to Match or to the TurnEnd
+		TurnEnd
+	}
+
+	public enum Transition {
+		NoTransition = 0,
+
+	}
+
+	private Dictionary<GameStateId, IGameState> _gameStates = new Dictionary<GameStateId, IGameState>();
+
+	public void SetupGameStates() {
+		_gameStates.Add( GameStateId.Input, new InputState() );
+		_gameStates.Add( GameStateId.Swap, new SwapState() );
+	}
+}
 
 /// <summary>
 /// BoardManager
 /// 
 /// Handles board/tile state
 /// </summary>
-using System.Text;
-
-
 public class GameBoard : MonoBehaviour {
 
 	// Data class that represents a swap
@@ -51,6 +115,8 @@ public class GameBoard : MonoBehaviour {
 		TurnEnd
 	}
 
+
+
 	// Delegates
 	public delegate void OnTilesMatchedDelegate( List<Tile> matches );
 	public OnTilesMatchedDelegate OnTilesMatched;
@@ -86,6 +152,10 @@ public class GameBoard : MonoBehaviour {
 	private bool _isGameOver = false;
 
 	private Battle _battle = null;
+
+	private TileRecipe _recipe = null;
+
+	private GameHud _gameHud = null;
 
 #region PsuedoRandom Tile Picking
 	private int _randomIndex = 0;
@@ -127,6 +197,8 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	private bool _holdStateChanges = false;
+
+
 
 	/// <summary>
 	/// Basic Game Loop
@@ -229,10 +301,14 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
-	public void Initialize( List<WeaponTileData> tileData, Battle battle ) {
+	public void Initialize( List<WeaponTileData> tileData, Battle battle, GameHud gameHud, TileRecipe recipe ) {
 
 		_equippedTileData = tileData;
 		_battle = battle;
+		_gameHud = gameHud;
+		_recipe = recipe;
+
+		_gameHud.SetupRecipeChargeHud( this, _recipe, ActivateRecipeSkill );
 
 		// 0, 0 is the bottom left corner tile
 		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
@@ -247,6 +323,15 @@ public class GameBoard : MonoBehaviour {
 			}
 		}
 	}
+
+
+	public void ActivateRecipeSkill() {
+		// TODO ayuen any other stuff
+		_recipe.ActivateRecipeSkill( this );
+
+		Debug.Log( "asdasdadadasd " );
+	}
+
 
 	public void ClearBoard() {
 		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
@@ -503,8 +588,8 @@ public class GameBoard : MonoBehaviour {
 
 	private IEnumerator PerformMatchCoroutine() {
 		isPerformingMatch = true;
-		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
 
+		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
 
 			// Examine each match, they should trigger some sort of skill
 			TriggerMatchSkill( _matches[ i ] );
@@ -775,6 +860,10 @@ public class GameBoard : MonoBehaviour {
 				}
 			}
 		}
+	}
+
+	public void ClearRows( List<int> rowsToClear ) {
+		
 	}
 
 	public void ReplaceNRandomTiles( int n, BaseTileData data, List<Tile> excludedTiles ) {		

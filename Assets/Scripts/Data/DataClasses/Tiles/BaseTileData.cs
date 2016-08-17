@@ -21,5 +21,5 @@ public class BaseTileData : ScriptableObject {
 
 	public bool Matchable;
 
-	public List<BaseWeaponSkillData> WeaponSkills;
+	public Color Tint;
 }

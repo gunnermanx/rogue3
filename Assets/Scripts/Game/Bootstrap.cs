@@ -17,6 +17,7 @@ public class Bootstrap : MonoBehaviour {
 	private GameManager _gameManager;
 
 	private void Start() {
+		_loadingUI.gameObject.SetActive( true );
 		StartCoroutine( LoadingLoop() );
 	}
 
@@ -25,8 +26,6 @@ public class Bootstrap : MonoBehaviour {
 		yield return StartCoroutine( _lootTableManager.LoadLootTableData() );
 
 		GameObject.Destroy( _loadingUI );
-
-		_lootTableManager.RollFromTable( "testTableId" );
 
 		_gameManager.Startup();
 	}

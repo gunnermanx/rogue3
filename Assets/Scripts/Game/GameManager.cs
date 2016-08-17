@@ -18,6 +18,9 @@ public class GameManager : MonoBehaviour {
 	private Database _database;
 
 	[SerializeField]
+	private TileRecipeManager _recipeManager;
+
+	[SerializeField]
 	private PersistenceManager _persistenceManager;
 	public PersistenceManager GetPersistenceManager() {
 		return _persistenceManager;
@@ -39,6 +42,7 @@ public class GameManager : MonoBehaviour {
 
 	private string _currentNodeId = null;
 
+	private List<WeaponTileData> _gameTileData = null;
 
 	private void Awake() {
 		_instance = this;
@@ -65,9 +69,11 @@ public class GameManager : MonoBehaviour {
 
 	private void OnLevelWasLoaded( int level ) {
 		if ( level == 1 ) {
-
-			InitializeMainMenu();
-			//InitializeWorldMap();
+			if ( _persistenceManager.CharacterBlob == null ) {
+				InitializeMainMenu();
+			} else {
+				InitializeWorldMap();
+			}
 		}
 		else if ( level == 2 ) {
 
@@ -79,12 +85,12 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
-	List<WeaponTileData> gameTileData = null;
+
 	BattleStageData gameStageData = null;
 
 	public void StartGame( List<WeaponTileData> tileData, BattleStageData stageData ) {
 
-		gameTileData = tileData;
+		_gameTileData = tileData;
 		gameStageData = stageData;
 
 		SceneManager.LoadScene( "Game" );
@@ -121,6 +127,7 @@ public class GameManager : MonoBehaviour {
 		// Open map hud
 		_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
 		_mapHud.UpdateLife( _persistenceManager.CharacterBlob.CurrentLives, _persistenceManager.CharacterBlob.MaxLives );
+		_mapHud.UpdateGold( _persistenceManager.CharacterBlob.Gold );
 
 		// Create map
 		GameObject gameMapGO = GameObject.Instantiate( _gameMapPrefab ) as GameObject;
@@ -145,6 +152,8 @@ public class GameManager : MonoBehaviour {
 		// Initialize Game HUD
 		_gameHud = UIManager.Instance.OpenDialog( GameHud.DIALOG_ID ) as GameHud;
 
+		TileRecipe recipe = _recipeManager.GetRecipe( _gameTileData );
+
 		// Create the gameboard and battle
 		GameObject gameBoard = GameObject.Instantiate( _gameBoardPrefab );
 		_gameBoard = gameBoard.GetComponent<GameBoard>();
@@ -156,7 +165,7 @@ public class GameManager : MonoBehaviour {
 		_battle.Initialize( gameStageData, _gameHud, _gameBoard );
 
 		// Initialize game board
-		_gameBoard.Initialize( gameTileData, _battle );
+		_gameBoard.Initialize( _gameTileData, _battle, _gameHud, recipe );
 	}
 
 	public void CleanupGame() {

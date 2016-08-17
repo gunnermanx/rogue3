@@ -1,0 +1,92 @@
+{
+	"Set": [
+		{
+			"Id": "World1Drops",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ANY_OF",
+					"Drops": [
+						{
+							"Weight": 1.0,
+							"Type": "TABLE",
+							"ItemId": "WeaponDropsTable"
+						},
+						{
+							"Weight": 1.0,
+							"Type": "CURRENCY",							
+							"ItemId": "Gold",
+							"AmountMin": 100,
+							"AmountMax": 200
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "WeaponDropsTable",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 1.0,
+							"Type": "TABLE",
+							"ItemId": "Maces"
+						},
+						{
+							"Weight": 1.0,
+							"Type": "TABLE",
+							"ItemId": "Swords"
+						}
+					]	
+				}
+			]
+		},
+		{
+			"Id": "Maces",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 0.5,
+							"Type": "WEAPON",
+							"ItemId": "WoodenMace",
+							"AmountMin": 1,
+							"AmountMax": 1
+						},
+						{
+							"Weight": 0.25,
+							"Type": "WEAPON",
+							"ItemId": "SteelMace",
+							"AmountMin": 1,
+							"AmountMax": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "Swords",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "WoodenSword",
+							"AmountMin": 1,
+							"AmountMax": 1
+						}
+					]
+				}
+			]
+		}
+
+	]
+}

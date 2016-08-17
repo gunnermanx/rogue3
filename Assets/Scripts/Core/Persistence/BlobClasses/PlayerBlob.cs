@@ -55,4 +55,7 @@ public class CharacterBlob {
 
 	[fsProperty]
 	public List<string> OwnedTileIds;
+
+	[fsProperty]
+	public int Gold;
 }

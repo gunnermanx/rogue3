@@ -1,9 +1,12 @@
 ﻿<Properties StartupItem="Assembly-CSharp.csproj" RefactoringSettings.EnableRefactorings="True">
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" PreferredExecutionTarget="Unity.Instance.Unity Editor" />
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Data/DataClasses/EnemyAttackDataSet.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Scripts/Game/Board/GameBoard.cs">
     <Files>
-      <File FileName="Assets/Scripts/Data/DataClasses/EnemyAttackDataSet.cs" Line="6" Column="1" />
-      <File FileName="Assets/Scripts/Data/DataClasses/BattleStageData.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/Game/GameManager.cs" Line="148" Column="3" />
+      <File FileName="Assets/Scripts/Game/Board/GameBoard.cs" Line="234" Column="88" />
+      <File FileName="Assets/Scripts/Game/TileRecipe/TileRecipeManager.cs" Line="38" Column="36" />
+      <File FileName="Assets/Scripts/UI/GameHud.cs" Line="25" Column="18" />
+      <File FileName="Assets/Scripts/Game/Battle.cs" Line="54" Column="27" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.Breakpoints>

@@ -19,6 +19,8 @@ public class BattleStageData : ScriptableObject {
 	public int TurnsMax;
 	public Sprite EnemySprite;
 
+	public string LootTableId;
+
 	public AttackPattern Pattern;
 	public List<EnemyAttackDataSet> AttackSets;
 }
