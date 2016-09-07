@@ -40,6 +40,18 @@
 							"Type": "TABLE",
 							"ItemId": "Swords"
 						}
+						,
+						{
+							"Weight": 1.0,
+							"Type": "TABLE",
+							"ItemId": "Bows"
+						}
+						,
+						{
+							"Weight": 1.0,
+							"Type": "TABLE",
+							"ItemId": "Tomes"
+						}
 					]	
 				}
 			]
@@ -54,14 +66,14 @@
 						{
 							"Weight": 0.5,
 							"Type": "WEAPON",
-							"ItemId": "WoodenMace",
+							"ItemId": "T0_Mace_01",
 							"AmountMin": 1,
 							"AmountMax": 1
 						},
 						{
 							"Weight": 0.25,
 							"Type": "WEAPON",
-							"ItemId": "SteelMace",
+							"ItemId": "T1_Mace_01",
 							"AmountMin": 1,
 							"AmountMax": 1
 						}
@@ -79,7 +91,64 @@
 						{
 							"Weight": 1.0,
 							"Type": "WEAPON",
-							"ItemId": "WoodenSword",
+							"ItemId": "T0_Sword_01",
+							"AmountMin": 1,
+							"AmountMax": 1
+						},
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "T1_Sword_01",
+							"AmountMin": 1,
+							"AmountMax": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "Tomes",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "T0_Tome_01",
+							"AmountMin": 1,
+							"AmountMax": 1
+						},
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "T1_Tome_01",
+							"AmountMin": 1,
+							"AmountMax": 1
+						}
+					]
+				}
+			]
+		},
+		{
+			"Id": "Bows",
+			"Entries": [
+				{
+					"Weight": 1.0,
+					"Style": "ONE_OF",
+					"Drops": [
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "T0_Bow_01",
+							"AmountMin": 1,
+							"AmountMax": 1
+						},
+						{
+							"Weight": 1.0,
+							"Type": "WEAPON",
+							"ItemId": "T1_Bow_01",
 							"AmountMin": 1,
 							"AmountMax": 1
 						}

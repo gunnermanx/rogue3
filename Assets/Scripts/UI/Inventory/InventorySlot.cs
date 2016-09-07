@@ -5,10 +5,10 @@ using UnityEngine.UI;
 
 public class InventorySlot : MonoBehaviour, IDropHandler {
 
-	private InventoryItem _acceptedItem = null;
+	protected InventoryItem _acceptedItem = null;
 	public InventoryItem Item { get { return _acceptedItem; } } 
 
-	public void AcceptInventoryItem( InventoryItem item ) {
+	public virtual void AcceptInventoryItem( InventoryItem item ) {
 		_acceptedItem = item;
 		item.transform.SetParent( transform );
 		item.transform.localScale = Vector3.one;
@@ -19,7 +19,7 @@ public class InventorySlot : MonoBehaviour, IDropHandler {
 		_acceptedItem = null;
 	}
 
-	public void OnDrop( PointerEventData eventData ) {
+	public virtual void OnDrop( PointerEventData eventData ) {
 		InventoryItem draggedItem = InventoryItem.DraggedInventoryItem;
 		if ( draggedItem == null ) {
 			return;

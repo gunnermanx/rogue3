@@ -25,18 +25,20 @@ public class GameResultsDialog : BaseDialog {
 		// Temp
 		if ( results.IsVictory ) {
 			ResultLabel.text = "VICTORY";
+
+			for ( int i = 0, count = results.Drops.Count; i < count; i++ ) {
+				LootTableDrop drop = results.Drops[ i ];
+				GameObject go = GameObject.Instantiate( _itemDropPrefab.gameObject ) as GameObject;
+				go.transform.SetParent( _dropsParentTransform );
+				go.transform.localScale = Vector3.one;
+
+				go.GetComponent<GameResultsItemDrop>().Initialize( drop );
+			}
 		} else {
 			ResultLabel.text = "DEFEAT";
 		}
 
-		for ( int i = 0, count = results.Drops.Count; i < count; i++ ) {
-			LootTableDrop drop = results.Drops[ i ];
-			GameObject go = GameObject.Instantiate( _itemDropPrefab.gameObject ) as GameObject;
-			go.transform.SetParent( _dropsParentTransform );
-			go.transform.localScale = Vector3.one;
 
-			go.GetComponent<GameResultsItemDrop>().Initialize( drop );
-		}
 
 		_continueButtonCallback = continueButtonCallback;
 	}

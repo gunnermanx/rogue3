@@ -42,12 +42,20 @@ public class Tile : MonoBehaviour {
 	}
 
 	public List<BaseWeaponSkillData> GetWeaponSkills() {
-		return (_tileData as WeaponTileData).WeaponSkills;
+		List<BaseWeaponSkillData> weaponSkills = new List<BaseWeaponSkillData>();
+		WeaponTileData weaponData = _tileData as WeaponTileData;
+		if ( weaponData != null ) {
+			weaponSkills = weaponData.WeaponSkills;
+		}
+		return weaponSkills;
 	}
 
 	public Color GetDebugColor() {
-		
-		Color color = ((WeaponTileData)_tileData).Tint;
+
+		Color color = Color.white;
+		if ( _tileData is WeaponTileData ) {
+			color = ((WeaponTileData)_tileData).Tint;
+		}
 
 //		switch( _tileData.Type ) {
 //		case BaseTileData.TileType.Tomes:

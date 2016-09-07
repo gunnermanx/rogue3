@@ -15,7 +15,8 @@ public class Database : MonoBehaviour {
 #region Database Dictionaries
 	private Dictionary<string, BattleStageData> _testStageData = new Dictionary<string, BattleStageData>();
 	private Dictionary<string, WeaponTileData> _weaponTileData = new Dictionary<string, WeaponTileData>();
-	private Dictionary<string, BattleStageData> _worldStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string, BattleStageData> _worldBattleStageData = new Dictionary<string, BattleStageData>();
+	private Dictionary<string, ShopStageData> _worldShopStageData = new Dictionary<string, ShopStageData>();
 	private Dictionary<string, BaseItemData> _itemData = new Dictionary<string, BaseItemData>();
 	private WorldData _worldData = null;
 #endregion
@@ -30,12 +31,12 @@ public class Database : MonoBehaviour {
 		_instance = this;
 	}
 
-	public void LoadWorldStageData( int worldId ) {
+	  public WorldData LoadWorldStageData( int worldId ) {
 
 		//temp
 		string worldName = "World" + worldId.ToString();
 		if ( _worldData != null && _worldData.name == worldName ) {
-			return;
+			return _worldData;
 		}
 
 		string worldPath = WORLD_PATH;
@@ -46,9 +47,16 @@ public class Database : MonoBehaviour {
 		stagesPath = stagesPath.Replace( "{worldNum}", worldId.ToString() );
 		Object[] stages = Resources.LoadAll( stagesPath );
 		for ( int i = 0, count = stages.Length; i < count; i++ ) {
-			BattleStageData data = stages[ i ] as BattleStageData;
-			_worldStageData.Add( data.name, data );
+
+			// Test if the stage data is a battle stage
+			BattleStageData battleStage = stages[ i ] as BattleStageData;
+			if ( battleStage != null ) _worldBattleStageData.Add( battleStage.name, battleStage );
+
+			ShopStageData shopData = stages[ i ] as ShopStageData;
+			if ( shopData != null ) _worldShopStageData.Add( shopData.name, shopData );
 		}
+
+		return _worldData;
 	}
 
 	public void UnloadWorldStageData() {
@@ -57,24 +65,28 @@ public class Database : MonoBehaviour {
 		}
 		_worldData = null;
 
-		foreach( KeyValuePair<string, BattleStageData> kvp in _worldStageData ) {
+		foreach( KeyValuePair<string, BattleStageData> kvp in _worldBattleStageData ) {
 			Resources.UnloadAsset( kvp.Value );
 		}
-		_worldStageData.Clear();
+		_worldBattleStageData.Clear();
+
+		foreach( KeyValuePair<string, ShopStageData> kvp in _worldShopStageData ) {
+			Resources.UnloadAsset( kvp.Value );
+		}
+		_worldShopStageData.Clear();
 	}
 
 	public BattleStageData GetRandomBattleStageData() {
-		List<string> keys = new List<string>( _worldStageData.Keys );
+		List<string> keys = new List<string>( _worldBattleStageData.Keys );
 		string randomStageId = keys[ UnityEngine.Random.Range( 0, keys.Count ) ];
-		return _worldStageData[ randomStageId ];
+		return _worldBattleStageData[ randomStageId ];
 	}
 
 	public BattleStageData GetBattleStageData( string id ) {
 		BattleStageData data = null;
-		_worldStageData.TryGetValue( id, out data );
+		_worldBattleStageData.TryGetValue( id, out data );
 		return data;
 	}
-
 
 	public BattleStageData GetRandomTestBattleStageData() {
 		if ( _testStageData.Count == 0 ) {
@@ -92,6 +104,20 @@ public class Database : MonoBehaviour {
 			return _testStageData[ keys[ index ] ];
 		}
 	}
+
+
+	public ShopStageData GetRandomShopStageData() {
+		List<string> keys = new List<string>( _worldShopStageData.Keys );
+		string randomStageId = keys[ UnityEngine.Random.Range( 0, keys.Count ) ];
+		return _worldShopStageData[ randomStageId ];
+	}
+
+	public ShopStageData GetShopStageData( string id ) {
+		ShopStageData data = null;
+		_worldShopStageData.TryGetValue( id, out data );
+		return data;
+	}
+
 		
 	public WeaponTileData GetWeaponTileData( string id ) {
 		WeaponTileData data = null;

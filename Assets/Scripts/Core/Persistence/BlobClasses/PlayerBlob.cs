@@ -31,11 +31,11 @@ public class CharacterBlob {
 			MaxLives = 3,
 			CurrentLives = 3,
 			MapBlob = null,
-			OwnedTileIds = new List<string>() {
-				"WoodenSword",
-				"WoodenBow",
-				"WoodenTome",
-				"WoodenMace"
+			OwnedTiles = new Dictionary<string,int>() {
+				{ "T0_Sword_01", 1 },
+				{ "T0_Bow_01", 1 },
+				{ "T0_Tome_01", 1 },
+				{ "T0_Mace_01", 1 }
 			},
 		};
 		return blob;
@@ -54,7 +54,7 @@ public class CharacterBlob {
 	public MapBlob MapBlob;
 
 	[fsProperty]
-	public List<string> OwnedTileIds;
+	public Dictionary<string, int> OwnedTiles;
 
 	[fsProperty]
 	public int Gold;

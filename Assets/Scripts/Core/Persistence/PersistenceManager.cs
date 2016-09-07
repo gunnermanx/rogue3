@@ -112,9 +112,13 @@ public class PersistenceManager : MonoBehaviour {
 	}
 
 	public void AddWeapon( string weaponId ) {
-		if ( !_characterBlob.OwnedTileIds.Contains( weaponId ) ) {			
-			_characterBlob.OwnedTileIds.Add( weaponId );
+		int amount = 1;
+		if ( !_characterBlob.OwnedTiles.TryGetValue( weaponId, out amount ) ) {
+			_characterBlob.OwnedTiles.Add( weaponId, amount );
+		} else {
+			_characterBlob.OwnedTiles[ weaponId ] = amount+1;
 		}
+
 		SavePlayerData();
 	}
 

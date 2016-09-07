@@ -2,82 +2,17 @@ using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
-
-public class InputState : IGameState {
-
-	public void OnEnterState() {
-		
-	}
-
-	public void OnExitState() {
-		
-	}
-
-	public void GetNextState( GameStateManager.Transition transition ) {
-		
-	}
-}
-
-public class SwapState : IGameState {
-	
-	public void OnEnterState() {
-
-	}
-
-	public void OnExitState() {
-
-	}
-
-	public void GetNextState( GameStateManager.Transition transition ) {
-
-	}
-}
-
-public interface IGameState {
-	void OnEnterState();
-	void OnExitState();
-	void GetNextState( GameStateManager.Transition transition );
-}
-
-public class GameStateManager {
-
-	// Game states
-	public enum GameStateId {
-		Input, // User input state, may also show hints during this state in the future
-		Swap, // User input has occured, checking for a valid swap
-		SwapAnimating, // Idle state where we wait for swap tweens to complete
-		UndoSwapAnimating, // Idle state where we wait for UNDO swap tweens to complete
-		Match, // State to clear out all matches and wait for match tweens
-		CheckDirtyPostMatch,
-		ExpireObstructions,
-		DropAndFill, // Fix data so that we have a complete board once more
-		DropAnimating, // Idle state to wait for tiles to visually drop into place
-		Cleanup, // Check for additional matches, either brings us back to Match or to the TurnEnd
-		TurnEnd
-	}
-
-	public enum Transition {
-		NoTransition = 0,
-
-	}
-
-	private Dictionary<GameStateId, IGameState> _gameStates = new Dictionary<GameStateId, IGameState>();
-
-	public void SetupGameStates() {
-		_gameStates.Add( GameStateId.Input, new InputState() );
-		_gameStates.Add( GameStateId.Swap, new SwapState() );
-	}
-}
+using System;
 
 /// <summary>
 /// BoardManager
 /// 
 /// Handles board/tile state
 /// </summary>
-public class GameBoard : MonoBehaviour {
-
+public partial class GameBoard : MonoBehaviour {
+	
 	// Data class that represents a swap
-	private class Swap {
+	public class Swap {
 		public Tile SelectedTile = null;
 		public Tile TargetTile = null;
 
@@ -100,22 +35,6 @@ public class GameBoard : MonoBehaviour {
 	[SerializeField]
 	private Transform TilesContainer;
 
-	// Game states
-	private enum State {
-		Input, // User input state, may also show hints during this state in the future
-		Swap, // User input has occured, checking for a valid swap
-		SwapAnimating, // Idle state where we wait for swap tweens to complete
-		UndoSwapAnimating, // Idle state where we wait for UNDO swap tweens to complete
-		Match, // State to clear out all matches and wait for match tweens
-		CheckDirtyPostMatch,
-		ExpireObstructions,
-		DropAndFill, // Fix data so that we have a complete board once more
-		DropAnimating, // Idle state to wait for tiles to visually drop into place
-		Cleanup, // Check for additional matches, either brings us back to Match or to the TurnEnd
-		TurnEnd
-	}
-
-
 
 	// Delegates
 	public delegate void OnTilesMatchedDelegate( List<Tile> matches );
@@ -136,9 +55,6 @@ public class GameBoard : MonoBehaviour {
 	// Any current swaps ( created by user input )
 	private Swap _swap = null;
 
-	// The game state
-	private State _state = State.Input;
-
 	// Tiles that are pending a tween to drop down to its correct location ( visually )
 	private List<Tile> _droppingTiles = new List<Tile>();
 
@@ -157,6 +73,8 @@ public class GameBoard : MonoBehaviour {
 
 	private GameHud _gameHud = null;
 
+	private GameStateMachine _gameStateMachine = null;
+
 #region PsuedoRandom Tile Picking
 	private int _randomIndex = 0;
 	private int[] _psuedoRandomIndices = new int[] { 
@@ -169,7 +87,7 @@ public class GameBoard : MonoBehaviour {
 		_randomIndex = 0;
 
 		for ( int i = _psuedoRandomIndices.Length - 1; i > 0; i-- ) {
-			int randomIndex = Random.Range( 0, i );
+			int randomIndex = UnityEngine.Random.Range( 0, i );
 			int tmp = _psuedoRandomIndices[ i ];
 			_psuedoRandomIndices[ i ] = _psuedoRandomIndices[ randomIndex ];
 			_psuedoRandomIndices[ randomIndex ] = tmp;
@@ -188,117 +106,15 @@ public class GameBoard : MonoBehaviour {
 		GameBoardGestureHandler.onSelectTile += HandleOnSelectTile;
 		GameBoardGestureHandler.onDragTile += HandleOnDragTile;
 		GameBoardGestureHandler.onDropTile += HandleOnDropTile;
+
+		_gameStateMachine = new GameStateMachine();
+		_gameStateMachine.Initialize( this );
 	}
 
 	private void OnDestroy() {
 		GameBoardGestureHandler.onSelectTile -= HandleOnSelectTile;
 		GameBoardGestureHandler.onDragTile -= HandleOnDragTile;
 		GameBoardGestureHandler.onDropTile -= HandleOnDropTile;
-	}
-
-	private bool _holdStateChanges = false;
-
-
-
-	/// <summary>
-	/// Basic Game Loop
-	/// </summary>
-	private void Update() {
-
-		// If the game is over or we dont want state changes or logic to be done, we should return
-		if ( _isGameOver || _holdStateChanges == true ) {
-			return;
-		}
-
-		switch( _state ) {
-			// On the input state, we are waiting for the player to perform a swap
-			// Only state where user input is valid
-			case State.Input:
-				// TODO: show hints after some time?
-				// Wait until we recieve a drop tile event
-				break;
-			// A selection has been made, the player has dropped the tile, try to swap
-			case State.Swap:
-				PerformSwap();
-				
-				bool selectedTileMatched = CheckForMatchAtCoords( _swap.SelectedTile, _swap.SelectedTile.X, _swap.SelectedTile.Y, out _swap.SelectedHorizontalMatches, out _swap.SelectedVerticalMatches );
-				bool targetTileMatched = CheckForMatchAtCoords( _swap.TargetTile, _swap.TargetTile.X, _swap.TargetTile.Y, out _swap.TargetHorizontalMatches, out _swap.TargetVerticalMatches );
-				
-				// If there are matches at either the target or selected tile locations, we need to swap
-				if ( selectedTileMatched || targetTileMatched ) {
-					
-					_matches.Clear();
-
-					if ( _swap.SelectedHorizontalMatches.Count > 0 ) _matches.Add( _swap.SelectedHorizontalMatches );
-					if ( _swap.SelectedVerticalMatches.Count > 0 ) _matches.Add( _swap.SelectedVerticalMatches );
-					if ( _swap.TargetHorizontalMatches.Count > 0 ) _matches.Add( _swap.TargetHorizontalMatches );
-					if ( _swap.TargetVerticalMatches.Count > 0 ) _matches.Add( _swap.TargetVerticalMatches );
-
-					PerformSwapAnimation();
-					_state = State.SwapAnimating;
-				}
-				// Otherwise undo the swap
-				else {
-					PerformUndoSwap();
-					PerformUndoSwapAnimation();
-					_state = State.UndoSwapAnimating;
-				}
-				break;
-			// A successful swap has occured, we need to wait until the swap tweens are complete
-			case State.SwapAnimating:
-				if ( !_swap.SelectedTile.IsSwapping && !_swap.TargetTile.IsSwapping ) {
-					_state = State.Match;
-				}
-				break;
-			// An unsuccessful swap has occured, the dropped tile is tweening back to its original position
-			// return to user input once its complete
-			case State.UndoSwapAnimating:
-				if ( !_swap.SelectedTile.IsSwapping ) {
-					_state = State.Input;
-				}
-				break;
-			// Successful swap has occured, the tweens are done, we need to clear out the matches
-			case State.Match:
-				PerformMatch();
-				_state = State.CheckDirtyPostMatch;
-				break;
-			case State.CheckDirtyPostMatch:
-				if ( PerformDirtyTileCleanup() ) {
-					_state = State.Match;
-				} else {
-					_state = State.ExpireObstructions;
-				}
-				break;
-			case State.ExpireObstructions:
-				PerformObstructionExpiration();
-				_state = State.DropAndFill;
-				break;
-			// The matching tiles have been removed from data and visually
-			// We need to drop existing tiles down ( in data ) and also fill up the missing spots ( in data )
-			case State.DropAndFill:
-				PerformDrop();
-				PerformFill();	
-				_state = State.DropAnimating;
-				break;
-			// The board state is correct, but visually, we need to drop the tiles down to the correct spots
-			case State.DropAnimating:
-				PerformDroppingAnimation();
-				_state = State.Cleanup;
-				break;
-			// This step will check every tile that has been dropped for matches
-			// If there are any matches, we want to return to the match state, otherwise we can continue back to the user input state
-			case State.Cleanup:
-				if ( CheckForCascadingMatches( _droppingTiles ) ) {
-					_state = State.Match;
-				} else {
-					_state = State.TurnEnd;
-				}
-				break;
-			// The board manager idles in this state until the gamemanager tells us we can move
-			case State.TurnEnd:
-				RaiseOnTurnEnded();
-				break;
-		}
 	}
 
 	public void Initialize( List<WeaponTileData> tileData, Battle battle, GameHud gameHud, TileRecipe recipe ) {
@@ -308,7 +124,7 @@ public class GameBoard : MonoBehaviour {
 		_gameHud = gameHud;
 		_recipe = recipe;
 
-		_gameHud.SetupRecipeChargeHud( this, _recipe, ActivateRecipeSkill );
+		_gameHud.SetupRecipeChargeHud( this, _recipe, RecipeSkillButtonTapped );
 
 		// 0, 0 is the bottom left corner tile
 		for ( int w = 0; w < BOARD_WIDTH; w++ ) {
@@ -325,11 +141,16 @@ public class GameBoard : MonoBehaviour {
 	}
 
 
+	private void RecipeSkillButtonTapped() {
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.ActivateRecipeSkill );
+	}
+
+
 	public void ActivateRecipeSkill() {
 		// TODO ayuen any other stuff
 		_recipe.ActivateRecipeSkill( this );
-
-		Debug.Log( "asdasdadadasd " );
+		PerformDirtyTileCleanup();
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.CreatedAdditionalMatches );
 	}
 
 
@@ -344,7 +165,7 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	public void ContinueToInput() {
-		_state = State.Input;
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.ProceedToInput );
 	}
 
 	public void GameComplete() {
@@ -366,7 +187,7 @@ public class GameBoard : MonoBehaviour {
 			}
 		}
 
-		_state = State.Input;
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.ProceedToInput );
 	}
 
 
@@ -507,12 +328,17 @@ public class GameBoard : MonoBehaviour {
 		_swap.SelectedTile.StartSwapping();
 		Vector3 selectedTilePos = CoordsToWorldPosition( _swap.SelectedTile.X, _swap.SelectedTile.Y );
 		iTween.MoveTo( _swap.SelectedTile.gameObject, 
-		              iTween.Hash( "position", selectedTilePos, 
-		            "easetype", iTween.EaseType.easeOutQuart, 
-					"time", TuningData.Instance.SwapAnimationTime,
-		            "oncomplete", "StopSwapping"
-		            )
-		              );
+	       	iTween.Hash( "position", selectedTilePos, 
+	            "easetype", iTween.EaseType.easeOutQuart, 
+				"time", TuningData.Instance.SwapAnimationTime,
+				"oncompletetarget", gameObject,
+				"oncomplete", "UndoSwapAnimationComplete"
+	        )
+		);
+	}
+
+	public void UndoSwapAnimationComplete() {
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.InvalidTileDrop );
 	}
 
 	private void PerformSwap() {
@@ -537,30 +363,33 @@ public class GameBoard : MonoBehaviour {
 		_swap.TargetTile.StartSwapping();
 		Vector3 targetTilePos = CoordsToWorldPosition( _swap.TargetTile.X, _swap.TargetTile.Y );
 		iTween.MoveTo( _swap.TargetTile.gameObject, 
-		              iTween.Hash( "position", targetTilePos, 
-		            "easetype", iTween.EaseType.easeOutQuart, 
-					"time", TuningData.Instance.SwapAnimationTime,
-		            "oncomplete", "StopSwapping"
-		            )
-		              );
+			iTween.Hash( "position", targetTilePos, 
+				"easetype", iTween.EaseType.easeOutQuart, 
+				"time", TuningData.Instance.SwapAnimationTime,
+				"oncompletetarget", gameObject,
+				"oncomplete", "SwapAnimationComplete"
+			)
+		);
 		
 		// Tween the selected tile
 		_swap.SelectedTile.StartSwapping();
 		Vector3 selectedTilePos = CoordsToWorldPosition( _swap.SelectedTile.X, _swap.SelectedTile.Y );
 		iTween.MoveTo( _swap.SelectedTile.gameObject, 
-		              iTween.Hash( "position", selectedTilePos, 
-		            "easetype", iTween.EaseType.easeOutQuart, 
-					"time", TuningData.Instance.SwapAnimationTime,
-		            "oncomplete", "StopSwapping"
-		            )
-		              );
+			iTween.Hash( "position", selectedTilePos, 
+				"easetype", iTween.EaseType.easeOutQuart, 
+				"time", TuningData.Instance.SwapAnimationTime
+			)
+		);
 	}
 
+
+	public void SwapAnimationComplete() {
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.ValidTileDrop );
+	}
+
+
 	private void PerformObstructionExpiration() {
-		if ( _expiringObstructions.Count > 0 ) {
-			_holdStateChanges = true;
-			StartCoroutine( PerformObstructionExpirationCoroutine() );
-		}
+		StartCoroutine( PerformObstructionExpirationCoroutine() );
 	}
 
 	private IEnumerator PerformObstructionExpirationCoroutine() {		
@@ -575,38 +404,51 @@ public class GameBoard : MonoBehaviour {
 			yield return new WaitForSeconds( 0.35f );
 		}
 
-		_holdStateChanges = false;
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.ProcessedAllMatches );
 	}
 
-	bool isPerformingMatch = false;
-	private void PerformMatch() {
-		_holdStateChanges = true;
-		if ( !isPerformingMatch ) {
-			StartCoroutine( PerformMatchCoroutine() );
-		}
+	private void PerformMatch() {		
+		StartCoroutine( PerformMatchCoroutine() );
 	}
 
-	private IEnumerator PerformMatchCoroutine() {
-		isPerformingMatch = true;
 
-		for ( int i = 0, count = _matches.Count; i < count; i++ ) {
+	//private void 
 
-			// Examine each match, they should trigger some sort of skill
-			TriggerMatchSkill( _matches[ i ] );
+	private IEnumerator PerformMatchCoroutine() {		
+		while ( _matches.Count > 0 ) {
+			for ( int i = 0, count = _matches.Count; i < count; i++ ) {
+				
+				// Examine each match, they should trigger some sort of skill
 
-			RaiseOnTilesMatched( _matches[ i ] );
+				List<Tile> match = _matches[ i ];
 
-			for ( int j = _matches[ i ].Count - 1; j >= 0; j-- ) {
-				Tile tile = _matches[ i ][ j ];
-				ClearTile( tile );
+				if ( _initialMatch ) {
+					Tile firstTile = match[ 0 ];
+					List<BaseWeaponSkillData> weaponSkills = firstTile.GetWeaponSkills();
+					for ( int j = 0, countj = weaponSkills.Count; j < countj; j++ ) {
+						yield return weaponSkills[ j ].PerformWeaponSkill( this, _battle, match, _swap );
+					}
+				}
+					
+				RaiseOnTilesMatched( match );
+
+				for ( int j = match.Count - 1; j >= 0; j-- ) {
+					Tile tile = match[ j ];
+					ClearTile( tile );
+				}
+
+				yield return new WaitForSeconds( TuningData.Instance.MatchTimeDelay );
 			}
+			_matches.Clear();
 
-			yield return new WaitForSeconds( TuningData.Instance.MatchTimeDelay );
+			// TODO
+			_initialMatch = false;
+
+			// TODO: check this in the weapon skill state
+			PerformDirtyTileCleanup();
 		}
-		_matches.Clear();
 
-		_holdStateChanges = false;
-		isPerformingMatch = false;
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.CheckObstructions );
 	}
 
 	private bool PerformDirtyTileCleanup() {
@@ -694,7 +536,6 @@ public class GameBoard : MonoBehaviour {
 
 
 	private void PerformDroppingAnimation() {
-		_holdStateChanges = true;
 		StartCoroutine( PerformDroppingAnimationCoroutine() );	
 	}
 
@@ -724,7 +565,19 @@ public class GameBoard : MonoBehaviour {
 			yield return new WaitForEndOfFrame();
 		}
 
-		_holdStateChanges = false;
+		if ( isWaitingForDroppingTweenToComplete == 0 ) {
+		_gameStateMachine.TriggerTransition( GameStateMachine.Transition.NewTilesDropped );
+		}
+	}
+
+	private void PerformCleanup() {
+
+		if ( CheckForCascadingMatches( _droppingTiles ) ) {
+			_gameStateMachine.TriggerTransition( GameStateMachine.Transition.CascadingMatchesFound );
+		} else {
+			_gameStateMachine.TriggerTransition( GameStateMachine.Transition.EndTurn );
+		}
+
 	}
 
 	private bool CheckForCascadingMatches( List<Tile> tilesToCheck ) {
@@ -787,7 +640,7 @@ public class GameBoard : MonoBehaviour {
 		}
 		return false;
 	}
-
+		
 	private void ClearTile( Tile tile, bool tweensOut = true, bool destroyOnComplete = false ) {
 		if ( !tile.IsMatching ) {
 			tile.IsMatching = true;
@@ -812,15 +665,6 @@ public class GameBoard : MonoBehaviour {
 	public static Vector3 CoordsToWorldPosition( int xCoord, int yCoord ) {
 		//TODO
 		return new Vector3( xCoord, yCoord, Tile.Z_DEPTH );
-	}
-
-	private void TriggerMatchSkill( List<Tile> match ) {
-		// Check out the first tile to see what tile skill to trigger
-		Tile tile = match[ 0 ];
-		List<BaseWeaponSkillData> weaponSkills = tile.GetWeaponSkills();
-		for ( int i = 0, count = weaponSkills.Count; i < count; i++ ) {
-			weaponSkills[ i ].PerformWeaponSkill( this, _battle, match );
-		}
 	}
 
 	public bool IsObstructionsOnGameBoard() {
@@ -862,26 +706,79 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
-	public void ClearRows( List<int> rowsToClear ) {
-		
+	public void ClearRow( int y ) {
+		List<Tile> match = new List<Tile>();
+		for ( int x = 0, count = BOARD_WIDTH; x < count; x++ ) {
+			match.Add( _board[ x, y ] );
+		}
+		_matches.Add( match );
 	}
 
-	public void ReplaceNRandomTiles( int n, BaseTileData data, List<Tile> excludedTiles ) {		
-
-		// first find a set of tiles that do not match the tiledata passed in
-		List<Tile> eligibleTiles = new List<Tile>();
-		for ( int x = 0; x < BOARD_WIDTH; x++ ) {
-			for ( int y = 0; y < BOARD_HEIGHT; y++ ) {
-
-				if ( _board[ x, y ] == null ) {
-					continue;
-				}
-
-				if ( _board[ x, y ].TileType != data.Type && !excludedTiles.Contains( _board[ x, y ] ) ) {
-					eligibleTiles.Add( _board[ x, y ] );
+	private bool TileIsMatched( Tile tile ) {
+		bool found = false;
+		for ( int i = 0, count = _matches.Count; i < count; i++ ) { 
+			for ( int j = 0, countj = _matches[ i ].Count; j < countj; j++ ) {
+				if ( _matches[ i ][ j ] == tile ) {
+					found = true;
+					break;
 				}
 			}
 		}
+		return found;
+	}
+
+	public void ClearAdjacentTiles( Tile tile, TileSearchCondition condition ) {
+		int x = tile.X;
+		int y = tile.Y;
+
+		if ( x < BOARD_WIDTH-1 && condition( _board[ x+1, y ] ) ) {
+			if ( !TileIsMatched( _board[ x+1, y ] ) ) {
+				ClearTile( _board[ x+1, y ] );
+			}
+		}
+		if ( x > 0 && condition( _board[ x-1, y ] ) ) {
+			if ( !TileIsMatched( _board[ x-1, y ] ) ) {
+				ClearTile( _board[ x-1, y ] );
+			}
+		}
+		if ( y < BOARD_HEIGHT-1 && condition( _board[ x, y+1 ] ) ) {
+			if ( !TileIsMatched( _board[ x, y+1 ] ) ) {
+				ClearTile( _board[ x, y+1 ] );
+			}
+		}
+		if ( y > 0 && condition( _board[ x, y-1 ] ) ) {
+			if ( !TileIsMatched( _board[ x, y-1 ] ) ) {
+				ClearTile( _board[ x, y-1 ] );
+			}
+		}
+
+	}
+
+	public void ClearNRandomTiles( int n, TileSearchCondition condition ) {
+
+		// first find a set of tiles that do not match the tiledata passed in
+		List<Tile> eligibleTiles = FindNRandomTiles( n, condition );
+
+
+		// pick n tiles out of the list to replace
+		int numReplaced = 0;
+		while ( eligibleTiles.Count > 0 && numReplaced < n ) {
+			int randIndex = UnityEngine.Random.Range( 0, eligibleTiles.Count );
+			Tile tile = eligibleTiles[ randIndex ];
+
+			if ( !TileIsMatched( tile ) ) {
+				ClearTile( tile );
+			}
+
+			numReplaced++;
+			eligibleTiles.RemoveAt( randIndex );
+		}
+	}
+
+	public void ReplaceNRandomTiles( int n, BaseTileData data, TileSearchCondition condition ) {		
+
+		// first find a set of tiles that do not match the tiledata passed in
+		List<Tile> eligibleTiles = FindNRandomTiles( n, condition );
 
 		// pick n tiles out of the list to replace
 		int numReplaced = 0;
@@ -899,9 +796,30 @@ public class GameBoard : MonoBehaviour {
 		}
 	}
 
+	public delegate bool TileSearchCondition( Tile tile );
+
+	public List<Tile> FindNRandomTiles( int n, TileSearchCondition condition ) {
+		
+		List<Tile> eligibleTiles = new List<Tile>();
+		for ( int x = 0; x < BOARD_WIDTH; x++ ) {
+			for ( int y = 0; y < BOARD_HEIGHT; y++ ) {
+
+				if ( _board[ x, y ] == null ) {
+					continue;
+				}
+
+				if ( condition == null || ( condition != null && condition( _board[ x, y ] ) ) ) {
+					eligibleTiles.Add( _board[ x, y ] );
+				}
+			}
+		}
+
+		return eligibleTiles;
+	}
+
 #region BoardGestureManager event handlers
 	void HandleOnSelectTile( Tile tile ) {
-		if ( _isGameOver || _state != State.Input ) return;
+		if ( _isGameOver || !_gameStateMachine.CheckCurrentState( GameStateMachine.State.Input ) ) return;
 
 		_swap = new Swap {
 			SelectedTile = tile
@@ -909,19 +827,24 @@ public class GameBoard : MonoBehaviour {
 	}
 
 	void HandleOnDragTile( Vector3 dragPosition ) {
-		if ( _isGameOver || _state != State.Input ) return;
+		if ( _isGameOver || !_gameStateMachine.CheckCurrentState( GameStateMachine.State.Input ) ) return;
 
 		if ( _swap != null && _swap.SelectedTile != null ) {
 			_swap.SelectedTile.transform.position = dragPosition;
 		}
 	}
 
+	bool _initialMatch = false;
+
 	void HandleOnDropTile( Tile targetTile ) {
-		if ( _isGameOver || _state != State.Input ) return;
+		if ( _isGameOver || !_gameStateMachine.CheckCurrentState( GameStateMachine.State.Input ) ) return;
 
 		if ( targetTile != null ) {
 			_swap.TargetTile = targetTile;
-			_state = State.Swap;
+			_gameStateMachine.TriggerTransition( GameStateMachine.Transition.TileDropped );
+
+			// TODO
+			_initialMatch = true;
 		} 
 		else {
 			PerformUndoSwapAnimation();

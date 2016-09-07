@@ -13,12 +13,21 @@ public class MapNodeData {
 	public List<string> NeighbourIds = new List<string>();
 	[fsProperty]
 	public string BattleStageDataId;
+	[fsProperty]
+	public string ShopStageDataId;
+
 }
 
 public class MapNode : MonoBehaviour, IPointerClickHandler {
 
 	[fsProperty]
 	private MapNodeData Data;
+
+	[SerializeField]
+	private GameObject BattleStageSprite;
+
+	[SerializeField]
+	private GameObject ShopStageSprite;
 
 	public string NodeId { get { return Data.Id; } }
 
@@ -27,24 +36,47 @@ public class MapNode : MonoBehaviour, IPointerClickHandler {
 
 	private List<MapEdge> _edges = new List<MapEdge>();
 
-	private BattleStageData _stageData = null;
-	public BattleStageData StageData { get { return _stageData; } }
+	private BattleStageData _battleStageData = null;
+	public BattleStageData BattleData { get { return _battleStageData; } }
 
-	public void Initialize( string id, Vector3 position, BattleStageData stageData, MapNodeTappedCallback callback ) {
-		Data = new MapNodeData();
-		Data.Coordinates = position;
-		Data.Id = id;
+	private ShopStageData _shopStageData = null;
+	public ShopStageData ShopData { get { return _shopStageData; } }
+
+	private void Start() {
+		BattleStageSprite.SetActive( _battleStageData != null );
+		ShopStageSprite.SetActive( _shopStageData != null );
+	}
+
+	public void InitializeAsBattleStage( string id, Vector3 position, BattleStageData stageData, MapNodeTappedCallback callback ) {
+		BaseInitialize( id, position );
+
 		Data.BattleStageDataId = stageData.name;
-
-		_stageData = stageData;
-		transform.position = position;
+		_battleStageData = stageData;
 		_callback = callback;
 	}
 
-	public void Initialize( MapNodeData data, MapNodeTappedCallback callback ) {
+	public void InitializeAsShopStage( string id, Vector3 position, ShopStageData stageData, MapNodeTappedCallback callback ) {
+		BaseInitialize( id, position );
+
+		Data.ShopStageDataId = stageData.name;
+		_shopStageData = stageData;
+		_callback = callback;
+	}
+
+	private void BaseInitialize( string id, Vector3 position ) {
+		Data = new MapNodeData();
+		Data.Coordinates = position;
+		Data.Id = id;
+
+		transform.position = position;
+	}
+
+	public void InitializeFromData( MapNodeData data, MapNodeTappedCallback callback ) {
 		Data = data;
 
-		_stageData = Database.Instance.GetBattleStageData( data.BattleStageDataId );
+		if ( data.BattleStageDataId != null ) _battleStageData = Database.Instance.GetBattleStageData( data.BattleStageDataId );
+		else if ( data.ShopStageDataId != null ) _shopStageData = Database.Instance.GetShopStageData( data.ShopStageDataId );
+
 		transform.position = Data.Coordinates;
 		_callback = callback;
 	}

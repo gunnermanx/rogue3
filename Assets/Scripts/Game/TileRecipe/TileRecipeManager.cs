@@ -36,6 +36,8 @@ public class TileRecipeManager : MonoBehaviour {
 #region Recipe Skills Functionality
 
 	public void TravellerRecipe( GameBoard board ) {
+		board.ClearRow( 2 );
+		board.ClearRow( 1 );
 	}
 
 #endregion

@@ -102,15 +102,17 @@ public class GameManager : MonoBehaviour {
 	}
 
 	public void ShowWeaponPicker() {
-		List<string> ownedTileIds = _persistenceManager.CharacterBlob.OwnedTileIds;
+		List<string> ownedTileIds = new List<string>( _persistenceManager.CharacterBlob.OwnedTiles.Keys );
 		TilePickerDialog weaponPicker = UIManager.Instance.OpenDialog( TilePickerDialog.DIALOG_ID ) as TilePickerDialog;
 		weaponPicker.Initialize( ownedTileIds, delegate(List<WeaponTileData> tileData ) {
-			StartGame( tileData, _gameMap.GetCurrentStageData() );
+			StartGame( tileData, _gameMap.GetBattleStageData() );
 		});
 	}
 
-
-
+	public void ShowShopDialog() {
+		ShopDialog shopDialog = UIManager.Instance.OpenDialog( ShopDialog.DIALOG_ID ) as ShopDialog;
+		shopDialog.Initialize( _gameMap.GetShopStageData() );
+	}
 
 
 	private void InitializeMainMenu() {
@@ -122,7 +124,7 @@ public class GameManager : MonoBehaviour {
 	private void InitializeWorldMap() {
 		
 		// TODO: load world data properly
-		Database.Instance.LoadWorldStageData( 1 );
+		WorldData worldData = Database.Instance.LoadWorldStageData( 1 );
 
 		// Open map hud
 		_mapHud = UIManager.Instance.OpenDialog( MapHud.DIALOG_ID ) as MapHud;
@@ -134,7 +136,7 @@ public class GameManager : MonoBehaviour {
 		_gameMap = gameMapGO.GetComponent<GameMap>();
 
 		if ( _persistenceManager.CharacterBlob.MapBlob == null ) {
-			_gameMap.GenerateNewMap();
+			_gameMap.GenerateNewMap( worldData );
 		} else {
 			_gameMap.LoadMap( _persistenceManager.CharacterBlob.MapBlob );
 		}

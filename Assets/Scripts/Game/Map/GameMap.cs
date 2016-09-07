@@ -16,8 +16,6 @@ public class GameMap : MonoBehaviour {
 	[SerializeField]
 	private LayerMask _graphNodeLayerMask;
 	[SerializeField]
-	private int _nodeCount;
-	[SerializeField]
 	private float _minDistance;
 	[SerializeField]
 	private int _mapWidth = 40;
@@ -37,8 +35,12 @@ public class GameMap : MonoBehaviour {
 
 	private MapBlob _blob = null;
 
-	public BattleStageData GetCurrentStageData() {
-		return _currentNode.StageData;
+	public BattleStageData GetBattleStageData() {
+		return _currentNode.BattleData;
+	}
+
+	public ShopStageData GetShopStageData() {
+		return _currentNode.ShopData;
 	}
 
 	public void Initialize( MapHud hud ) {
@@ -66,7 +68,13 @@ public class GameMap : MonoBehaviour {
 
 		if ( _selectedNode == _currentNode ) {
 			GameManager.Instance.MapNodeSelected( _currentNode );
-			GameManager.Instance.ShowWeaponPicker();
+
+			if ( _selectedNode.BattleData != null ) {
+				GameManager.Instance.ShowWeaponPicker();
+			} else if ( _selectedNode.ShopData != null ) {
+				GameManager.Instance.ShowShopDialog();
+			}
+	
 			_mapHud.ToggleTravelButton( false );
 		} else {
 			bool canTravelToNode = CanTravelToNode( _selectedNode.NodeId );
@@ -124,7 +132,7 @@ public class GameMap : MonoBehaviour {
 		// Temp
 		foreach( KeyValuePair<string, MapNodeData> kvp in blob.MapNodes ) {
 			MapNode mapNode = CreateMapNode( kvp.Key );
-			mapNode.Initialize( kvp.Value, MapNodeTappedCallback );
+			mapNode.InitializeFromData( kvp.Value, MapNodeTappedCallback );
 		}
 
 		for ( int i = 0, count = blob.MapEdges.Count; i < count; i++ ) {
@@ -138,8 +146,8 @@ public class GameMap : MonoBehaviour {
 	}
 
 
-	public void GenerateNewMap() {
-		_currentNode = GenerateGraph();
+	public void GenerateNewMap( WorldData worldData ) {
+		_currentNode = GenerateGraph( worldData );
 
 		_blob = CreateNewMapBlob();
 		SaveMap();
@@ -147,27 +155,32 @@ public class GameMap : MonoBehaviour {
 		_currentNode.ToggleEdgeVisibility( true );
 	}
 
-	private MapNode GenerateGraph() {		
+	private MapNode GenerateGraph( WorldData worldData ) {		
 		List<Vector2> points = new List<Vector2>();
 		MapNode startingNode = null;
 
-		for ( int i = 0; i < _nodeCount; i++ ) {
+
+		// world data says... maybe 8 battle stages, 2 shops, 1 quest
+		int numBattleStages = UnityEngine.Random.Range( worldData.MinNumBattleStages, worldData.MaxNumBattleStages+1 );
+		int numShopStages = UnityEngine.Random.Range( worldData.MinNumShopStages, worldData.MaxNumShopStages+1 );
+
+		// Create battle stage nodes
+		for ( int i = 0; i < numBattleStages; i++ ) {
 
 			Vector3 position;
 			if ( i == 0 ) {
 				position = FindStartingPosition();
-			} else if ( i == _nodeCount ) {
+			} else if ( i == numBattleStages ) {
 				position = FindEndingPosition();
 			} else {
 				position = FindOpenPosition();
 			}
 
-
 			BattleStageData stageData = Database.Instance.GetRandomBattleStageData();
 
 			string nodeId = GetNodeIdFromVector3(position);
 			MapNode mapNode = CreateMapNode( nodeId );
-			mapNode.Initialize( nodeId, position, stageData, MapNodeTappedCallback );
+			mapNode.InitializeAsBattleStage( nodeId, position, stageData, MapNodeTappedCallback );
 
 			points.Add( new Vector2( position.x, position.y ) );
 
@@ -175,6 +188,22 @@ public class GameMap : MonoBehaviour {
 				// save current node
 				startingNode = mapNode;
 			}
+		}
+
+		// Create shop nodes
+		for ( int i = 0; i < numShopStages; i++ ) {
+
+			Vector3 position = FindOpenPosition();
+	
+			// depending on the world data, we need to pick from a random set
+
+			ShopStageData stageData = Database.Instance.GetRandomShopStageData();
+
+			string nodeId = GetNodeIdFromVector3(position);
+			MapNode mapNode = CreateMapNode( nodeId );
+			mapNode.InitializeAsShopStage( nodeId, position, stageData, MapNodeTappedCallback );
+
+			points.Add( new Vector2( position.x, position.y ) );
 		}
 
 		GenerateEdges( points );
@@ -218,7 +247,7 @@ public class GameMap : MonoBehaviour {
 
 		// Create the Voronoi diagram using the AS3 Delaunay library
 		List<uint> colors = new List<uint> ();
-		for ( int i = 0; i < _nodeCount; i++ ) { colors.Add (0); }
+		for ( int i = 0; i < points.Count; i++ ) { colors.Add (0); }
 		Delaunay.Voronoi voronoi = new Delaunay.Voronoi( points, colors, new Rect( 0, 0, _mapWidth, _mapHeight ) );
 		minimumSpanningTree = voronoi.SpanningTree( KruskalType.MINIMUM );
 		delaunayTriangulation = voronoi.DelaunayTriangulation ();

@@ -14,7 +14,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 	private CanvasGroup _canvasGroup;
 
 	[SerializeField]
-	private Image _image;
+	protected Image _image;
 
 	public static InventoryItem DraggedInventoryItem = null;
 
@@ -24,7 +24,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 	public InventorySlot ParentInventorySlot { get; set; }
 	public InventoryItemData InventoryItemData { get; set; }
 
-	public void OnBeginDrag( PointerEventData eventData ) {
+	public virtual void OnBeginDrag( PointerEventData eventData ) {
 		DraggedInventoryItem = this;
 		_originalPosition = transform.position;
 		_originalParentInventorySlot = ParentInventorySlot;
@@ -35,7 +35,7 @@ public class InventoryItem : MonoBehaviour, IBeginDragHandler, IDragHandler, IEn
 		transform.position = eventData.position;
 	}
 
-	public void OnEndDrag( PointerEventData eventData ) {
+	public virtual void OnEndDrag( PointerEventData eventData ) {
 		DraggedInventoryItem = null;
 		_canvasGroup.blocksRaycasts = true;
 		if ( ParentInventorySlot == _originalParentInventorySlot ) {
